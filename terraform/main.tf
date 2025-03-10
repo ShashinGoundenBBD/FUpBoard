@@ -64,6 +64,6 @@ resource "aws_db_instance" "fupboarddb" {
 }
 
 output "db_host" {
-  value = aws_db_instance.beantradedb.endpoint
+  value = aws_db_instance.fupboarddb.endpoint
   description = "The endpoint of the SQL Server RDS instance"
 }
