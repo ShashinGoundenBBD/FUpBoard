@@ -1,0 +1,11 @@
+package za.co.bbd.grad.fupboard.api;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class FUpboardApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(FUpboardApplication.class, args);
+	}
+}
