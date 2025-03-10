@@ -34,14 +34,11 @@ public class FUpboardAuthorityConverter implements Converter<Jwt, Collection<Gra
     public Collection<GrantedAuthority> convert(@NonNull Jwt jwt) {
         var user = userRepository.findByGoogleId(jwt.getSubject());
 
-        var changed = false;
-
-        var jwtEmail = jwt.getClaimAsString("email");
-        var jwtEmailVerified = jwt.getClaimAsBoolean("email_verified");
+        String jwtEmail = jwt.getClaimAsString("email");
+        Boolean jwtEmailVerified = jwt.getClaimAsBoolean("email_verified");
 
         // if user does not exist, create new user with default role
         if (user == null) {
-            changed = true;
             user = new User();
             
             user.setGoogleId(jwt.getSubject());
@@ -59,11 +56,14 @@ public class FUpboardAuthorityConverter implements Converter<Jwt, Collection<Gra
         // update email & email verification status if changed
         if (jwtEmail != null && user.getEmail() != jwtEmail) {
             user.setEmail(jwtEmail);
+            // unverify if email changed
+            user.setEmailVerified(false);
         }
-        if (jwtEmailVerified != null && user.getEmailVerified() != jwtEmailVerified) {
+        // if an email is unverified, and google has verified them, then mark as verified
+        // a verified user should not be unverified, we may have verified the email separately from google
+        if (!user.getEmailVerified() && jwtEmailVerified) {
             user.setEmailVerified(jwtEmailVerified);
         }
-        if (changed) userRepository.save(user);
 
         var authorities = new ArrayList<GrantedAuthority>();
 
