@@ -1,0 +1,20 @@
+spring:
+  profiles:
+    include:
+    - secrets
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fupboard
+  jpa:
+    show-sql: true
+  application:
+    name: fupboard-api
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: accounts.google.com
+          jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+fupboard:
+  oauth2:
+    token-uri: https://accounts.google.com/o/oauth2/token
+  default-role: default

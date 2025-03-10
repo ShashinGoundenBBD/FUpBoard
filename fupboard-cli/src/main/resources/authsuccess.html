@@ -1,0 +1,40 @@
+<html>
+    <head>
+        <style>
+            html {
+                height: 100%;
+            }
+            body {
+                height: 100%;
+                margin: 0;
+                text-align: center;
+                display: flex;
+                font-family: ui-sans-serif,system-ui,sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            }
+            p {
+                margin: 0;
+            }
+            .wrapper {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+            .success-icon {
+                font-size: 5rem;
+                color: white;
+                background: green;
+                aspect-ratio: 1;
+                border-radius: 100%;
+                margin-bottom: 1rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrapper">
+            <p class="success-icon">&check;</p>
+            <p>Successfully acquired Google authentication code.<br>Close this window and return to CLI.</p>
+        </div>
+    </body>
+</html>
