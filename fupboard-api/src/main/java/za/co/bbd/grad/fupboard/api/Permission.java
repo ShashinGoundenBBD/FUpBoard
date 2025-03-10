@@ -8,9 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 @Entity
 @Table(name = "permissions", uniqueConstraints = @UniqueConstraint(columnNames = "permission_name"))
 public class Permission implements GrantedAuthority {
@@ -18,6 +16,12 @@ public class Permission implements GrantedAuthority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer permissionId;
     private String permissionName;
+
+    public Permission() {}
+
+    public Permission(String name) {
+        this.permissionName = name;
+    }
     
     public Integer getPermissionId() {
         return permissionId;
