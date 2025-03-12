@@ -19,10 +19,12 @@ create table "permissions" (
 
 create table "user_roles" (
   "user_id" integer not null references users(user_id) on delete cascade on update cascade,
-  "role_id" integer not null references roles(role_id) on delete cascade on update cascade
+  "role_id" integer not null references roles(role_id) on delete cascade on update cascade,
+  primary key (user_id, role_id)
 );
 
 create table "role_permissions" (
   "role_id" integer not null references roles(role_id) on delete cascade on update cascade,
-  "permission_id" integer not null references permissions(permission_id) on delete cascade on update cascade
+  "permission_id" integer not null references permissions(permission_id) on delete cascade on update cascade,
+  primary key (user_id, role_id)
 );
