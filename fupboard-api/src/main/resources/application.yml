@@ -2,8 +2,6 @@ spring:
   profiles:
     include:
     - secrets
-  datasource:
-    url: jdbc:postgresql://localhost:5432/fupboard
   jpa:
     show-sql: true
   application:
@@ -16,5 +14,5 @@ spring:
           jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
 fupboard:
   oauth2:
-    token-uri: https://accounts.google.com/o/oauth2/token
+    token-uri: https://www.googleapis.com/oauth2/v3/token
   default-role: default

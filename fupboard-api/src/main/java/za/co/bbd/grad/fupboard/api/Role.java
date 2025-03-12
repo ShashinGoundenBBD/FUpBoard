@@ -2,6 +2,8 @@ package za.co.bbd.grad.fupboard.api;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +20,7 @@ import jakarta.persistence.UniqueConstraint;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Integer roleId;
     private String roleName;
     @ManyToMany(fetch = FetchType.EAGER)

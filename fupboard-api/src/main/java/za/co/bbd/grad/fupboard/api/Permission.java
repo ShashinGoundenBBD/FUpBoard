@@ -2,6 +2,8 @@ package za.co.bbd.grad.fupboard.api;
 
 import org.springframework.security.core.GrantedAuthority;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,6 +16,7 @@ import jakarta.persistence.UniqueConstraint;
 public class Permission implements GrantedAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Integer permissionId;
     private String permissionName;
 
@@ -37,6 +40,7 @@ public class Permission implements GrantedAuthority {
     }
     
     @Override
+    @JsonIgnore
     public String getAuthority() {
         return this.permissionName;
     }
