@@ -1,7 +1,6 @@
 package za.co.bbd.grad.fupboard.api;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +9,8 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,39 +33,59 @@ public class FUpboardAuthorityConverter implements Converter<Jwt, Collection<Gra
     @Nullable
     @Transactional
     public Collection<GrantedAuthority> convert(@NonNull Jwt jwt) {
-        var user = userRepository.findByGoogleId(jwt.getSubject());
-
-        String jwtEmail = jwt.getClaimAsString("email");
-        Boolean jwtEmailVerified = jwt.getClaimAsBoolean("email_verified");
+        var userOpt = userRepository.findByJwt(jwt);
+        
+        String jwtGoogleId = jwt.getSubject();
+        String jwtEmail = jwt.getClaimAsString("email").toLowerCase();
+        boolean jwtEmailVerified = jwt.getClaimAsBoolean("email_verified");
+        
+        if (userOpt.isEmpty() && jwtEmailVerified) {
+            // user not found by google id, but they have a verified email in the system
+            userOpt = userRepository.findByEmailIfVerified(jwtEmail);
+            if (userOpt.isPresent()) {
+                userOpt.get().setGoogleId(jwtGoogleId);
+            }
+        }
 
         // if user does not exist, create new user with default role
-        if (user == null) {
-            user = new User();
+        if (userOpt.isEmpty()) {
+            var newUser = new User();
+
+            var random = new Random();
             
-            user.setGoogleId(jwt.getSubject());
-            user.setEmail(jwtEmail);
-            user.setEmailVerified(jwtEmailVerified);
-            
-            user = userRepository.save(user);
+            newUser.setGoogleId(jwtGoogleId);
+            newUser.setEmail(jwtEmail);
+            newUser.setEmailVerified(jwtEmailVerified);
+
+            // make username from first part of email + 4 numbers
+            var username = jwtEmail.split("@")[0];
+            username = username.substring(0, Math.min(username.length(), 48)) + random.nextInt(1000, 10000);
+
+            // add more numbers if taken already
+            for (int i = 0; i < 12; i++) {
+                if (!userRepository.existsByUsername(username))
+                    break;
+                username += random.nextInt(10);
+            }
+            newUser.setUsername(username);
+            newUser = userRepository.save(newUser);
 
             Set<Role> roles = new HashSet<Role>();
             roles.add(roleRepository.findByRoleName(defaultRole));
 
-            user.setRoles(roles);
-        }
-        
-        // update email & email verification status if changed
-        if (jwtEmail != null && user.getEmail() != jwtEmail) {
-            user.setEmail(jwtEmail);
-            // unverify if email changed
-            user.setEmailVerified(false);
-        }
-        // if an email is unverified, and google has verified them, then mark as verified
-        // a verified user should not be unverified, we may have verified the email separately from google
-        if (!user.getEmailVerified() && jwtEmailVerified) {
-            user.setEmailVerified(jwtEmailVerified);
+            newUser.setRoles(roles);
+            newUser = userRepository.save(newUser);
+
+            userOpt = Optional.of(newUser);
         }
 
+        var user = userOpt.get();
+
+        if (user.getEmail().equals(jwtEmail) && jwtEmailVerified && !user.getEmailVerified()) {
+            user.setEmailVerified(jwtEmailVerified);
+            userRepository.save(user);
+        }
+        
         var authorities = new ArrayList<GrantedAuthority>();
 
         for (Role role : user.getRoles()) {
