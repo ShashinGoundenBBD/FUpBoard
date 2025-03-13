@@ -1,10 +1,15 @@
-package za.co.bbd.grad.fupboard.api;
+package za.co.bbd.grad.fupboard.api.auth;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import za.co.bbd.grad.fupboard.api.dbobjects.Permission;
+import za.co.bbd.grad.fupboard.api.dbobjects.Role;
+import za.co.bbd.grad.fupboard.api.dbobjects.User;
+import za.co.bbd.grad.fupboard.api.repositories.RoleRepository;
+import za.co.bbd.grad.fupboard.api.repositories.UserRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,7 +76,7 @@ public class FUpboardAuthorityConverter implements Converter<Jwt, Collection<Gra
             newUser = userRepository.save(newUser);
 
             Set<Role> roles = new HashSet<Role>();
-            roles.add(roleRepository.findByRoleName(defaultRole));
+            roles.add(roleRepository.findByRoleName(defaultRole).get());
 
             newUser.setRoles(roles);
             newUser = userRepository.save(newUser);

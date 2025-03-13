@@ -1,4 +1,4 @@
-package za.co.bbd.grad.fupboard.api;
+package za.co.bbd.grad.fupboard.api.dbobjects;
 
 import java.util.Set;
 
@@ -23,7 +23,7 @@ public class Role {
     @JsonIgnore
     private Integer roleId;
     private String roleName;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany()
     @JoinTable(
         name = "role_permissions",
         joinColumns = @JoinColumn(name = "role_id"),
