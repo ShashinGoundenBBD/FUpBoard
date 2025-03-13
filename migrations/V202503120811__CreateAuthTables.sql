@@ -25,6 +25,6 @@ create table "user_roles" (
 
 create table "role_permissions" (
   "role_id" integer not null references roles(role_id) on delete cascade on update cascade,
-  "permission_id" integer not null references permissions(permission_id) on delete cascade on update cascade
-  --TO DO: CHECK IF NEEDED PRIMARY KEY REF ON DELETE CASCADE
+  "permission_id" integer not null references permissions(permission_id) on delete cascade on update cascade,
+  primary key (role_id, permission_id)
 );
