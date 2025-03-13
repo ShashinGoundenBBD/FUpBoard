@@ -1,6 +1,6 @@
-package za.co.bbd.grad.fupboard.api;
+package za.co.bbd.grad.fupboard.api.models;
 
-public class UserUpdate {
+public class UserUpdateRequest {
     private String email;
     private String username;
     

@@ -1,4 +1,4 @@
-package za.co.bbd.grad.fupboard.api;
+package za.co.bbd.grad.fupboard.api.dbobjects;
 
 import org.springframework.security.core.GrantedAuthority;
 

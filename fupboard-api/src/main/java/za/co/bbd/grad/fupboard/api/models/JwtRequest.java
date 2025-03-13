@@ -1,4 +1,4 @@
-package za.co.bbd.grad.fupboard.api;
+package za.co.bbd.grad.fupboard.api.models;
 
 public class JwtRequest {
     private String code;

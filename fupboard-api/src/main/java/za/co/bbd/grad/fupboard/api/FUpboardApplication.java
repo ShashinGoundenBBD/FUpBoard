@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class FUpboardApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(FUpboardApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(FUpboardApplication.class, args);
+    }
 }
