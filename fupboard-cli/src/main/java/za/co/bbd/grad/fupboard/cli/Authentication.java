@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class Authentication {
     private static final String fUpBoardApiBaseUrl = "http://localhost:8080";
 
-    public static void performOAuth2Login() throws IOException, URISyntaxException, InterruptedException {
+    public static String performOAuth2Login() throws IOException, URISyntaxException, InterruptedException {
         var random = new Random();
         var server = new ServerSocket(0);
         var port = server.getLocalPort();
@@ -131,6 +131,6 @@ public class Authentication {
         var objMapper = new ObjectMapper();
         var authResponse = objMapper.readValue(responseBody, AuthResponse.class);
 
-        System.out.println("id-token: " + authResponse.getIdToken());
+        return authResponse.getIdToken();
     }
 }
