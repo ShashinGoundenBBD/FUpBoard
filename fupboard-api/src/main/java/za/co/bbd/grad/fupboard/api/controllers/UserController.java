@@ -24,8 +24,7 @@ public class UserController {
     
     @GetMapping("/v1/users/me")
     public User getUserMe(@AuthenticationPrincipal Jwt jwt) {
-        System.out.println("JWT PRINT : "+ jwt);
-        return userRepository.findByJwt(jwt).get();
+            return userRepository.findByJwt(jwt).get();
     }
 
     @PatchMapping("/v1/users/me")

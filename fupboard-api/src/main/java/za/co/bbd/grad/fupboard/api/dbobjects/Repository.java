@@ -6,9 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "repositories", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "repository_url") // Ensures unique repository URLs
-})
+@Table(name = "repositories")
 public class Repository {
 
     @Id
