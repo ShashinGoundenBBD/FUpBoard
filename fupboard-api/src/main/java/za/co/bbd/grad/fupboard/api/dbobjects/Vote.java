@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+
 
 @Entity
 @Table(name = "votes")
@@ -32,8 +31,7 @@ public class Vote {
     private FUp fUp;
 
     @Column(nullable = false)
-    @Min(1) // Ensures score is at least 1
-    @Max(5) // Ensures score is at most 5
+
     private Integer score;
 
     public Vote() {}

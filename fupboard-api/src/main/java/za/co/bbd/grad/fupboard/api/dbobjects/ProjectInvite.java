@@ -6,9 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "project_invites", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"project_id", "user_id"}) // Prevents duplicate invites
-})
+@Table(name = "project_invites")
 public class ProjectInvite {
 
     @Id
