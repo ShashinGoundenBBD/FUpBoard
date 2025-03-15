@@ -16,7 +16,6 @@ import jakarta.persistence.Table;
 public class FUp {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
     private Integer fUpId;
     private String fUpName;
     private String description;
