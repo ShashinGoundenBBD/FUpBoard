@@ -21,11 +21,14 @@ public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer projectId;
+
     private String projectName;
+
     @ManyToOne()
     @JoinColumn(name = "owner")
     @JsonBackReference
     private User owner;
+    
     @OneToMany(mappedBy = "project")
     @JsonManagedReference
     private Set<FUp> fUps;
