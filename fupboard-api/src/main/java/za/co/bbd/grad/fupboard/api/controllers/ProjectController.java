@@ -1,13 +1,7 @@
 package za.co.bbd.grad.fupboard.api.controllers;
 
 import java.util.List;
-import java.util.Optional;
-
-import org.apache.coyote.BadRequestException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,58 +16,66 @@ import za.co.bbd.grad.fupboard.api.dbobjects.Project;
 import za.co.bbd.grad.fupboard.api.models.CreateProjectRequest;
 import za.co.bbd.grad.fupboard.api.models.UpdateProjectRequest;
 import za.co.bbd.grad.fupboard.api.repositories.ProjectRepository;
-import za.co.bbd.grad.fupboard.api.repositories.UserRepository;
+import za.co.bbd.grad.fupboard.api.services.ProjectService;
+import za.co.bbd.grad.fupboard.api.services.UserService;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 public class ProjectController {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ProjectRepository projectRepository;
-    
+    private final ProjectService projectService;
+    private final UserService userService;
+
+    ProjectController(UserService userService, ProjectService projectService) {
+        this.userService = userService;
+        this.projectService = projectService;
+    }
+
     @GetMapping("/v1/projects")
     public List<Project> getProjects(@AuthenticationPrincipal Jwt jwt) {
-        return projectRepository.findByOwnerGoogleId(jwt.getSubject());
+        var user = userService.getUserByJwt(jwt).get();
+        return projectService.getProjectsForOwner(user);
     }
 
     @PostMapping("/v1/projects")
     public Project createProject(@AuthenticationPrincipal Jwt jwt, @RequestBody CreateProjectRequest request) {
-        var user = userRepository.findByJwt(jwt).get();
+        var user = userService.getUserByJwt(jwt).get();
 
-        var name = request.getProjectName();
+        var name = request.getName();
 
         if (name == null || name.isEmpty() || name.length() > FupboardUtils.SHORT_NAME_LENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        var project = new Project(request.getProjectName(), user);
-        
-        project = projectRepository.save(project);
+        var project = new Project(request.getName(), user);
+        project = projectService.saveProject(project);
         
         return project;
     }
     
     @GetMapping("/v1/projects/{projectId}")
     public Project getProject(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId) {
-        var projectOpt = projectRepository.findById(projectId);
+        var user = userService.getUserByJwt(jwt).get();
+        var projectOpt = projectService.getProjectById(projectId);
 
         if (projectOpt.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+
+        var project = projectOpt.get();
         
-        if (!projectOpt.get().getOwner().getGoogleId().equals(jwt.getSubject())) {
+        if (!projectService.allowedToReadProject(project, user)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        return projectOpt.get();
+        return project;
     }
     
     @PatchMapping("/v1/projects/{projectId}")
     public Project patchProject(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId, @RequestBody UpdateProjectRequest request) {
-        var projectOpt = projectRepository.findById(projectId);
+        var user = userService.getUserByJwt(jwt).get();
+        var projectOpt = projectService.getProjectById(projectId);
 
         if (projectOpt.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -81,24 +83,28 @@ public class ProjectController {
 
         var project = projectOpt.get();
         
-        if (!project.getOwner().getGoogleId().equals(jwt.getSubject())) {
+        if (!projectService.allowedToWriteProject(project, user)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        var name = project.getProjectName();
+        var name = request.getName();
 
-        if (name.isEmpty() || name.length() > FupboardUtils.SHORT_NAME_LENGTH) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        if (name != null && !name.isEmpty()) {
+            if (name.length() > FupboardUtils.SHORT_NAME_LENGTH) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            }
+            project.setProjectName(name);
         }
 
-        project.setProjectName(request.getProjectName());
+        project = projectService.saveProject(project);
 
-        return projectOpt.get();
+        return project;
     }
 
     @DeleteMapping("/v1/projects/{projectId}")
     public void deleteProject(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId, @RequestBody UpdateProjectRequest request) {
-        var projectOpt = projectRepository.findById(projectId);
+        var user = userService.getUserByJwt(jwt).get();
+        var projectOpt = projectService.getProjectById(projectId);
 
         if (projectOpt.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -106,11 +112,11 @@ public class ProjectController {
 
         var project = projectOpt.get();
         
-        if (!project.getOwner().getGoogleId().equals(jwt.getSubject())) {
+        if (!projectService.allowedToDeleteProject(project, user)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        projectRepository.delete(project);
+        projectService.deleteProject(project);
     }
 }
 

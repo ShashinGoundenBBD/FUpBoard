@@ -1,12 +1,8 @@
 package za.co.bbd.grad.fupboard.api.dbobjects;
 
-import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonView;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,12 +15,16 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "google_id"), @UniqueConstraint(columnNames = "email"), @UniqueConstraint(columnNames = "username")})
+@Table(name = "users", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "google_id"),
+    @UniqueConstraint(columnNames = "email"),
+    @UniqueConstraint(columnNames = "username")
+})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
-    private Integer userId;
+    private int userId;
     private String googleId;
     private String email;
     private Boolean emailVerified;
@@ -36,11 +36,11 @@ public class User {
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<Role> roles;
+    private List<Role> roles;
     
     @OneToMany(mappedBy = "owner")
     @JsonManagedReference
-    private Set<Project> projects;
+    private List<Project> projects;
 
     public User() {}
 
@@ -51,11 +51,11 @@ public class User {
         this.username = username;
     }
 
-    public Integer getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
@@ -91,11 +91,11 @@ public class User {
         this.username = username;
     }
 
-    public Set<Role> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {
+    public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
 }

@@ -11,7 +11,6 @@ public class ProjectInvite {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore // Hide sensitive ID from API responses
     private Integer projectInviteId;
 
     @ManyToOne

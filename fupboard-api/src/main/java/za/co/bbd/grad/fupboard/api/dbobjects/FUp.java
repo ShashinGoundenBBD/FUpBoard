@@ -1,7 +1,12 @@
 package za.co.bbd.grad.fupboard.api.dbobjects;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,14 +14,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import za.co.bbd.grad.fupboard.api.models.Leaderboard;
+import za.co.bbd.grad.fupboard.api.models.LeaderboardEntry;
 
 @Entity
 @Table(name = "f_ups")
 public class FUp {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
     private Integer fUpId;
     private String fUpName;
     private String description;
@@ -24,6 +31,10 @@ public class FUp {
     @JoinColumn(name = "project_id")
     @JsonBackReference
     private Project project;
+    
+    @OneToMany(mappedBy = "fUp")
+    @JsonManagedReference
+    private List<Vote> votes;
 
     public FUp() {}
 
@@ -63,5 +74,28 @@ public class FUp {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public List<Vote> getVotes() {
+        return votes;
+    }
+
+    public void setVotes(List<Vote> votes) {
+        this.votes = votes;
+    }
+
+    public Leaderboard getLeaderboard() {
+        var leaderboard = new Leaderboard();
+
+        var usernames = votes.stream().map(v -> v.getAccusedUsername()).distinct().toList();
+
+        for (String name : usernames) {
+            var avgScore = votes.stream().filter(v -> v.getAccusedUsername().equals(name)).collect(Collectors.averagingDouble(v -> v.getScore()));
+            leaderboard.getEntries().add(new LeaderboardEntry(name, avgScore));
+        }
+
+        leaderboard.sortEntries();
+
+        return leaderboard;
     }
 }

@@ -1,9 +1,8 @@
 package za.co.bbd.grad.fupboard.api.dbobjects;
 
-import java.util.Set;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
@@ -31,7 +30,11 @@ public class Project {
     
     @OneToMany(mappedBy = "project")
     @JsonManagedReference
-    private Set<FUp> fUps;
+    private List<FUp> fUps;
+    
+    @OneToMany(mappedBy = "project")
+    @JsonManagedReference
+    private List<ProjectInvite> invites;
 
     public Project() {}
 
@@ -64,11 +67,19 @@ public class Project {
         this.owner = owner;
     }
 
-    public Set<FUp> getfUps() {
+    public List<FUp> getfUps() {
         return fUps;
     }
 
-    public void setfUps(Set<FUp> fUps) {
+    public void setfUps(List<FUp> fUps) {
         this.fUps = fUps;
+    }
+
+    public List<ProjectInvite> getInvites() {
+        return invites;
+    }
+
+    public void setInvites(List<ProjectInvite> invites) {
+        this.invites = invites;
     }
 }
