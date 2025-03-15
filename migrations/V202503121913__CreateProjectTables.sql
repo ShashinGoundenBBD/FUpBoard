@@ -39,5 +39,5 @@ create table "votes" (
   "accused_id" integer not null references users(user_id),
   "f_up_id" integer not null references f_ups(f_up_id),
   "score" integer not null check (score between 1 and 5),
-  unique(fup_id, reporter_id, accused_id)
+  unique(f_up_id, reporter_id, accused_id)
 );
