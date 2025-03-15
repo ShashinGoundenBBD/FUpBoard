@@ -31,6 +31,10 @@ public class Project {
     @OneToMany(mappedBy = "project")
     @JsonManagedReference
     private List<FUp> fUps;
+    
+    @OneToMany(mappedBy = "project")
+    @JsonManagedReference
+    private List<ProjectInvite> invites;
 
     public Project() {}
 
@@ -69,5 +73,13 @@ public class Project {
 
     public void setfUps(List<FUp> fUps) {
         this.fUps = fUps;
+    }
+
+    public List<ProjectInvite> getInvites() {
+        return invites;
+    }
+
+    public void setInvites(List<ProjectInvite> invites) {
+        this.invites = invites;
     }
 }

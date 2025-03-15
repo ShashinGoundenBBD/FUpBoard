@@ -5,10 +5,11 @@ create table "projects" (
 );
 
 create table "project_invites" (
+  "project_invite_id" serial primary key,
   "project_id" integer not null references projects(project_id),
   "user_id" integer not null references users(user_id),
-  "accepted" boolean,
-  primary key(project_id, user_id)
+  "accepted" boolean not null,
+  unique(project_id, user_id)
 );
 
 create table "f_ups" (
@@ -37,5 +38,6 @@ create table "votes" (
   "reporter_id" integer not null references users(user_id),
   "accused_id" integer not null references users(user_id),
   "f_up_id" integer not null references f_ups(f_up_id),
-  "score" integer not null check (score between 1 and 5)
+  "score" integer not null check (score between 1 and 5),
+  unique(fup_id, reporter_id, accused_id)
 );

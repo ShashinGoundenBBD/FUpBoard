@@ -8,15 +8,19 @@ import org.springframework.stereotype.Service;
 import za.co.bbd.grad.fupboard.api.FupboardUtils;
 import za.co.bbd.grad.fupboard.api.dbobjects.Project;
 import za.co.bbd.grad.fupboard.api.dbobjects.User;
+import za.co.bbd.grad.fupboard.api.repositories.ProjectInviteRepository;
 import za.co.bbd.grad.fupboard.api.repositories.ProjectRepository;
 
 @Service
 public class ProjectService {
 
+    private final ProjectInviteRepository projectInviteRepository;
+
     private final ProjectRepository projectRepository;
 
-    ProjectService(ProjectRepository projectRepository) {
+    ProjectService(ProjectRepository projectRepository, ProjectInviteRepository projectInviteRepository) {
         this.projectRepository = projectRepository;
+        this.projectInviteRepository = projectInviteRepository;
     }
 
     public List<Project> getProjectsForOwner(User user) {
@@ -30,21 +34,20 @@ public class ProjectService {
     public boolean allowedToReadProject(Project project, User user) {
         return
             project.getOwner().getUserId() == user.getUserId() ||
-            // todo: check if collaborator
+            projectInviteRepository.existsByProjectAndUserAndAccepted(project, user, true) ||
             FupboardUtils.HasPermission("projects::read::all");
     }
 
     public boolean allowedToWriteProject(Project project, User user) {
         return
             project.getOwner().getUserId() == user.getUserId() ||
-            // todo: check if collaborator
+            projectInviteRepository.existsByProjectAndUserAndAccepted(project, user, true) ||
             FupboardUtils.HasPermission("projects::write::all");
     }
 
     public boolean allowedToDeleteProject(Project project, User user) {
         return
             project.getOwner().getUserId() == user.getUserId() ||
-            // todo: check if collaborator
             FupboardUtils.HasPermission("projects::delete::all");
     }
 

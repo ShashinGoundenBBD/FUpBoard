@@ -24,19 +24,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 public class ProjectController {
-
-    private final FUpController FUpController;
-
-    private final ProjectRepository projectRepository;
-
     private final ProjectService projectService;
     private final UserService userService;
 
-    ProjectController(UserService userService, ProjectService projectService, ProjectRepository projectRepository, FUpController FUpController) {
+    ProjectController(UserService userService, ProjectService projectService) {
         this.userService = userService;
         this.projectService = projectService;
-        this.projectRepository = projectRepository;
-        this.FUpController = FUpController;
     }
 
     @GetMapping("/v1/projects")
@@ -103,7 +96,7 @@ public class ProjectController {
             project.setProjectName(name);
         }
 
-        project = projectRepository.save(project);
+        project = projectService.saveProject(project);
 
         return project;
     }

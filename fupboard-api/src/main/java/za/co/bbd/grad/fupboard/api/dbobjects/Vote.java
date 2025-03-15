@@ -1,7 +1,6 @@
 package za.co.bbd.grad.fupboard.api.dbobjects;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 
@@ -12,8 +11,7 @@ public class Vote {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore // Hide ID from API responses for security
-    private Integer voteId;
+    private int voteId;
 
     @ManyToOne
     @JoinColumn(name = "reporter_id", nullable = false)
@@ -32,22 +30,22 @@ public class Vote {
 
     @Column(nullable = false)
 
-    private Integer score;
+    private int score;
 
     public Vote() {}
 
-    public Vote(User reporter, User accused, FUp fUp, Integer score) {
+    public Vote(User reporter, User accused, FUp fUp, int score) {
         this.reporter = reporter;
         this.accused = accused;
         this.fUp = fUp;
         this.score = score;
     }
 
-    public Integer getVoteId() {
+    public int getVoteId() {
         return voteId;
     }
 
-    public void setVoteId(Integer voteId) {
+    public void setVoteId(int voteId) {
         this.voteId = voteId;
     }
 
@@ -67,22 +65,28 @@ public class Vote {
         this.accused = accused;
     }
 
-    public FUp getFUp() {
+    public FUp getfUp() {
         return fUp;
     }
 
-    public void setFUp(FUp fUp) {
+    public void setfUp(FUp fUp) {
         this.fUp = fUp;
     }
 
-    public Integer getScore() {
+    public int getScore() {
         return score;
     }
 
-    public void setScore(Integer score) {
-        if (score < 1 || score > 5) {
-            throw new IllegalArgumentException("Score must be between 1 and 5");
-        }
+    public void setScore(int score) {
+        if (score < 1 || score > 5) throw new IllegalArgumentException();
         this.score = score;
+    }
+
+    public String getReporterUsername() {
+        return reporter.getUsername();
+    }
+
+    public String getAccusedUsername() {
+        return accused.getUsername();
     }
 }
