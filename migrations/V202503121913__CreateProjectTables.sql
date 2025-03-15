@@ -5,10 +5,10 @@ create table "projects" (
 );
 
 create table "project_invites" (
-  "project_invite_id" serial primary key,
   "project_id" integer not null references projects(project_id),
   "user_id" integer not null references users(user_id),
-  "accepted" boolean
+  "accepted" boolean,
+  primary key(project_id, user_id)
 );
 
 create table "f_ups" (
