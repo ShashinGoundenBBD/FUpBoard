@@ -17,18 +17,4 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     default Optional<User> findByEmailIfVerified(String email) {
         return findByEmailIgnoreCaseAndEmailVerifiedIsTrue(email);
     }
-
-    default Optional<User> findByJwt(Jwt jwt) {
-        var user = findByGoogleId(jwt.getSubject());
-        if (user.isPresent()) return user;
-        
-        String email = jwt.getClaimAsString("email");
-        Boolean emailVerified = jwt.getClaimAsBoolean("email_verified");
-        
-        if (email != null && emailVerified) {
-            user = findByEmailIfVerified(email);
-        }
-        
-        return user;
-    }
 }

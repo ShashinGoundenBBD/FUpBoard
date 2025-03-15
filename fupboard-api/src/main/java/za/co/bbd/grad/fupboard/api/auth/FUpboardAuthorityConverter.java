@@ -8,37 +8,34 @@ import jakarta.transaction.Transactional;
 import za.co.bbd.grad.fupboard.api.dbobjects.Permission;
 import za.co.bbd.grad.fupboard.api.dbobjects.Role;
 import za.co.bbd.grad.fupboard.api.dbobjects.User;
-import za.co.bbd.grad.fupboard.api.repositories.RoleRepository;
 import za.co.bbd.grad.fupboard.api.repositories.UserRepository;
+import za.co.bbd.grad.fupboard.api.services.UserService;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 @Service
 public class FUpboardAuthorityConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
 
-    @Value("${fupboard.default-role}")
-    private String defaultRole;
+    private final UserRepository userRepository;
+    private final UserService userService;
 
+    FUpboardAuthorityConverter(UserService userService, UserRepository userRepository) {
+        this.userService = userService;
+        this.userRepository = userRepository;
+    }
+    
     @Override
     @Nullable
     @Transactional
     public Collection<GrantedAuthority> convert(@NonNull Jwt jwt) {
-        var userOpt = userRepository.findByJwt(jwt);
+        var userOpt = userService.getUserByJwt(jwt);
         
         String jwtGoogleId = jwt.getSubject();
         String jwtEmail = jwt.getClaimAsString("email").toLowerCase();
@@ -75,12 +72,6 @@ public class FUpboardAuthorityConverter implements Converter<Jwt, Collection<Gra
             newUser.setUsername(username);
             newUser = userRepository.save(newUser);
 
-            Set<Role> roles = new HashSet<Role>();
-            roles.add(roleRepository.findByRoleName(defaultRole).get());
-
-            newUser.setRoles(roles);
-            newUser = userRepository.save(newUser);
-
             userOpt = Optional.of(newUser);
         }
 
@@ -88,12 +79,15 @@ public class FUpboardAuthorityConverter implements Converter<Jwt, Collection<Gra
 
         if (user.getEmail().equals(jwtEmail) && jwtEmailVerified && !user.getEmailVerified()) {
             user.setEmailVerified(jwtEmailVerified);
-            userRepository.save(user);
+            user = userRepository.save(user);
         }
         
         var authorities = new ArrayList<GrantedAuthority>();
 
-        for (Role role : user.getRoles()) {
+        var roles = user.getRoles();
+        if (roles == null) roles = new ArrayList<>();
+
+        for (Role role : roles) {
             for (Permission permission : role.getPermissions()) {
                 authorities.add(permission);
             }

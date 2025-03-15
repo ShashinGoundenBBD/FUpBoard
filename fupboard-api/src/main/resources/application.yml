@@ -15,4 +15,3 @@ spring:
 fupboard:
   oauth2:
     token-uri: https://www.googleapis.com/oauth2/v3/token
-  default-role: default

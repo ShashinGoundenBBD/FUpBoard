@@ -7,5 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import za.co.bbd.grad.fupboard.api.dbobjects.Project;
 
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
-    List<Project> findByOwnerGoogleId(String googleId);
+    List<Project> findAllByOwnerUserId(int userId);
+    boolean existsByProjectIdAndOwnerUserId(int projectId, int userId);
 }

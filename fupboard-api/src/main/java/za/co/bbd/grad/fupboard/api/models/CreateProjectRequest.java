@@ -1,9 +1,9 @@
 package za.co.bbd.grad.fupboard.api.models;
 
 public class CreateProjectRequest {
-    private String projectName;
+    private String name;
 
-    public String getProjectName() {
-        return projectName;
+    public String getName() {
+        return name;
     }
 }

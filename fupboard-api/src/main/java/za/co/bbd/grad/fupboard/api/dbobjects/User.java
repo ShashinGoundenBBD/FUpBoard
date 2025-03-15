@@ -1,5 +1,6 @@
 package za.co.bbd.grad.fupboard.api.dbobjects;
 
+import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -19,7 +20,11 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "google_id"), @UniqueConstraint(columnNames = "email"), @UniqueConstraint(columnNames = "username")})
+@Table(name = "users", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "google_id"),
+    @UniqueConstraint(columnNames = "email"),
+    @UniqueConstraint(columnNames = "username")
+})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,11 +41,11 @@ public class User {
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<Role> roles;
+    private List<Role> roles;
     
     @OneToMany(mappedBy = "owner")
     @JsonManagedReference
-    private Set<Project> projects;
+    private List<Project> projects;
 
     public User() {}
 
@@ -91,11 +96,11 @@ public class User {
         this.username = username;
     }
 
-    public Set<Role> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {
+    public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
 }
