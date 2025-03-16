@@ -60,7 +60,7 @@ jobs:
           file=application-secrets.yml
           echo "spring:" > $file
           echo "  datasource:" >> $file
-          echo "    url: jdbc:postgresql://$DB_HOST/fupboarddb" >> $file
+          echo "    url: jdbc:postgresql://${{ steps.tf_outputs.outputs.dbhost }}/fupboarddb" >> $file
           echo "    username: $TF_VAR_db_username" >> $file
           echo "    password: $TF_VAR_db_password" >> $file
           echo "  security:" >> $file
