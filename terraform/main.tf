@@ -110,8 +110,7 @@ resource "aws_instance" "fup_ec2_instance" {
   user_data = <<-EOF
     #!/bin/bash
     # Install necessary packages
-    apt-get update -y
-    apt-get install -y openjdk-23-jre wget
+    dnf install java-23-amazon-corretto
 
     file="/etc/systemd/system/fupboard.service"
 
