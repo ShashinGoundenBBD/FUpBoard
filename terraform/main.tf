@@ -16,10 +16,6 @@ provider "aws" {
   region =  "af-south-1"
 }
 
-locals {
-  s3_bucket_name = var.s3_bucket_name
-}
-
 resource "aws_default_vpc" "default_vpc" {
   tags = {
     Name = "default_vpc"

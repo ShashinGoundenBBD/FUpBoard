@@ -14,7 +14,7 @@ variable "key_name"{
   type = string
 }
 
-variable "s3_bucket_name" {
+variable "bucket_name" {
     description = "Bucket name"
-  type = string
+    type = string
 }
