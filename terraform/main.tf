@@ -73,12 +73,6 @@ resource "aws_key_pair" "key_pair" {
   public_key = var.ec2_public_key
 }
 
-resource "local_file" "private_key"{
-  content = tls_private_key.rsa_4096.private_key_pem
-  filename = "privatekey.pem"
-  file_permission = "0500"
-}
-
 resource "aws_security_group" "ec2_security_group" {
   name_prefix = "fupboard_api_sg"
 
