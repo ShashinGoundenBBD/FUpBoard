@@ -91,5 +91,18 @@ resource "aws_instance" "fup_ec2_instance" {
   tags = {
     Name = "fup_ec2_instance"
   }
+
+   user_data = <<-EOF
+              #!/bin/bash
+              # Install necessary packages
+              apt-get update -y
+              apt-get install -y openjdk-23-jre wget
+
+              # Download the JAR file from S3
+              aws s3 cp s3://${var.AWS_BUCKET_NAME}/fupboard-api-0.0.1-SNAPSHOT.jar /home/ubuntu/fupboard-api.jar
+
+              # Run the JAR file
+              nohup java -jar /home/ubuntu/fupboard-api.jar > /home/ubuntu/fupboard-api.log 2>&1 &
+              EOF
 }
 
