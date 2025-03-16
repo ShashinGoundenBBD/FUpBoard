@@ -13,8 +13,3 @@ variable "key_name"{
   description = "Key name"
   type = string
 }
-variable "ec2_public_key"{
-  description = "EC2 Public Key"
-  type = string
-  sensitive = true
-}

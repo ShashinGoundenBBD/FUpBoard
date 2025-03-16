@@ -68,9 +68,20 @@ output "db_host" {
   description = "The endpoint of the SQL Server RDS instance"
 }
 
+resource "tls_private_key" "rsa_key" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
+
 resource "aws_key_pair" "key_pair" {
   key_name   = var.key_name
-  public_key = var.ec2_public_key
+  public_key = tls_private_key.rsa_key.public_key_openssh
+}
+
+resource "local_file" "private_key"{
+  content = tls_private_key.rsa_key.private_key_pem
+  filename = "privatekey.pem"
+  file_permission = "0500"
 }
 
 resource "aws_security_group" "ec2_security_group" {
