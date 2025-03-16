@@ -26,27 +26,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'oracle'
-          java-version: '23'
-
-      - name: Setup Maven
-        run: |
-          sudo apt update
-          sudo apt install maven
-
-      - name: Build JAR with Maven
-        working-directory: ./fupboard-api
-        run: |
-          mvn clean install
-          
-      - name: Upload JAR to S3
-        working-directory: ./fupboard-api/target
-        run: |
-          aws s3 cp fupboard-api-0.0.1-SNAPSHOT.jar s3://${{ secrets.AWS_BUCKET_NAME }}/fupboard-api-0.0.1-SNAPSHOT.jar
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -68,6 +47,29 @@ jobs:
         id: tf_outputs
         run: |
           echo "dbhost=$(terraform output -raw db_host)" >> $GITHUB_OUTPUT
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'oracle'
+          java-version: '23'
+
+      - name: Setup Maven
+        run: |
+          sudo apt update
+          sudo apt install maven
+
+      - name: Build JAR with Maven
+        working-directory: ./fupboard-api
+        run: |
+          mvn clean install
+          
+      - name: Upload JAR to S3
+        working-directory: ./fupboard-api/target
+        run: |
+          ls -la
+          scp -i privatekey.pem fupboard-api-0.0.1-SNAPSHOT.jar $(terraform output -raw ec2_host):fupboard-api.jar
+
   flyway:
     needs: terraform
     name: Flyway migrations
