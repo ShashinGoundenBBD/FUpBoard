@@ -86,7 +86,18 @@ jobs:
       - name: Deploy to EC2
         working-directory: ./fupboard-api/target
         run: |
-          EC2_HOST=${{ steps.tf_outputs.outputs.dbhost }}
+          echo "A"
+          ls -la ./
+          echo "B"
+          ls -la ../
+          echo "C"
+          ls -la ./../
+          echo "D"
+          ls -la ./../../
+          echo "E"
+          ls -la ./../../../
+          echo "F"
+          EC2_HOST=${{ steps.tf_outputs.outputs.ec2host }}
           scp -i ../../privatekey.pem fupboard-api-0.0.1-SNAPSHOT.jar $EC2_HOST:fupboard-api.jar
           ssh -i ../../privatekey.pem $EC2_HOST "systemctl restart fupboard.service"
   flyway:
