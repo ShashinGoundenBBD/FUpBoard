@@ -99,7 +99,7 @@ resource "aws_instance" "fup_ec2_instance" {
               apt-get install -y openjdk-23-jre wget
 
               # Download the JAR file from S3
-              aws s3 cp s3://${var.s3_bucket_name}/fupboard-api-0.0.1-SNAPSHOT.jar /home/ubuntu/fupboard-api.jar
+              aws s3 cp s3://theoneandonlyfupbucket/fupboard-api-0.0.1-SNAPSHOT.jar /home/ubuntu/fupboard-api.jar
 
               # Run the JAR file
               nohup java -jar /home/ubuntu/fupboard-api.jar > /home/ubuntu/fupboard-api.log 2>&1 &

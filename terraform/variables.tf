@@ -13,8 +13,3 @@ variable "key_name"{
   description = "Key name"
   type = string
 }
-
-variable "bucket_name" {
-    description = "Bucket name"
-    type = string
-}
