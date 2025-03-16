@@ -68,22 +68,6 @@ output "db_host" {
   description = "The endpoint of the SQL Server RDS instance"
 }
 
-resource "tls_private_key" "rsa_key" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
-}
-
-resource "aws_key_pair" "key_pair" {
-  key_name   = var.key_name
-  public_key = tls_private_key.rsa_key.public_key_openssh
-}
-
-resource "local_file" "private_key"{
-  content = tls_private_key.rsa_key.private_key_pem
-  filename = "privatekey.pem"
-  file_permission = "0500"
-}
-
 resource "aws_security_group" "ec2_security_group" {
   name_prefix = "fupboard_api_sg"
 
@@ -116,7 +100,7 @@ resource "aws_security_group" "ec2_security_group" {
 resource "aws_instance" "fup_ec2_instance" {
   ami           = "ami-00d6d5db7a745ff3f"
   instance_type = "t3.micro"
-  key_name = aws_key_pair.key_pair.key_name
+  key_name = var.key_name
   tags = {
     Name = "fup_ec2_instance"
   }
@@ -135,7 +119,7 @@ resource "aws_instance" "fup_ec2_instance" {
     echo Description=fupboard >> $file
     echo [Service] >> $file
     echo ExecStart="java -jar fupboard-api.jar" >> $file
-    echo WorkingDirectory=/home/ubuntu >> $file
+    echo WorkingDirectory=/home/ec2-user >> $file
 
     systemctl enable fupboard.service
     EOF
