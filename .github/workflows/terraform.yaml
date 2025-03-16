@@ -32,10 +32,10 @@ jobs:
           sudo apt install maven
 
       - name: Build JAR with Maven
+        working-directory: ./fupboard-api
         run: |
-          cd fupboard-api
           mvn clean install
-
+          
       - name: Upload JAR to S3
         run: |
           aws s3 cp fupboard-api/target/fupboard-api-1.0-SNAPSHOT.jar s3://${{ secrets.AWS_BUCKET_NAME }}/fupboard-api-1.0-SNAPSHOT.jar
