@@ -91,15 +91,15 @@ jobs:
           echo "B"
           ls -la ../
           echo "C"
-          ls -la ./../
+          ls -la ../../
           echo "D"
-          ls -la ./../../
+          ls -la ../../../
           echo "E"
-          ls -la ./../../../
+          ls -la ../../../terraform
           echo "F"
           EC2_HOST=${{ steps.tf_outputs.outputs.ec2host }}
-          scp -i ../../privatekey.pem fupboard-api-0.0.1-SNAPSHOT.jar $EC2_HOST:fupboard-api.jar
-          ssh -i ../../privatekey.pem $EC2_HOST "systemctl restart fupboard.service"
+          scp -i ../../terraform/privatekey.pem fupboard-api-0.0.1-SNAPSHOT.jar $EC2_HOST:fupboard-api.jar
+          ssh -i ../../terraform/privatekey.pem $EC2_HOST "systemctl restart fupboard.service"
   flyway:
     needs: terraform
     name: Flyway migrations
