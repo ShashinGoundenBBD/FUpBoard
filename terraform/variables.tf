@@ -13,3 +13,8 @@ variable "key_name"{
   description = "Key name"
   type = string
 }
+
+variable "s3_bucket_name" {
+    description = "Bucket name"
+  type = string
+}
