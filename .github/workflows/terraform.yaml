@@ -45,7 +45,7 @@ jobs:
       - name: Upload JAR to S3
         working-directory: ./fupboard-api/target
         run: |
-          aws s3 cp fupboard-api-1.0-SNAPSHOT.jar s3://${{ secrets.AWS_BUCKET_NAME }}/fupboard-api-1.0-SNAPSHOT.jar
+          aws s3 cp fupboard-api-0.0.1-SNAPSHOT.jar s3://${{ secrets.AWS_BUCKET_NAME }}/fupboard-api-0.0.1-SNAPSHOT.jar
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
