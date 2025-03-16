@@ -29,10 +29,12 @@ jobs:
       - name: Setup Maven
         run: |
           sudo apt update
-          sudo apt install maven target fupboard-api
+          sudo apt install maven
 
       - name: Build JAR with Maven
-        run: mvn clean install
+        run: |
+          cd fupboard-api
+          mvn clean install
 
       - name: Upload JAR to S3
         run: |
