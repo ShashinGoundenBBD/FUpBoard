@@ -8,3 +8,8 @@ variable "db_username" {
   description = "The username for the RDS instance"
   type        = string
 }
+
+variable "key_name"{
+  description = "Key name"
+  type = string
+}

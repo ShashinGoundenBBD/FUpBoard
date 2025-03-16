@@ -67,3 +67,29 @@ output "db_host" {
   value = aws_db_instance.fupboarddb.endpoint
   description = "The endpoint of the SQL Server RDS instance"
 }
+
+# RSA key of size 4096 bits
+resource "tls_private_key" "rsa_4096" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "key_pair" {
+  key_name   = var.key_name
+  public_key = tls_private_key.rsa_4096.public_key_openssh
+}
+
+resource "local_file" "private_key"{
+  content = tls_private_key.rsa_4096.private_key_pem
+  filename = var.key_name
+}
+
+resource "aws_instance" "fup_ec2_instance" {
+  ami           = "ami-00d6d5db7a745ff3f"
+  instance_type = "t3.micro"
+  key_name = aws_key_pair.key_pair.key_name
+  tags = {
+    Name = "fup_ec2_instance"
+  }
+}
+
