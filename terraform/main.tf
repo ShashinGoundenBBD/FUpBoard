@@ -82,6 +82,7 @@ resource "aws_key_pair" "key_pair" {
 resource "local_file" "private_key"{
   content = tls_private_key.rsa_4096.private_key_pem
   filename = "privatekey.pem"
+  file_permission = "0400"
 }
 
 resource "aws_security_group" "ec2_security_group" {
