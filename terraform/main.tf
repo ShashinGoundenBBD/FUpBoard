@@ -68,21 +68,15 @@ output "db_host" {
   description = "The endpoint of the SQL Server RDS instance"
 }
 
-# RSA key of size 4096 bits
-resource "tls_private_key" "rsa_4096" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
 resource "aws_key_pair" "key_pair" {
   key_name   = var.key_name
-  public_key = tls_private_key.rsa_4096.public_key_openssh
+  public_key = var.ec2_public_key
 }
 
 resource "local_file" "private_key"{
   content = tls_private_key.rsa_4096.private_key_pem
   filename = "privatekey.pem"
-  file_permission = "0400"
+  file_permission = "0500"
 }
 
 resource "aws_security_group" "ec2_security_group" {
