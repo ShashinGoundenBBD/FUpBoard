@@ -35,7 +35,7 @@ resource "aws_default_subnet" "subnet_az2" {
 }
 
 resource "aws_security_group" "allow_postgres" {
-  name = "allow_postgres"
+  name_prefix = "allow_postgress_"
 
   ingress {
     from_port   = 5432
