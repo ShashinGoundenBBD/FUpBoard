@@ -58,9 +58,6 @@ public class VoteService {
 
         sendRequest(authToken, deleteRequest(authToken, BASE_URL + "v1/projects/" + projectId + "/fups/" + fUpId + "/votes/" + voteId), "Deleting vote");
     }
-
-
-
     
     private static HttpRequest getRequest(String authToken, String url) {
         return HttpRequest.newBuilder().uri(URI.create(url))

@@ -9,42 +9,38 @@ public class Main {
 
     public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException {
     
-        //Welcome to FUPBoard
+        // Welcome to FUPBoard
 
-        //Sign into Google account to proceed
-        try
-        {
+        // Sign into Google account to proceed
+        try {
             authToken = Authentication.performOAuth2Login();
-            System.out.println("Signed in succesfully!");
-        }
-        catch(Exception e)
-        {
-            System.out.println("Sign in was not successful: " + e.getMessage());
-            //maybe ask to retry instead
+            System.out.println("Signed in successfully!");
+        } catch (Exception e) {
+            System.out.println("Sign-in was not successful: " + e.getMessage());
+            // Maybe ask to retry instead
             return;
         }
-    
-        
-        Scanner scanner = new Scanner(System.in);
-        
-        int choice = -1; 
 
-        do {
+        Scanner scanner = new Scanner(System.in);
+        boolean continueUsing = true;
+
+        while (continueUsing) {
             System.out.println("\nChoose an option:");
-            System.out.println("User");
+            System.out.println(" -> User");
             System.out.println("1. Accept/Decline invites");
-            System.out.println("Projects");
+            System.out.println("\n -> Projects");
             System.out.println("2. Create a project");
             System.out.println("3. View my projects");
             System.out.println("4. Edit my projects");
             System.out.println("5. Delete a project");
-            System.out.println("FUps");
+            System.out.println("\n -> FUps");
             System.out.println("6. Report an FUp");
             System.out.println("7. View an FUp");
             System.out.println("8. Delete an FUp");
             System.out.println("9. Edit an FUp");
             System.out.println("10. View leaderboard");
             System.out.println("11. View votes on an FUp");
+            System.out.println("\n -> Votes");
             System.out.println("12. Create a vote");
             System.out.println("13. View a specific vote");
             System.out.println("14. Edit a vote");
@@ -54,10 +50,10 @@ public class Main {
             System.out.println("18. Delete project invite");
             System.out.println("0. Exit");
             System.out.print("What would you like to do? Please enter the number only: ");
-            
-            choice = scanner.nextInt();
-            scanner.nextLine();
-            
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume the newline character
+
             switch (choice) {
                 case 1 -> InviteService.acceptOrDeclineInvite(scanner, authToken);
                 case 2 -> ProjectService.createNewProject(scanner, authToken);
@@ -77,13 +73,23 @@ public class Main {
                 case 16 -> InviteService.viewProjectInvites(scanner, authToken);
                 case 17 -> InviteService.createProjectInvite(scanner, authToken);
                 case 18 -> InviteService.deleteProjectInvite(scanner, authToken);
-                case 0 -> System.out.println("Exiting...");
+                case 0 -> {
+                    System.out.println("Exiting...");
+                    continueUsing = false;
+                }
                 default -> System.out.println("Invalid choice. Please enter a valid option.");
             }
-        } while (choice != 0);
-        
+
+            if (continueUsing) {
+                System.out.print("\nWould you like to do anything else? (y/n): ");
+                String response = scanner.nextLine().trim().toLowerCase();
+                if (!response.equals("y")) {
+                    System.out.println("Exiting...");
+                    continueUsing = false;
+                }
+            }
+        }
+
         scanner.close();
     }
-    
-
 }
