@@ -14,11 +14,9 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME}}
-      AWS_BUCKET_KEY:  ${{ secrets.AWS_BUCKET_KEY}}
       TF_VAR_db_password: ${{ secrets.TF_VAR_DB_PASSWORD }}
       TF_VAR_db_username: ${{ secrets.TF_VAR_DB_USERNAME }}
-      TF_VAR_key_name: ${{ secrets.TF_VAR_KEY_NAME }}
+      TF_VAR_key_name: privatekey.pem
     defaults:
       run:
         working-directory: terraform
@@ -34,7 +32,7 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init -backend-config="bucket=${{ secrets.AWS_BUCKET_NAME}}" -backend-config="key=${{ secrets.AWS_BUCKET_KEY}}" -backend-config="region=af-south-1"
+        run: terraform init -backend-config="bucket=${{ secrets.AWS_BUCKET_NAME }}" -backend-config="key=${{ secrets.AWS_BUCKET_KEY }}" -backend-config="region=af-south-1"
 
       - name: Terraform Plan
         id: plan
@@ -59,17 +57,36 @@ jobs:
           sudo apt update
           sudo apt install maven
 
+      - name: Create Secrets File
+        run: |
+          file=src/main/resources/application-secrets.yml
+          echo "spring:" > $file
+          echo "  datasource:" >> $file
+          echo "    url: jdbc:postgresql://$DB_HOST/fupboarddb" >> $file
+          echo "    username: $TF_VAR_db_username" >> $file
+          echo "    password: $TF_VAR_db_password" >> $file
+          echo "  security:" >> $file
+          echo "    oauth2:" >> $file
+          echo "      resourceserver:" >> $file
+          echo "        jwt:" >> $file
+          echo "          audiences:" >> $file
+          echo "          - ${{ secrets.CLIENT_ID }}" >> $file
+          echo "fupboard:" >> $file
+          echo "  oauth2:" >> $file
+          echo "    client-id: ${{ secrets.CLIENT_ID }}" >> $file
+          echo "    client-secret: ${{ secrets.CLIENT_SECRET }}" >> $file
+
       - name: Build JAR with Maven
         working-directory: ./fupboard-api
         run: |
           mvn clean install
           
-      - name: Upload JAR to S3
+      - name: Deploy to EC2
         working-directory: ./fupboard-api/target
         run: |
-          ls -la
-          scp -i privatekey.pem fupboard-api-0.0.1-SNAPSHOT.jar $(terraform output -raw ec2_host):fupboard-api.jar
-
+          EC2_HOST=$(terraform output -raw ec2_host)
+          scp -i ../privatekey.pem fupboard-api-0.0.1-SNAPSHOT.jar $EC2_HOST:fupboard-api.jar
+          ssh -i ../privatekey.pem $EC2_HOST systemctl restart fupboard.service
   flyway:
     needs: terraform
     name: Flyway migrations
