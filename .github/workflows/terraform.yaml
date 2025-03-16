@@ -58,8 +58,9 @@ jobs:
           sudo apt install maven
 
       - name: Create Secrets File
+        working-directory: ./fupboard-api/src/main/resources
         run: |
-          file=src/main/resources/application-secrets.yml
+          file=application-secrets.yml
           echo "spring:" > $file
           echo "  datasource:" >> $file
           echo "    url: jdbc:postgresql://$DB_HOST/fupboarddb" >> $file
