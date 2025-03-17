@@ -14,7 +14,7 @@ public class Main {
         // Sign into Google account to proceed
         try {
             authToken = Authentication.performOAuth2Login();
-            System.out.println("Signed in successfully!");
+            System.out.println("Signed in successfully! Token: " + authToken);
         } catch (Exception e) {
             System.out.println("Sign-in was not successful: " + e.getMessage());
             // Maybe ask to retry instead
