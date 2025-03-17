@@ -6,6 +6,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
@@ -33,7 +34,7 @@ public class FUp {
     private Project project;
     
     @OneToMany(mappedBy = "fUp")
-    @JsonManagedReference
+    @JsonIgnore
     private List<Vote> votes;
 
     public FUp() {}
@@ -84,13 +85,17 @@ public class FUp {
         this.votes = votes;
     }
 
+    @JsonIgnore
     public Leaderboard getLeaderboard() {
         var leaderboard = new Leaderboard();
 
-        var usernames = votes.stream().map(v -> v.getAccusedUsername()).distinct().toList();
+        var votesList = votes;
+        if (votes == null) votesList = List.of();
+
+        var usernames = votesList.stream().map(v -> v.getAccusedUsername()).distinct().toList();
 
         for (String name : usernames) {
-            var avgScore = votes.stream().filter(v -> v.getAccusedUsername().equals(name)).collect(Collectors.averagingDouble(v -> v.getScore()));
+            var avgScore = votesList.stream().filter(v -> v.getAccusedUsername().equals(name)).collect(Collectors.averagingDouble(v -> v.getScore()));
             leaderboard.getEntries().add(new LeaderboardEntry(name, avgScore));
         }
 
