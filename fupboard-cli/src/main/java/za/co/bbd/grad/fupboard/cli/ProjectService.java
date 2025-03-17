@@ -33,8 +33,6 @@ public class ProjectService {
         if (responseBody != null) {
             System.out.println(ConsoleColors.GREEN + "-> Project created successfully!" + ConsoleColors.RESET);
             displayProject(responseBody);
-        } else {
-            System.out.println("Anything if response is null");
         }
     }
 
