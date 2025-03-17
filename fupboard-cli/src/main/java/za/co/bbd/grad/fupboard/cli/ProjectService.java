@@ -28,11 +28,13 @@ public class ProjectService {
         }
 
         String jsonBody = String.format("{\"name\":\"%s\"}", projectName);
-        String responseBody = sendRequest(postRequest(authToken, BASE_URL + "v1/projects", jsonBody));
-
+        String responseBody = sendRequest(postRequest(authToken, BASE_URL + "/v1/projects", jsonBody));
+        System.out.println(responseBody);
         if (responseBody != null) {
             System.out.println(ConsoleColors.GREEN + "-> Project created successfully!" + ConsoleColors.RESET);
             displayProject(responseBody);
+        } else {
+            System.out.println("Anything if response is null");
         }
     }
 
@@ -50,7 +52,7 @@ public class ProjectService {
             return;
         }
 
-        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "v1/projects/" + projectId));
+        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/projects/" + projectId));
         if (responseBody != null) {
             System.out.println(ConsoleColors.BLUE + "-> Project Details:" + ConsoleColors.RESET);
             displayProject(responseBody);
@@ -71,7 +73,7 @@ public class ProjectService {
             return;
         }
 
-        String responseBody = sendRequest(deleteRequest(authToken, BASE_URL + "v1/projects/" + projectId));
+        String responseBody = sendRequest(deleteRequest(authToken, BASE_URL + "/v1/projects/" + projectId));
 
         if (responseBody != null) {
             System.out.println(ConsoleColors.GREEN + "-> Project deleted successfully!" + ConsoleColors.RESET);
@@ -103,7 +105,7 @@ public class ProjectService {
         }
 
         String jsonBody = String.format("{\"name\":\"%s\"}", name);
-        String responseBody = sendRequest(patchRequest(authToken, BASE_URL + "v1/projects/" + projectId, jsonBody));
+        String responseBody = sendRequest(patchRequest(authToken, BASE_URL + "/v1/projects/" + projectId, jsonBody));
 
         if (responseBody != null) {
             System.out.println(ConsoleColors.GREEN + "-> Project updated successfully!" + ConsoleColors.RESET);
@@ -112,7 +114,7 @@ public class ProjectService {
     }
 
     public static Map<Integer, Integer> viewMyProjects(String authToken) {
-        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "v1/projects"));
+        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/projects"));
 
         if (responseBody == null) {
             System.out.println(ConsoleColors.RED + "-> Failed to retrieve projects." + ConsoleColors.RESET);
