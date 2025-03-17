@@ -57,7 +57,7 @@ jobs:
           docker run --rm --volume ${{ github.workspace }}/migrations:/flyway/sql:ro redgate/flyway -url="jdbc:postgresql://${{ needs.terraform.outputs.dbhost }}/fupboarddb" -user="${{ secrets.TF_VAR_DB_USERNAME }}" -password="${{ secrets.TF_VAR_DB_PASSWORD }}" migrate
 
   setup-java-maven:
-    name: "Setup Java and Maven"
+    name: "Setup Java, Maven and run unit tests"
     runs-on: ubuntu-22.04
     steps:
       - name: Setup Java
@@ -71,11 +71,6 @@ jobs:
           sudo apt update
           sudo apt install -y maven
 
-  unit-tests:
-    needs: [setup-java-maven, terraform]
-    name: "Run Unit Tests"
-    runs-on: ubuntu-22.04
-    steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
@@ -95,7 +90,7 @@ jobs:
           mvn clean test
 
   build-api:
-    needs: unit-tests
+    needs: setup-java-maven
     name: "Build API"
     runs-on: ubuntu-22.04
     steps:
@@ -125,7 +120,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i privatekey.pem "ec2-user@$EC2_HOST" "sudo systemctl restart fupboard.service"
 
   build-cli:
-    needs: unit-tests
+    needs: setup-java-maven
     name: "Build CLI"
     runs-on: ubuntu-22.04
     steps:
