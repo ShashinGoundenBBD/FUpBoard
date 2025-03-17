@@ -48,6 +48,7 @@ public class Main {
             System.out.println("16. View project invites");
             System.out.println("17. Send project invite");
             System.out.println("18. Delete project invite");
+            System.out.println("19. Display FUp summarry");
             System.out.println("0. Exit");
             System.out.print("What would you like to do? Please enter the number only: ");
 
@@ -73,6 +74,7 @@ public class Main {
                 case 16 -> InviteService.viewProjectInvites(scanner, authToken);
                 case 17 -> InviteService.createProjectInvite(scanner, authToken);
                 case 18 -> InviteService.deleteProjectInvite(scanner, authToken);
+                case 19 -> FUpService.getFUpSummary(scanner, authToken);
                 case 0 -> {
                     System.out.println("Exiting...");
                     continueUsing = false;
