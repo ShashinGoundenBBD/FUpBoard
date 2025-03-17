@@ -8,17 +8,37 @@ import java.net.http.HttpResponse;
 import java.util.Scanner;
 
 public class FUpService {
-    private static final String BASE_URL = "http://localhost:8080/";
+    private static final String BASE_URL = "http://ec2-13-245-83-65.af-south-1.compute.amazonaws.com/";
+
+        // ANSI color codes
+        private static final String RESET = "\u001B[0m";
+        private static final String GREEN = "\u001B[32m";
+        private static final String RED = "\u001B[31m";
+        private static final String YELLOW = "\u001B[33m";
+        private static final String BLUE = "\u001B[34m";
 
     public static void reportFUp(Scanner scanner, String authToken) {
-        System.out.println("Enter FUp name:");
+        System.out.println(YELLOW + "Enter FUp name:" + RESET);
         String name = scanner.nextLine();
 
-        System.out.println("Enter FUp description:");
+        if (name.isEmpty()) {
+            System.out.println(RED + "FUp name cannot be empty." + RESET);
+        }
+
+        System.out.println(YELLOW + "Enter FUp description:" + RESET);
         String description = scanner.nextLine();
 
-        System.out.println("Enter project id:");
+        if (description.isEmpty()) {
+            System.out.println(RED + "Description cannot be empty." + RESET);
+        }
+
+        System.out.println(YELLOW + "Enter project id:" + RESET);
         int projectId = scanner.nextInt();
+
+        
+        if (projectId <= 0) {
+            System.out.println(RED + "Project id cannot be empty." + RESET);
+        }
 
         String jsonBody = String.format("{\"name\":\"%s\", \"description\":\"%s\"}", name, description);
         sendRequest(authToken, postRequest(authToken, BASE_URL + "v1/projects/" + projectId + "/fups", jsonBody), "Reporting FUp");
