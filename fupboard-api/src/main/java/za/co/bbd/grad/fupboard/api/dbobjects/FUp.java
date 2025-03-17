@@ -1,5 +1,6 @@
 package za.co.bbd.grad.fupboard.api.dbobjects;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collector;
@@ -34,7 +35,7 @@ public class FUp {
     
     @OneToMany(mappedBy = "fUp")
     @JsonManagedReference
-    private List<Vote> votes;
+    private List<Vote> votes = new ArrayList<>(); ///Votes can never be null or else FUp tests fails
 
     public FUp() {}
 
