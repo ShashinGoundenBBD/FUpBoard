@@ -18,8 +18,9 @@ import java.util.Random;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static za.co.bbd.grad.fupboard.Config.BASE_URL;
+
 public class Authentication {
-    private static final String fUpBoardApiBaseUrl = "http://localhost:8080";
 
     public static String performOAuth2Login() throws IOException, URISyntaxException, InterruptedException {
         var random = new Random();
@@ -91,7 +92,7 @@ public class Authentication {
 
         // Make request to F-Up Board API with auth code to receive JWT
         var client = HttpClient.newHttpClient();
-        var request = HttpRequest.newBuilder(new URI(fUpBoardApiBaseUrl+"/v1/jwt"))
+        var request = HttpRequest.newBuilder(new URI(BASE_URL+"/v1/jwt"))
             .header("content-type", "application/x-www-form-urlencoded")
             .POST(BodyPublishers.ofString("code=" + URLEncoder.encode(code, Charset.defaultCharset()) + "&uri=" + callbackUriEncoded))
             .build();
