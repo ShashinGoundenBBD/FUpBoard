@@ -43,6 +43,8 @@ public class ProjectInviteController {
         this.projectInviteService = projectInviteService;
     }
     
+
+
     @Transactional
     @GetMapping("/v1/projects/{projectId}/invites")
     public List<ProjectInvite> getProjectInvites(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId) throws NotFoundException {
@@ -55,9 +57,11 @@ public class ProjectInviteController {
         if (!projectService.allowedToReadProject(project, user)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        
-        return projectOpt.get().getInvites();
+
+        // Fix: Ensure the list is never null
+        return project.getInvites() != null ? project.getInvites() : List.of();
     }
+
     
     @Transactional
     @PostMapping("/v1/projects/{projectId}/invites")
