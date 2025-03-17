@@ -75,11 +75,6 @@ jobs:
           sudo apt update
           sudo apt install -y maven
 
-  test:
-    name: "Run Unit Tests"
-    needs: [setup, flyway]
-    runs-on: ubuntu-22.04
-    steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
