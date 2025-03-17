@@ -118,7 +118,7 @@ resource "aws_instance" "fup_ec2_instance" {
     echo [Unit] > $file
     echo Description=fupboard >> $file
     echo [Service] >> $file
-    echo ExecStart="java -jar /home/ec2-user/fupboard-api.jar" >> $file
+    echo ExecStart="java -jar /home/ec2-user/fupboard-api.jar --server.port 80" >> $file
     echo WorkingDirectory=/home/ec2-user >> $file
 
     systemctl enable fupboard.service
