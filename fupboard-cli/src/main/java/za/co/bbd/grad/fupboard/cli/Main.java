@@ -55,6 +55,77 @@ public class Main {
         } while (choice != 0);
     }
 
+
+    public static void runApp(Scanner scanner, String authToken) { // Pass authToken explicitly
+      
+        // do {
+        //     System.out.println("\nChoose an option:");
+        //     System.out.println("3. View my projects");
+        //     System.out.println("0. Exit");
+        //     System.out.print("Enter your choice: ");
+    
+        //     choice = scanner.nextInt();
+        //     scanner.nextLine(); // Consume newline
+    
+        //     switch (choice) {
+        //         case 3 -> ProjectService.viewMyProjects(authToken); // ✅ Ensure authToken is used
+        //         case 0 -> System.out.println("Exiting...");
+        //         default -> System.out.println("Invalid choice. Please enter a valid option.");
+        //     }
+        // } while (choice != 0);
+
+
+        int choice = -1; // Default to -1 to enter the loop
+
+        do {
+            displayMenu();
+            choice = getValidIntegerInput(scanner); // Read user input
+
+            switch (choice) {
+                case 1 -> InviteService.acceptOrDeclineInvite(scanner, authToken);
+                case 2 -> ProjectService.createNewProject(scanner, authToken);
+                case 3 -> ProjectService.viewMyProjects(authToken);
+                case 4 -> ProjectService.editMyProjects(scanner, authToken);
+                case 5 -> ProjectService.deleteProject(scanner, authToken);
+                case 6 -> FUpService.reportFUp(scanner, authToken);
+                case 7 -> FUpService.viewFUp(scanner, authToken);
+                case 8 -> FUpService.deleteFUp(scanner, authToken);
+                case 9 -> FUpService.editFUp(scanner, authToken);
+                case 10 -> LeaderboardService.viewLeaderboard(scanner, authToken);
+                case 11 -> VoteService.viewVotes(scanner, authToken);
+                case 12 -> VoteService.createVote(scanner, authToken);
+                case 13 -> VoteService.viewVotes(scanner, authToken);
+                case 14 -> VoteService.editVote(scanner, authToken);
+                case 15 -> VoteService.deleteVote(scanner, authToken);
+                case 16 -> InviteService.viewProjectInvites(scanner, authToken);
+                case 17 -> InviteService.createProjectInvite(scanner, authToken);
+                case 18 -> InviteService.deleteProjectInvite(scanner, authToken);
+                case 0 -> System.out.println("Exiting...");
+                default -> System.out.println("Invalid choice. Please enter a valid option.");
+            }
+        } while (choice != 0);
+    }
+
+    // public static void runApp(Scanner scanner, String authToken) { // Pass authToken explicitly
+    //     int choice = -1;
+    //     do {
+    //         System.out.println("\nChoose an option:");
+    //         System.out.println("3. View my projects");
+    //         System.out.println("0. Exit");
+    //         System.out.print("Enter your choice: ");
+    
+    //         choice = scanner.nextInt();
+    //         scanner.nextLine(); // Consume newline
+    
+    //         switch (choice) {
+    //             case 3 -> ProjectService.viewMyProjects(authToken); // ✅ Ensure authToken is used
+    //             case 0 -> System.out.println("Exiting...");
+    //             default -> System.out.println("Invalid choice. Please enter a valid option.");
+    //         }
+    //     } while (choice != 0);
+    // }
+    
+
     // ✅ Helper function to display the menu
     private static void displayMenu() {
         System.out.println("\nChoose an option:");
