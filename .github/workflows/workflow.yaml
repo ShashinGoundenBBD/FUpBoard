@@ -7,10 +7,11 @@ on:
 
 jobs:
   terraform:
-    name: "Manage aws resources"
+    name: "Manage AWS Resources"
     runs-on: ubuntu-22.04
     outputs:
       dbhost: ${{ steps.tf_outputs.outputs.dbhost }}
+      ec2host: ${{ steps.tf_outputs.outputs.ec2host }}
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -43,6 +44,22 @@ jobs:
           echo "dbhost=$(terraform output -raw db_host)" >> $GITHUB_OUTPUT
           echo "ec2host=$(terraform output -raw ec2_host)" >> $GITHUB_OUTPUT
 
+  flyway:
+    needs: terraform
+    name: "Flyway Migrations"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Run Flyway Migrations
+        run: |
+          docker run --rm --volume ${{ github.workspace }}/migrations:/flyway/sql:ro redgate/flyway -url="jdbc:postgresql://${{ needs.terraform.outputs.dbhost }}/fupboarddb" -user="${{ secrets.TF_VAR_DB_USERNAME }}" -password="${{ secrets.TF_VAR_DB_PASSWORD }}" migrate
+
+  setup-java-maven:
+    name: "Setup Java and Maven"
+    runs-on: ubuntu-22.04
+    steps:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -52,7 +69,15 @@ jobs:
       - name: Setup Maven
         run: |
           sudo apt update
-          sudo apt install maven
+          sudo apt install -y maven
+
+  unit-tests:
+    needs: [setup-java-maven, terraform]
+    name: "Run Unit Tests"
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Create Secrets File
         working-directory: ./fupboard-api/src/main/resources
@@ -60,63 +85,81 @@ jobs:
           file=application-secrets.yml
           echo "spring:" > $file
           echo "  datasource:" >> $file
-          echo "    url: jdbc:postgresql://${{ steps.tf_outputs.outputs.dbhost }}/fupboarddb" >> $file
+          echo "    url: jdbc:postgresql://${{ needs.terraform.outputs.dbhost }}/fupboarddb" >> $file
           echo "    username: $TF_VAR_db_username" >> $file
           echo "    password: $TF_VAR_db_password" >> $file
-          echo "  security:" >> $file
-          echo "    oauth2:" >> $file
-          echo "      resourceserver:" >> $file
-          echo "        jwt:" >> $file
-          echo "          audiences:" >> $file
-          echo "          - ${{ secrets.CLIENT_ID }}" >> $file
-          echo "fupboard:" >> $file
-          echo "  oauth2:" >> $file
-          echo "    client-id: ${{ secrets.CLIENT_ID }}" >> $file
-          echo "    client-secret: ${{ secrets.CLIENT_SECRET }}" >> $file
-          
-
-      - name: Run unit tests
+        
+      - name: Run Unit Tests
         working-directory: ./fupboard-api
         run: |
           mvn clean test
 
-      - name: Build JAR for api with Maven
+  build-api:
+    needs: unit-tests
+    name: "Build API"
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      
+      - name: Build API JAR
         working-directory: ./fupboard-api
         run: |
           mvn clean install
 
-      - name: Deploy to EC2
+  deploy-api:
+    needs: [terraform, build-api]
+    name: "Deploy API to EC2"
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      
+      - name: Deploy API
         working-directory: ./fupboard-api/target
         run: |
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > privatekey.pem
           chmod 0500 privatekey.pem
-          EC2_HOST=${{ steps.tf_outputs.outputs.ec2host }}
+          EC2_HOST=${{ needs.terraform.outputs.ec2host }}
           scp -o StrictHostKeyChecking=no -i privatekey.pem fupboard-api-0.0.1-SNAPSHOT.jar "ec2-user@$EC2_HOST:fupboard-api.jar"
           ssh -o StrictHostKeyChecking=no -i privatekey.pem "ec2-user@$EC2_HOST" "sudo systemctl restart fupboard.service"
 
-      - name: Build JAR for cli with Maven
+  build-cli:
+    needs: unit-tests
+    name: "Build CLI"
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      
+      - name: Build CLI JAR
         working-directory: ./fupboard-cli
         run: |
           mvn -B package --file pom.xml
           mkdir staging && cp target/*.jar staging
-    
-      - name: Upload artifact
+      
+      - name: Upload CLI Artifact
         uses: actions/upload-artifact@v4
         with:
           name: F-Up Board
           path: ${{ github.workspace }}/fupboard-cli/staging
 
-      - name: Create GitHub Release
+  release-cli:
+    needs: build-cli
+    name: "Release CLI"
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Download CLI Artifact
         uses: actions/download-artifact@v4
         with:
           name: F-Up Board
           path: staging
-
+      
       - name: Get version
         id: get_version
-        run: echo "VERSION=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
-
-      - name: Create Release
+        run: echo "VERSION=$(date +'%Y.%m.%d-%H.%M.%S')" >> $GITHUB_ENV
+      
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -127,15 +170,3 @@ jobs:
           draft: false
           prerelease: false
           files: staging/*.jar
-
-  flyway:
-    needs: terraform
-    name: Flyway migrations
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Run Flyway Migrations
-        run: |
-          docker run --rm --volume ${{ github.workspace }}/migrations:/flyway/sql:ro redgate/flyway -url="jdbc:postgresql://${{ needs.terraform.outputs.dbhost }}/fupboarddb" -user="${{ secrets.TF_VAR_DB_USERNAME }}" -password="${{ secrets.TF_VAR_DB_PASSWORD }}" migrate
