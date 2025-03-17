@@ -112,19 +112,26 @@ resource "aws_instance" "fup_ec2_instance" {
     # Install necessary packages
     dnf install -y java-23-amazon-corretto
 
+    # Setup Systemd Service
     file="/etc/systemd/system/fupboard.service"
 
     echo [Unit] > $file
     echo Description=fupboard >> $file
     echo [Service] >> $file
-    echo ExecStart="java -jar /home/ec2-user/fupboard-api.jar" >> $file
+    echo ExecStart="java -jar /home/ec2-user/fupboard-api.jar --server.port 80" >> $file
     echo WorkingDirectory=/home/ec2-user >> $file
 
     systemctl enable fupboard.service
+
     EOF
 }
 
+resource "aws_eip" "fup_ec2_eip" {
+  instance = aws_instance.fup_ec2_instance.id
+  domain   = "vpc"
+}
+
 output "ec2_host" {
-  value = aws_instance.fup_ec2_instance.public_dns
+  value = aws_eip.fup_ec2_eip.public_dns
   description = "The endpoint of the EC2 instance"
 }
