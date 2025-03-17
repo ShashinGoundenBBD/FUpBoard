@@ -22,9 +22,9 @@ public class ProjectService {
         this.projectRepository = projectRepository;
         this.projectInviteRepository = projectInviteRepository;
     }
-
-    public List<Project> getProjectsForOwner(User user) {
-        return projectRepository.findAllByOwnerUserId(user.getUserId());
+    
+    public List<Project> getProjectsOwnerOrCollaborator(User user) {
+        return projectRepository.findAllByOwnerOrCollaboratorUserId(user.getUserId());
     }
 
     public Project saveProject(Project project) {

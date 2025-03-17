@@ -10,7 +10,7 @@ public class ProjectInvite {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer projectInviteId;
+    private int projectInviteId;
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
@@ -33,11 +33,15 @@ public class ProjectInvite {
         this.accepted = accepted;
     }
 
-    public Integer getProjectInviteId() {
+    public int getProjectId() {
+        return project.getProjectId();
+    }
+
+    public int getProjectInviteId() {
         return projectInviteId;
     }
 
-    public void setProjectInviteId(Integer projectInviteId) {
+    public void setProjectInviteId(int projectInviteId) {
         this.projectInviteId = projectInviteId;
     }
 

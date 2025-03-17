@@ -65,14 +65,14 @@ class ProjectControllerTest {
     @Test
     void testGetProjects_Success() throws Exception {
         when(userService.getUserByJwt(any())).thenReturn(Optional.of(user));
-        when(projectService.getProjectsForOwner(user)).thenReturn(List.of(project));
+        when(projectService.getProjectsOwnerOrCollaborator(user)).thenReturn(List.of(project));
 
         mockMvc.perform(get("/v1/projects")
                 .with(jwt().jwt(createMockJwt())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].projectName").value("Test Project"));
 
-        verify(projectService).getProjectsForOwner(user);
+        verify(projectService).getProjectsOwnerOrCollaborator(user);
     }
 
   
