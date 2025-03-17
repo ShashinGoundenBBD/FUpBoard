@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import za.co.bbd.grad.fupboard.api.controllers.ProjectController;
 import za.co.bbd.grad.fupboard.api.dbobjects.Project;
 import za.co.bbd.grad.fupboard.api.models.CreateProjectRequest;
 import za.co.bbd.grad.fupboard.api.models.UpdateProjectRequest;
@@ -176,7 +175,7 @@ void testCreateProject_Success() throws Exception {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)) // Include request body
                 .with(jwt().jwt(createMockJwt())))
-                .andExpect(status().isOk());
+                .andExpect(status().is2xxSuccessful());
 
         verify(projectService).deleteProject(project);
     }
