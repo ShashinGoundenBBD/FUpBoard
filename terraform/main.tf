@@ -110,8 +110,9 @@ resource "aws_instance" "fup_ec2_instance" {
   user_data = <<-EOF
     #!/bin/bash
     # Install necessary packages
-    dnf install -y java-23-amazon-corretto
+    dnf install -y java-23-amazon-corretto nginx
 
+    # Setup Systemd Service
     file="/etc/systemd/system/fupboard.service"
 
     echo [Unit] > $file
@@ -121,10 +122,30 @@ resource "aws_instance" "fup_ec2_instance" {
     echo WorkingDirectory=/home/ec2-user >> $file
 
     systemctl enable fupboard.service
+
+    # Issue Certificates & Setup Daily Renewal
+    curl https://get.acme.sh | sh -s email=luke.davis@bbd.co.za
+    acme.sh --issue --nginx -d ${aws_eip.fup_ec2_eip.public_dns}
+    mkdir -p /etc/nginx/certs
+    acme.sh --install-cert -d ${aws_eip.fup_ec2_eip.public_dns} \
+      --cert-file /etc/nginx/certs/cert.pem \
+      --key-file /etc/nginx/certs/key.pem \
+      --fullchain-file /etc/nginx/certs/fullchain.pem \
+      --reload-cmd "systemctl reload nginx"
+
+    # Setup Nginx Proxy
+    systemctl enable nginx
+    systemctl start nginx
+
     EOF
 }
 
+resource "aws_eip" "fup_ec2_eip" {
+  instance = aws_instance.fup_ec2_instance.id
+  domain   = "vpc"
+}
+
 output "ec2_host" {
-  value = aws_instance.fup_ec2_instance.public_dns
+  value = aws_eip.fup_ec2_eip.public_dns
   description = "The endpoint of the EC2 instance"
 }
