@@ -4,6 +4,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,7 +31,7 @@ public class User {
     private Boolean emailVerified;
     private String username;
     
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_roles",
         joinColumns = @JoinColumn(name = "user_id"),
@@ -41,6 +42,10 @@ public class User {
     @OneToMany(mappedBy = "owner")
     @JsonManagedReference
     private List<Project> projects;
+
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<ProjectInvite> invites;
 
     public User() {}
 
@@ -97,5 +102,21 @@ public class User {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public List<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(List<Project> projects) {
+        this.projects = projects;
+    }
+
+    public List<ProjectInvite> getInvites() {
+        return invites;
+    }
+
+    public void setInvites(List<ProjectInvite> invites) {
+        this.invites = invites;
     }
 }

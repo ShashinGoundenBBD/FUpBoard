@@ -1,7 +1,6 @@
 package za.co.bbd.grad.fupboard.api.dbobjects;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 
