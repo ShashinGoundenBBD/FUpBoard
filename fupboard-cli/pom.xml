@@ -22,7 +22,7 @@
           <manifest>
             <addClasspath>true</addClasspath>
             <classpathPrefix>lib/</classpathPrefix>
-            <mainClass>com.mypackage.MyClass</mainClass>
+            <mainClass>za.co.bbd.grad.fupboard.cli.Main</mainClass>
           </manifest>
         </archive>
       </configuration>
