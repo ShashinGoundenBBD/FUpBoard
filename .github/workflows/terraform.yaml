@@ -74,11 +74,11 @@ jobs:
           echo "    client-id: ${{ secrets.CLIENT_ID }}" >> $file
           echo "    client-secret: ${{ secrets.CLIENT_SECRET }}" >> $file
 
-      - name: Build JAR with Maven
+      - name: Build JAR for api with Maven
         working-directory: ./fupboard-api
         run: |
           mvn clean install
-          
+
       - name: Deploy to EC2
         working-directory: ./fupboard-api/target
         run: |
@@ -87,6 +87,19 @@ jobs:
           EC2_HOST=${{ steps.tf_outputs.outputs.ec2host }}
           scp -o StrictHostKeyChecking=no -i privatekey.pem fupboard-api-0.0.1-SNAPSHOT.jar "ec2-user@$EC2_HOST:fupboard-api.jar"
           ssh -o StrictHostKeyChecking=no -i privatekey.pem "ec2-user@$EC2_HOST" "sudo systemctl restart fupboard.service"
+
+      - name: Build JAR for cli with Maven
+        working-directory: ./fupboard-cli
+        run: |
+          mvn -B package --file pom.xml
+          mkdir staging && cp target/*.jar staging
+    
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: F-Up Board
+          path: staging
+
   flyway:
     needs: terraform
     name: Flyway migrations
