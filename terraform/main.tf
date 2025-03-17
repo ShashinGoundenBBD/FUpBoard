@@ -110,7 +110,7 @@ resource "aws_instance" "fup_ec2_instance" {
   user_data = <<-EOF
     #!/bin/bash
     # Install necessary packages
-    dnf install -y java-23-amazon-corretto
+    dnf install -y java-23-amazon-corretto nginx
 
     # Setup Systemd Service
     file="/etc/systemd/system/fupboard.service"
@@ -118,10 +118,27 @@ resource "aws_instance" "fup_ec2_instance" {
     echo [Unit] > $file
     echo Description=fupboard >> $file
     echo [Service] >> $file
-    echo ExecStart="java -jar /home/ec2-user/fupboard-api.jar --server.port 80" >> $file
+    echo ExecStart="java -jar /home/ec2-user/fupboard-api.jar" >> $file
     echo WorkingDirectory=/home/ec2-user >> $file
 
     systemctl enable fupboard.service
+
+    # Setup nginx proxy
+    mkdir -p /etc/nginx/conf.d
+    file="/etc/nginx/conf.d/proxy.conf"
+
+    echo "server {" > $file
+    echo "  listen 80;" >> $file
+    echo "  server_name *.amazonaws.com;" >> $file
+    echo "  location / {" >> $file
+    echo "    proxy_pass http://localhost:8080;" >> $file
+    echo "    proxy_set_header Host \$host;" >> $file
+    echo "    proxy_set_header X-Real-IP \$remote_addr;" >> $file
+    echo "  }" >> $file
+    echo "}" >> $file
+
+    systemctl enable nginx
+    systemctl start nginx
 
     EOF
 }
