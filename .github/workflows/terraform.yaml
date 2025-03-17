@@ -98,7 +98,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: F-Up Board
-          path: ./fupboard-cli/staging
+          path: ${{ github.workspace }}/fupboard-cli/staging
 
   flyway:
     needs: terraform
