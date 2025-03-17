@@ -106,6 +106,28 @@ jobs:
           name: F-Up Board
           path: ${{ github.workspace }}/fupboard-cli/staging
 
+      - name: Create GitHub Release
+        uses: actions/download-artifact@v4
+        with:
+          name: F-Up Board
+          path: staging
+
+      - name: Get version
+        id: get_version
+        run: echo "VERSION=$(date +'%Y.%m.%d-%H.%M.%S')" >> $GITHUB_ENV
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: "Release v${{ env.VERSION }}"
+          body: "Automated release for commit ${{ github.sha }}"
+          draft: false
+          prerelease: false
+          files: staging/*.jar
+
   flyway:
     needs: terraform
     name: Flyway migrations

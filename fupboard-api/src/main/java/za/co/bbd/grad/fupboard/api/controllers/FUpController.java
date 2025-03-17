@@ -1,7 +1,6 @@
 package za.co.bbd.grad.fupboard.api.controllers;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +18,7 @@ import jakarta.transaction.Transactional;
 import za.co.bbd.grad.fupboard.api.FupboardUtils;
 import za.co.bbd.grad.fupboard.api.dbobjects.FUp;
 import za.co.bbd.grad.fupboard.api.models.CreateFUpRequest;
+import za.co.bbd.grad.fupboard.api.models.Leaderboard;
 import za.co.bbd.grad.fupboard.api.models.UpdateFUpRequest;
 import za.co.bbd.grad.fupboard.api.services.FUpService;
 import za.co.bbd.grad.fupboard.api.services.ProjectService;
@@ -80,6 +80,48 @@ public class FUpController {
         fUp = fUpService.saveFUp(fUp);
         
         return fUp;
+    }
+
+    @Transactional
+    @GetMapping("/v1/projects/{projectId}/fups/{fUpId}")
+    public FUp getFUp(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId, @PathVariable int fUpId) {
+        var user = userService.getUserByJwt(jwt).get();
+        var projectOpt = projectService.getProjectById(projectId);
+        if (projectOpt.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        var project = projectOpt.get();
+
+        if (!projectService.allowedToReadProject(project, user))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+
+        var fUpOpt = fUpService.getFUpById(fUpId);
+
+        if (fUpOpt.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        var fUp = fUpOpt.get();
+
+        return fUp;
+    }
+
+    @Transactional
+    @GetMapping("/v1/projects/{projectId}/fups/{fUpId}/leaderboard")
+    public Leaderboard getFUpLeaderboard(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId, @PathVariable int fUpId) {
+        var user = userService.getUserByJwt(jwt).get();
+        var projectOpt = projectService.getProjectById(projectId);
+        if (projectOpt.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        var project = projectOpt.get();
+
+        if (!projectService.allowedToReadProject(project, user))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+
+        var fUpOpt = fUpService.getFUpById(fUpId);
+
+        if (fUpOpt.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        var fUp = fUpOpt.get();
+
+        return fUp.getLeaderboard();
     }
 
     @Transactional

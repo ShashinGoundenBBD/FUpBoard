@@ -25,7 +25,7 @@ public class Vote {
 
     @ManyToOne
     @JoinColumn(name = "f_up_id", nullable = false)
-    @JsonBackReference // Prevents infinite recursion in JSON serialization
+    @JsonBackReference
     private FUp fUp;
 
     @Column(nullable = false)

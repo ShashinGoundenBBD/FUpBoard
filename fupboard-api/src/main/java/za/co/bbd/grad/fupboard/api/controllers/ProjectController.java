@@ -14,8 +14,8 @@ import org.springframework.web.server.ResponseStatusException;
 import za.co.bbd.grad.fupboard.api.FupboardUtils;
 import za.co.bbd.grad.fupboard.api.dbobjects.Project;
 import za.co.bbd.grad.fupboard.api.models.CreateProjectRequest;
+import za.co.bbd.grad.fupboard.api.models.Leaderboard;
 import za.co.bbd.grad.fupboard.api.models.UpdateProjectRequest;
-import za.co.bbd.grad.fupboard.api.repositories.ProjectRepository;
 import za.co.bbd.grad.fupboard.api.services.ProjectService;
 import za.co.bbd.grad.fupboard.api.services.UserService;
 
@@ -70,6 +70,24 @@ public class ProjectController {
         }
 
         return project;
+    }
+    
+    @GetMapping("/v1/projects/{projectId}/leaderboard")
+    public Leaderboard getProjectLeaderboard(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId) {
+        var user = userService.getUserByJwt(jwt).get();
+        var projectOpt = projectService.getProjectById(projectId);
+
+        if (projectOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        var project = projectOpt.get();
+        
+        if (!projectService.allowedToReadProject(project, user)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
+        return project.getLeaderboard();
     }
     
     @PatchMapping("/v1/projects/{projectId}")
