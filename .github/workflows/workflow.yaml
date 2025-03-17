@@ -53,11 +53,6 @@ jobs:
         run: |
           sudo apt update
           sudo apt install maven
-          
-      - name: Run unit tests
-        working-directory: ./fupboard-api
-        run: |
-          mvn clean test
 
       - name: Create Secrets File
         working-directory: ./fupboard-api/src/main/resources
@@ -78,6 +73,12 @@ jobs:
           echo "  oauth2:" >> $file
           echo "    client-id: ${{ secrets.CLIENT_ID }}" >> $file
           echo "    client-secret: ${{ secrets.CLIENT_SECRET }}" >> $file
+          
+
+      - name: Run unit tests
+        working-directory: ./fupboard-api
+        run: |
+          mvn clean test
 
       - name: Build JAR for api with Maven
         working-directory: ./fupboard-api
