@@ -33,6 +33,10 @@ public class ProjectInvite {
         this.accepted = accepted;
     }
 
+    public String getUsername() {
+        return user.getUsername();
+    }
+
     public int getProjectId() {
         return project.getProjectId();
     }
