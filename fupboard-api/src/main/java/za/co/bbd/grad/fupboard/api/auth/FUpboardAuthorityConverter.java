@@ -85,6 +85,7 @@ public class FUpboardAuthorityConverter implements Converter<Jwt, Collection<Gra
         var authorities = new ArrayList<GrantedAuthority>();
 
         var roles = user.getRoles();
+        if (roles == null) roles = new ArrayList<>();
 
         for (Role role : roles) {
             for (Permission permission : role.getPermissions()) {
