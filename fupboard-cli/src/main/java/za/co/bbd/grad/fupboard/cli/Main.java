@@ -28,7 +28,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         boolean continueUsing = true;
 
-        var states = new ArrayList<NavState>();
+        ArrayList<NavState> states = new ArrayList<NavState>();
         states.add(new StartState());
 
         while (continueUsing) {

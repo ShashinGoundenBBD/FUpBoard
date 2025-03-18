@@ -38,8 +38,8 @@
   </build>
 
   <properties>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>23</maven.compiler.source>
+    <maven.compiler.target>23</maven.compiler.target>
     <exec.mainClass>za.co.bbd.grad.fupboard.cli.Main</exec.mainClass>
   </properties>
   <dependencies>

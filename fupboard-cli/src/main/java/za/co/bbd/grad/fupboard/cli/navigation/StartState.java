@@ -20,12 +20,9 @@ public class StartState implements NavState {
             case 0:
                 return new NavResponse.Back();
             case 1:
-                // todo
-                return new NavResponse.Stay();
+                return new NavResponse.Push(new UserState());
             case 2:
-                System.out.println("Enter project id: ");
-                int project = Integer.parseInt(scanner.nextLine());
-                return new NavResponse.Push(new ProjectState(project));
+                return new NavResponse.Push(new ProjectMenuState());
             default:
                 System.out.println("Invalid choice.");
                 return new NavResponse.Stay();

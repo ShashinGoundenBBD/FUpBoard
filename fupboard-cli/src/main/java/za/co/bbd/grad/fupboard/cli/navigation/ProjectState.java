@@ -17,9 +17,35 @@ public class ProjectState implements NavState {
     @Override
     public NavResponse handle(Scanner scanner) {
         System.out.println("0. Back");
-        System.out.println("1. Do something to project.");
-        System.out.println("2. go to f-up.");
-        var fUp = Integer.parseInt(scanner.nextLine());
-        return new NavResponse.Push(new FUpState(project, fUp));
+        System.out.println("1. Edit project.");
+        System.out.println("2. Delete project.");
+        System.out.println("3. Manage project F-Ups.");
+        System.out.println("4. View Leaderboard.");
+        System.out.println("5. Invite users to project.");
+        var choice = Integer.parseInt(scanner.nextLine());
+
+        switch (choice)
+        {
+            case 0:
+                return new NavResponse.Back();
+            case 1: 
+                //editMyProject()
+                return new NavResponse.Stay();
+            case 2:
+                //deleteMyProject()
+                return new NavResponse.Stay();
+            case 3:
+                return new NavResponse.Push(new FUpMenuState(project));
+            case 4:
+                //call leaderboard function
+                return new NavResponse.Stay();
+            case 5:
+                //call invite to project function
+                return new NavResponse.Stay();
+            default:
+                System.out.println("Invalid choice.");
+                return new NavResponse.Stay();
+                
+        }
     }
 }

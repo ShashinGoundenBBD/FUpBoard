@@ -4,46 +4,42 @@ import java.util.Scanner;
 
 import za.co.bbd.grad.fupboard.cli.ConsoleColors;
 
-public class FUpState implements NavState {
-    private int project;
-    private int fUp;
+public class ManageInvitesState implements NavState {
+   
+    private int inviteNumber;
 
-    public FUpState(int project, int fUp) {
-        this.project = project;
-        this.fUp = fUp;
+    public ManageInvitesState(int inviteNumber) {
+        this.inviteNumber = inviteNumber;
     }
 
     @Override
     public String getLocation() {
-        return "F-Up #" + fUp;
+        return "Invite # " + inviteNumber;
     }
 
     @Override
     public NavResponse handle(Scanner scanner) {
         System.out.println("0. Back");
-        System.out.println("1. Score F-Up");
-        System.out.println("2. Edit F-Up score");
-        System.out.println("3. Delete F-Up");
+        System.out.println("1. Accept invite");
+        System.out.println("2. Decline invite");
 
-        int choice = Integer.parseInt(scanner.nextLine());
+        var choice = Integer.parseInt(scanner.nextLine());
 
         switch (choice)
         {
-            case 0:
+            case 0: 
                 return new NavResponse.Back();
-            case 1:
-                //voteForFUpFunction
+            case 1 : 
+              //  acceptInviteFunction();
                 return new NavResponse.Stay();
             case 2:
-                //editFUpFunction
-                return new NavResponse.Stay();
-            case 3:
-                //deleteFUpFunction
+               // declineInviteFunction();
                 return new NavResponse.Stay();
             default:
                 System.out.println(ConsoleColors.RED + "Please select a valid option." + ConsoleColors.RESET);
                 return new NavResponse.Stay();
         }
+
 
     }
 }

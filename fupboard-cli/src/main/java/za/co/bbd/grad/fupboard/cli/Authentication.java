@@ -38,7 +38,7 @@ public class Authentication {
                 "&redirect_uri=" + callbackUriEncoded +
                 "&client_id=726398493120-51ed3jodt4omlkba1go3ppfv13uu37au.apps.googleusercontent.com";
         
-        System.out.println("Opening " + oauth2RequestUri);
+        System.out.println(ConsoleColors.BLUE + "Please use this link to sign in: " + ConsoleColors.RESET + oauth2RequestUri);
 
         try {
             java.awt.Desktop.getDesktop().browse(new URI(oauth2RequestUri));
@@ -47,8 +47,6 @@ public class Authentication {
         } catch (IOException e) {
             // --
         }
-        
-        System.out.println("Navigate to above URL if browser has not opened.");
         
         // wait for oauth2 callback
         var socket = server.accept();
@@ -105,8 +103,10 @@ public class Authentication {
         InputStream responseStream;
         if (errorMessage.length() > 0) {
             responseStream = Main.class.getResourceAsStream("/authfailure.html");
+            System.out.println(ConsoleColors.RED + "Signed in failed." + ConsoleColors.RESET);
         } else {
             responseStream = Main.class.getResourceAsStream("/authsuccess.html");
+            System.out.println(ConsoleColors.GREEN + "Succesfully signed in!" + ConsoleColors.RESET);
         }
         var responseReader = new BufferedReader(new InputStreamReader(responseStream));
 
