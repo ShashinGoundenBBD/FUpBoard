@@ -48,23 +48,48 @@ public class HttpUtil {
             if (response.statusCode() == 200 || response.statusCode() == 201) {
                 return response.body();
             } else {
-                System.out.println(ConsoleColors.RED + "Request failed: " + response.statusCode() + ConsoleColors.RESET);
+               // System.out.println(ConsoleColors.RED + "Request failed: " + response.statusCode() + ConsoleColors.RESET);
               
+                // ObjectMapper objectMapper = new ObjectMapper();
+                // String responseBody = response.body();
+                // System.out.println(responseBody);
+                // String errorMessage = "Unknown error";
+
+                // try {
+                //     JsonNode jsonNode = objectMapper.readTree(responseBody);
+                //     if (jsonNode.has("error")) {
+                //         errorMessage = jsonNode.get("error").asText();
+                //     }
+                // } catch (Exception e) {
+                //     System.out.println(ConsoleColors.RED + "Failed to parse error message: " + e.getMessage() + ConsoleColors.RESET);
+                // }
+
+                // System.out.println(ConsoleColors.RED + "Error : " + response.statusCode() + " - " + errorMessage + ConsoleColors.RESET);
+                // System.out.println(errorMessage);
+                
+                // //return errorMessage;
+
                 ObjectMapper objectMapper = new ObjectMapper();
                 String responseBody = response.body();
+                //System.out.println("Raw Response Body: " + responseBody);
+
                 String errorMessage = "Unknown error";
 
                 try {
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
-                    if (jsonNode.has("message")) {
-                        errorMessage = jsonNode.get("message").asText();
+                   // System.out.println("Parsed JSON: " + jsonNode.toPrettyString()); // Debugging step
+
+                    if (jsonNode.has("error")) {
+                        errorMessage = jsonNode.get("error").asText();
                     }
                 } catch (Exception e) {
                     System.out.println(ConsoleColors.RED + "Failed to parse error message: " + e.getMessage() + ConsoleColors.RESET);
                 }
 
-                System.out.println(ConsoleColors.RED + "Request failed: " + response.statusCode() + " - " + errorMessage + ConsoleColors.RESET);
-                return errorMessage;
+                System.out.println(ConsoleColors.RED + "Error : " + response.statusCode() + " - " + errorMessage + ConsoleColors.RESET);
+               // System.out.println(errorMessage);
+
+                return null;
                 
             }
         } catch (IOException | InterruptedException e) {
