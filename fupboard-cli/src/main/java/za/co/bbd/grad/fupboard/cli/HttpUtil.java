@@ -6,6 +6,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class HttpUtil {
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
 
@@ -46,7 +49,25 @@ public class HttpUtil {
                 return response.body();
             } else {
                 System.out.println(ConsoleColors.RED + "Request failed: " + response.statusCode() + ConsoleColors.RESET);
-                return null;
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                String responseBody = response.body();
+                String errorMessage = "Unknown error";
+
+                try {
+                    JsonNode jsonNode = objectMapper.readTree(responseBody);
+                    if (jsonNode.has("message")) {
+                        errorMessage = jsonNode.get("message").asText();
+                    }
+                } catch (Exception e) {
+                    System.out.println(ConsoleColors.RED + "Failed to parse error message: " + e.getMessage() + ConsoleColors.RESET);
+                }
+
+                System.out.println(ConsoleColors.RED + "Request failed: " + response.statusCode() + " - " + errorMessage + ConsoleColors.RESET);
+                return errorMessage;
+              
+
+
             }
         } catch (IOException | InterruptedException e) {
             System.err.println(ConsoleColors.RED + "Error: " + e.getMessage() + ConsoleColors.RESET);
