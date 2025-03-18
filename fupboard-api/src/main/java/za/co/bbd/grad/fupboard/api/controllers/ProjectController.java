@@ -38,7 +38,7 @@ public class ProjectController {
     @GetMapping("/v1/projects")
     public List<Project> getProjects(@AuthenticationPrincipal Jwt jwt) {
         var user = userService.getUserByJwt(jwt).get();
-        return projectService.getProjectsForOwner(user);
+        return projectService.getProjectsOwnerOrCollaborator(user);
     }
 
     @Transactional
