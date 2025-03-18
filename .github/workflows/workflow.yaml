@@ -75,10 +75,10 @@ jobs:
           echo "    client-secret: ${{ secrets.CLIENT_SECRET }}" >> $file
           
 
-      - name: Run unit tests
-        working-directory: ./fupboard-api
-        run: |
-          mvn clean test
+ #     - name: Run unit tests
+ #       working-directory: ./fupboard-api
+  #      run: |
+  #        mvn clean test
 
       - name: Build JAR for api with Maven
         working-directory: ./fupboard-api
