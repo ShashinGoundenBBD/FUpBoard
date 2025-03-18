@@ -12,7 +12,12 @@ public class ProjectMenuState implements NavState {
 
     @Override
     public String getLocation() {
-        return "Project Menu" ;
+        return 
+        """
+        ▄█ ░   █▀█ █▀█ █▀█ ░░█ █▀▀ █▀▀ ▀█▀   █▀▄▀█ █▀▀ █▄░█ █░█
+        ░█ ▄   █▀▀ █▀▄ █▄█ █▄█ ██▄ █▄▄ ░█░   █░▀░█ ██▄ █░▀█ █▄█
+                
+                """; 
     }
 
     @Override
