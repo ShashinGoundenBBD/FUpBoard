@@ -49,7 +49,7 @@ public class HttpUtil {
                 return response.body();
             } else {
                 System.out.println(ConsoleColors.RED + "Request failed: " + response.statusCode() + ConsoleColors.RESET);
-
+              
                 ObjectMapper objectMapper = new ObjectMapper();
                 String responseBody = response.body();
                 String errorMessage = "Unknown error";
@@ -65,9 +65,7 @@ public class HttpUtil {
 
                 System.out.println(ConsoleColors.RED + "Request failed: " + response.statusCode() + " - " + errorMessage + ConsoleColors.RESET);
                 return errorMessage;
-              
-
-
+                
             }
         } catch (IOException | InterruptedException e) {
             System.err.println(ConsoleColors.RED + "Error: " + e.getMessage() + ConsoleColors.RESET);
