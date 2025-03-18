@@ -2,13 +2,17 @@ package za.co.bbd.grad.fupboard.cli;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Scanner;
+
+import za.co.bbd.grad.fupboard.cli.navigation.NavResponse;
+import za.co.bbd.grad.fupboard.cli.navigation.NavState;
+import za.co.bbd.grad.fupboard.cli.navigation.StartState;
 
 public class Main {
     private static String authToken;
 
     public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException {
-    
         // Welcome to FUPBoard
         displayWelcomeMessage();
         // Sign into Google account to proceed
@@ -24,71 +28,33 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         boolean continueUsing = true;
 
+        var states = new ArrayList<NavState>();
+        states.add(new StartState());
+
         while (continueUsing) {
-            System.out.println("\nChoose an option:");
-            System.out.println(" -> User");
-            System.out.println("1. Accept/Decline invites");
-            System.out.println("\n -> Projects");
-            System.out.println("2. Create a project");
-            System.out.println("3. View my projects");
-            System.out.println("4. Edit my projects");
-            System.out.println("5. Delete a project");
-            System.out.println("\n -> FUps");
-            System.out.println("6. Report an FUp");
-            System.out.println("7. View an FUp");
-            System.out.println("8. Delete an FUp");
-            System.out.println("9. Edit an FUp");
-            System.out.println("10. View leaderboard");
-            System.out.println("11. View votes on an FUp");
-            System.out.println("\n -> Votes");
-            System.out.println("12. Create a vote");
-            System.out.println("13. View a specific vote");
-            System.out.println("14. Edit a vote");
-            System.out.println("15. Delete a vote");
-            System.out.println("16. View project invites");
-            System.out.println("17. Send project invite");
-            System.out.println("18. Delete project invite");
-            System.out.println("19. Display FUp summarry");
-            System.out.println("0. Exit");
-            System.out.print("What would you like to do? Please enter the number only: ");
-
-            int choice = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (choice) {
-                case 1 -> InviteService.acceptOrDeclineInvite(scanner, authToken);
-                case 2 -> ProjectService.createNewProject(scanner, authToken);
-                case 3 -> ProjectService.viewMyProjects(authToken);
-                case 4 -> ProjectService.editMyProjects(scanner, authToken);
-                case 5 -> ProjectService.deleteProject(scanner, authToken);
-                case 6 -> FUpService.reportFUp(scanner, authToken);
-                case 7 -> FUpService.viewFUp(scanner, authToken);
-                case 8 -> FUpService.deleteFUp(scanner, authToken);
-                case 9 -> FUpService.editFUp(scanner, authToken);
-                case 10 -> LeaderboardService.viewLeaderboard(scanner, authToken);
-                case 11 -> VoteService.viewVotes(scanner, authToken);
-                case 12 -> VoteService.createVote(scanner, authToken);
-                case 13 -> VoteService.viewVotes(scanner, authToken);
-                case 14 -> VoteService.editVote(scanner, authToken);
-                case 15 -> VoteService.deleteVote(scanner, authToken);
-                case 16 -> InviteService.viewProjectInvites(scanner, authToken);
-                case 17 -> InviteService.createProjectInvite(scanner, authToken);
-                case 18 -> InviteService.deleteProjectInvite(scanner, authToken);
-                case 19 -> FUpService.getFUpSummary(scanner, authToken);
-                case 0 -> {
-                    System.out.println("Exiting...");
-                    continueUsing = false;
-                }
-                default -> System.out.println("Invalid choice. Please enter a valid option.");
+            if (states.isEmpty()) {
+                System.out.println("Goodbye! :)");
+                break;
             }
+            
+            var navState = states.getLast();
 
-            if (continueUsing) {
-                System.out.print("\nWould you like to do anything else? (y/n): ");
-                String response = scanner.nextLine().trim().toLowerCase();
-                if (!response.equals("y")) {
-                    System.out.println("Exiting...");
-                    continueUsing = false;
-                }
+            var locationList = states.stream()
+                .map(s -> s.getLocation())
+                .filter(l -> l != null && !l.isEmpty())
+                .toList();
+            var location = String.join(" -> ", locationList);
+            System.out.println("\n" + location);
+            
+            var navResponse = navState.handle(scanner);
+
+            if (navResponse instanceof NavResponse.Exit) {
+                break;
+            } else if (navResponse instanceof NavResponse.Back) {
+                states.removeLast();
+            } else if (navResponse instanceof NavResponse.Push) {
+                var newState = ((NavResponse.Push)navResponse).getNewState();
+                states.add(newState);
             }
         }
 

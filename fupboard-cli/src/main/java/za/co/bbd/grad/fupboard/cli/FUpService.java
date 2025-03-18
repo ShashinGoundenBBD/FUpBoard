@@ -157,55 +157,55 @@ public class FUpService {
         System.out.println(ConsoleColors.GREEN + "-> FUp deleted successfully!" + ConsoleColors.RESET);
     }
 
-        public static void editFUp(Scanner scanner, String authToken) {
-            Map<Integer, Integer> projectIndexMap = ProjectService.viewMyProjects(authToken);
-            if (projectIndexMap.isEmpty()) return;
-    
-            System.out.print(ConsoleColors.YELLOW + "Enter project number: " + ConsoleColors.RESET);
-            int projectIndex = scanner.nextInt();
-            scanner.nextLine();
-    
-            Integer projectId = projectIndexMap.get(projectIndex);
-            if (projectId == null) {
-                System.out.println(ConsoleColors.RED + "Invalid project selection." + ConsoleColors.RESET);
-                return;
-            }
-    
-            Map<Integer, Integer> fUpIndexMap = viewFUps(authToken, projectId);
-            if (fUpIndexMap.isEmpty()) return;
-    
-            System.out.print(ConsoleColors.YELLOW + "Enter FUp number to edit: " + ConsoleColors.RESET);
-            int fUpIndex = scanner.nextInt();
-            scanner.nextLine();
-    
-            Integer fUpId = fUpIndexMap.get(fUpIndex);
-            if (fUpId == null) {
-                System.out.println(ConsoleColors.RED + "Invalid FUp selection." + ConsoleColors.RESET);
-                return;
-            }
-    
-            System.out.print(ConsoleColors.YELLOW + "Enter new FUp name (leave blank to keep current): " + ConsoleColors.RESET);
-            String name = scanner.nextLine();
-    
-            System.out.print(ConsoleColors.YELLOW + "Enter new FUp description (leave blank to keep current): " + ConsoleColors.RESET);
-            String description = scanner.nextLine();
-    
-            if (name.isEmpty() && description.isEmpty()) {
-                System.out.println(ConsoleColors.BLUE + "-> No changes made." + ConsoleColors.RESET);
-                return;
-            }
-    
-            String jsonBody = String.format("{\"name\":\"%s\", \"description\":\"%s\"}", name, description);
-            String responseBody = sendRequest(patchRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId, jsonBody));
-    
-            if (responseBody != null) {
-                System.out.println(ConsoleColors.GREEN + "-> FUp updated successfully!" + ConsoleColors.RESET);
-                displayFUp(responseBody);
-            }
+    public static void editFUp(Scanner scanner, String authToken) {
+        Map<Integer, Integer> projectIndexMap = ProjectService.viewMyProjects(authToken);
+        if (projectIndexMap.isEmpty()) return;
+
+        System.out.print(ConsoleColors.YELLOW + "Enter project number: " + ConsoleColors.RESET);
+        int projectIndex = scanner.nextInt();
+        scanner.nextLine();
+
+        Integer projectId = projectIndexMap.get(projectIndex);
+        if (projectId == null) {
+            System.out.println(ConsoleColors.RED + "Invalid project selection." + ConsoleColors.RESET);
+            return;
         }
 
-        private static void displayFUp(String responseBody) {
-            try {
+        Map<Integer, Integer> fUpIndexMap = viewFUps(authToken, projectId);
+        if (fUpIndexMap.isEmpty()) return;
+
+        System.out.print(ConsoleColors.YELLOW + "Enter FUp number to edit: " + ConsoleColors.RESET);
+        int fUpIndex = scanner.nextInt();
+        scanner.nextLine();
+
+        Integer fUpId = fUpIndexMap.get(fUpIndex);
+        if (fUpId == null) {
+            System.out.println(ConsoleColors.RED + "Invalid FUp selection." + ConsoleColors.RESET);
+            return;
+        }
+
+        System.out.print(ConsoleColors.YELLOW + "Enter new FUp name (leave blank to keep current): " + ConsoleColors.RESET);
+        String name = scanner.nextLine();
+
+        System.out.print(ConsoleColors.YELLOW + "Enter new FUp description (leave blank to keep current): " + ConsoleColors.RESET);
+        String description = scanner.nextLine();
+
+        if (name.isEmpty() && description.isEmpty()) {
+            System.out.println(ConsoleColors.BLUE + "-> No changes made." + ConsoleColors.RESET);
+            return;
+        }
+
+        String jsonBody = String.format("{\"name\":\"%s\", \"description\":\"%s\"}", name, description);
+        String responseBody = sendRequest(patchRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId, jsonBody));
+
+        if (responseBody != null) {
+            System.out.println(ConsoleColors.GREEN + "-> FUp updated successfully!" + ConsoleColors.RESET);
+            displayFUp(responseBody);
+        }
+    }
+
+    private static void displayFUp(String responseBody) {
+        try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode fUp = objectMapper.readTree(responseBody);
 
