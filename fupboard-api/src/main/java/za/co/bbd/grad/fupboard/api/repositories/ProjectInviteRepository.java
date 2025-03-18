@@ -10,6 +10,7 @@ import za.co.bbd.grad.fupboard.api.dbobjects.User;
 
 public interface ProjectInviteRepository extends JpaRepository<ProjectInvite, Integer> {
     boolean existsByProjectAndUserAndAccepted(Project project, User user, boolean accepted);
+    boolean existsByProjectAndUser(Project project, User user);
 
     Optional<ProjectInvite> findByProjectAndUser(Project project, User user);
 }

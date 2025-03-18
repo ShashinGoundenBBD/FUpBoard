@@ -1,129 +1,227 @@
 package za.co.bbd.grad.fupboard.cli;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import za.co.bbd.grad.fupboard.Config;
+import static za.co.bbd.grad.fupboard.Config.BASE_URL;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.deleteRequest;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.getRequest;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.patchRequest;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.postRequest;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.sendRequest;
 
 public class FUpService {
     private static final String BASE_URL = "http://ec2-13-245-83-65.af-south-1.compute.amazonaws.com/";
 
-        // ANSI color codes
-        private static final String RESET = "\u001B[0m";
-        private static final String GREEN = "\u001B[32m";
-        private static final String RED = "\u001B[31m";
-        private static final String YELLOW = "\u001B[33m";
-        private static final String BLUE = "\u001B[34m";
+
+public class FUpService {
 
     public static void reportFUp(Scanner scanner, String authToken) {
-        System.out.println(YELLOW + "Enter FUp name:" + RESET);
+
+        Map<Integer, Integer> projectIndexMap = ProjectService.viewMyProjects(authToken);
+        if (projectIndexMap.isEmpty()) return;
+
+        System.out.print(ConsoleColors.YELLOW + "Enter project number: " + ConsoleColors.RESET);
+        int index = scanner.nextInt();
+        scanner.nextLine();
+        Integer projectId = projectIndexMap.get(index);
+
+        if (projectId == null) {
+            System.out.println(ConsoleColors.RED + "Invalid project selection." + ConsoleColors.RESET);
+            return;
+        }
+
+        System.out.print(ConsoleColors.YELLOW + "Enter FUp name: " + ConsoleColors.RESET);
         String name = scanner.nextLine();
 
         if (name.isEmpty()) {
-            System.out.println(RED + "FUp name cannot be empty." + RESET);
+            System.out.println(ConsoleColors.RED + "FUp name cannot be empty." + ConsoleColors.RESET);
+            return;
         }
 
-        System.out.println(YELLOW + "Enter FUp description:" + RESET);
+        System.out.print(ConsoleColors.YELLOW + "Enter FUp description: " + ConsoleColors.RESET);
         String description = scanner.nextLine();
 
         if (description.isEmpty()) {
-            System.out.println(RED + "Description cannot be empty." + RESET);
-        }
-
-        System.out.println(YELLOW + "Enter project id:" + RESET);
-        int projectId = scanner.nextInt();
-
-        
-        if (projectId <= 0) {
-            System.out.println(RED + "Project id cannot be empty." + RESET);
+            System.out.println(ConsoleColors.RED + "Description cannot be empty." + ConsoleColors.RESET);
+            return;
         }
 
         String jsonBody = String.format("{\"name\":\"%s\", \"description\":\"%s\"}", name, description);
-        sendRequest(authToken, postRequest(authToken, BASE_URL + "v1/projects/" + projectId + "/fups", jsonBody), "Reporting FUp");
+        String responseBody = sendRequest(postRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/fups", jsonBody));
+        if (responseBody != null) {
+            System.out.println(ConsoleColors.GREEN + "-> FUp reported successfully!" + ConsoleColors.RESET);
+            displayFUp(responseBody);
+        }
     }
 
-    public static void viewFUp(Scanner scanner, String authToken)
-    {
-        System.out.println("Enter project id to view FUps for:");
-        int fUpId = scanner.nextInt();
+    public static Map<Integer, Integer> viewFUps(String authToken, int projectId) {
+        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/fups"));
+        if (responseBody == null) {
+            System.out.println(ConsoleColors.RED + "-> Failed to retrieve FUps." + ConsoleColors.RESET);
+            return Collections.emptyMap();
+        }
 
-        System.out.println("Enter project id:");
-        int projectId = scanner.nextInt();
+        Map<Integer, Integer> fUpIndexMap = new HashMap<>();
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode fUps = objectMapper.readTree(responseBody);
 
-        sendRequest(authToken, getRequest(authToken, BASE_URL + "v1/projects/" + projectId + "/fups/" + fUpId), "Getting FUps");
+            if (fUps.isArray() && fUps.size() > 0) {
+                System.out.println(ConsoleColors.BLUE + "-> FUps in Project:" + ConsoleColors.RESET);
+                int index = 1;
+                for (JsonNode fUp : fUps) {
+                    int fUpId = fUp.get("fUpId").asInt();
+                    String fUpName = fUp.get("fUpName").asText();
+                    fUpIndexMap.put(index, fUpId);
+                    System.out.println(ConsoleColors.GREEN + " - [" + index + "] " + fUpName + ConsoleColors.RESET);
+                    index++;
+                }
+            } else {
+                System.out.println(ConsoleColors.RED + "-> No FUps found for this project." + ConsoleColors.RESET);
+            }
+        } catch (IOException e) {
+            System.err.println(ConsoleColors.RED + "Error parsing response: " + e.getMessage() + ConsoleColors.RESET);
+        }
+        return fUpIndexMap;
     }
+
+    public static void viewFUp(Scanner scanner, String authToken) {
+        Map<Integer, Integer> projectIndexMap = ProjectService.viewMyProjects(authToken);
+        if (projectIndexMap.isEmpty()) return;
+
+        System.out.print(ConsoleColors.YELLOW + "Enter project number: " + ConsoleColors.RESET);
+        int projectIndex = scanner.nextInt();
+        scanner.nextLine();
+
+        Integer projectId = projectIndexMap.get(projectIndex);
+        if (projectId == null) {
+            System.out.println(ConsoleColors.RED + "Invalid project selection." + ConsoleColors.RESET);
+            return;
+        }
+
+        Map<Integer, Integer> fUpIndexMap = viewFUps(authToken, projectId);
+        if (fUpIndexMap.isEmpty()) return;
+
+        System.out.print(ConsoleColors.YELLOW + "Enter FUp number: " + ConsoleColors.RESET);
+        int fUpIndex = scanner.nextInt();
+        scanner.nextLine();
+
+        Integer fUpId = fUpIndexMap.get(fUpIndex);
+        if (fUpId == null) {
+            System.out.println(ConsoleColors.RED + "Invalid FUp selection." + ConsoleColors.RESET);
+            return;
+        }
+
+        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId));
+        if (responseBody != null) {
+            System.out.println(ConsoleColors.BLUE + "-> FUp Details:" + ConsoleColors.RESET);
+            displayFUp(responseBody);
+        }
+    }
+
 
     public static void deleteFUp(Scanner scanner, String authToken) {
-        System.out.println("Enter FUp ID to delete:");
-        int fUpId = scanner.nextInt();
+        Map<Integer, Integer> projectIndexMap = ProjectService.viewMyProjects(authToken);
+        if (projectIndexMap.isEmpty()) return;
 
-        System.out.println("Enter project id:");
-        int projectId = scanner.nextInt();
+        System.out.print(ConsoleColors.YELLOW + "Enter project number: " + ConsoleColors.RESET);
+        int projectIndex = scanner.nextInt();
+        scanner.nextLine();
 
-        sendRequest(authToken, deleteRequest(authToken, BASE_URL + "v1/projects/" + projectId + "/fups/" + fUpId), "Deleting FUp");
-    }
-
-    public static void editFUp(Scanner scanner, String authToken) {
-        System.out.println("Enter FUp ID to edit:");
-        int fUpId = scanner.nextInt();
-        scanner.nextLine(); 
-        
-        System.out.println("Enter new FUp name (leave blank to keep current):");
-        String name = scanner.nextLine();
-        
-        System.out.println("Enter new FUp description (leave blank to keep current):");
-        String description = scanner.nextLine();
-
-        System.out.println("Enter project id:");
-        int projectId = scanner.nextInt();
-        
-        String jsonBody = String.format("{\"name\":\"%s\", \"description\":\"%s\"}", name, description);
-        sendRequest(authToken, patchRequest(authToken, BASE_URL + "v1/projects/" + projectId + "/fups/" + fUpId, jsonBody), "Editing FUp");
-    }
-
-    private static void sendRequest(String authToken, HttpRequest request, String action) {
-        try {
-            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(action + " Response: " + response.statusCode());
-            System.out.println(response.body());
-        } catch (IOException | InterruptedException e) {
-            System.err.println("Error: " + e.getMessage());
+        Integer projectId = projectIndexMap.get(projectIndex);
+        if (projectId == null) {
+            System.out.println(ConsoleColors.RED + "Invalid project selection." + ConsoleColors.RESET);
+            return;
         }
+
+        Map<Integer, Integer> fUpIndexMap = viewFUps(authToken, projectId);
+        if (fUpIndexMap.isEmpty()) return;
+
+        System.out.print(ConsoleColors.YELLOW + "Enter FUp number to delete: " + ConsoleColors.RESET);
+        int fUpIndex = scanner.nextInt();
+        scanner.nextLine();
+
+        Integer fUpId = fUpIndexMap.get(fUpIndex);
+        if (fUpId == null) {
+            System.out.println(ConsoleColors.RED + "Invalid FUp selection." + ConsoleColors.RESET);
+            return;
+        }
+
+        sendRequest(deleteRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId));
+        System.out.println(ConsoleColors.GREEN + "-> FUp deleted successfully!" + ConsoleColors.RESET);
     }
 
+        public static void editFUp(Scanner scanner, String authToken) {
+            Map<Integer, Integer> projectIndexMap = ProjectService.viewMyProjects(authToken);
+            if (projectIndexMap.isEmpty()) return;
     
-    private static HttpRequest deleteRequest(String authToken, String url) {
-        return HttpRequest.newBuilder().uri(URI.create(url))
-                .header("Authorization", "Bearer " + authToken)
-                .DELETE().build();
-    }
+            System.out.print(ConsoleColors.YELLOW + "Enter project number: " + ConsoleColors.RESET);
+            int projectIndex = scanner.nextInt();
+            scanner.nextLine();
+    
+            Integer projectId = projectIndexMap.get(projectIndex);
+            if (projectId == null) {
+                System.out.println(ConsoleColors.RED + "Invalid project selection." + ConsoleColors.RESET);
+                return;
+            }
+    
+            Map<Integer, Integer> fUpIndexMap = viewFUps(authToken, projectId);
+            if (fUpIndexMap.isEmpty()) return;
+    
+            System.out.print(ConsoleColors.YELLOW + "Enter FUp number to edit: " + ConsoleColors.RESET);
+            int fUpIndex = scanner.nextInt();
+            scanner.nextLine();
+    
+            Integer fUpId = fUpIndexMap.get(fUpIndex);
+            if (fUpId == null) {
+                System.out.println(ConsoleColors.RED + "Invalid FUp selection." + ConsoleColors.RESET);
+                return;
+            }
+    
+            System.out.print(ConsoleColors.YELLOW + "Enter new FUp name (leave blank to keep current): " + ConsoleColors.RESET);
+            String name = scanner.nextLine();
+    
+            System.out.print(ConsoleColors.YELLOW + "Enter new FUp description (leave blank to keep current): " + ConsoleColors.RESET);
+            String description = scanner.nextLine();
+    
+            if (name.isEmpty() && description.isEmpty()) {
+                System.out.println(ConsoleColors.BLUE + "-> No changes made." + ConsoleColors.RESET);
+                return;
+            }
+    
+            String jsonBody = String.format("{\"name\":\"%s\", \"description\":\"%s\"}", name, description);
+            String responseBody = sendRequest(patchRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId, jsonBody));
+    
+            if (responseBody != null) {
+                System.out.println(ConsoleColors.GREEN + "-> FUp updated successfully!" + ConsoleColors.RESET);
+                displayFUp(responseBody);
+            }
+        }
 
-    private static HttpRequest patchRequest(String authToken, String url, String json) {
-        return HttpRequest.newBuilder(URI.create(url))
-                .header("Authorization", "Bearer " + authToken)
-                .header("Content-Type", "application/json")
-                .method("PATCH", HttpRequest.BodyPublishers.ofString(json))
-                .build();
-    }
+        private static void displayFUp(String responseBody) {
+            try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode fUp = objectMapper.readTree(responseBody);
 
-    private static HttpRequest postRequest(String authToken, String url, String json) {
-        return HttpRequest.newBuilder().uri(URI.create(url))
-                .header("Authorization", "Bearer " + authToken)
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(json)).build();
-    }
+            String fUpName = fUp.get("fUpName").asText();
+            String fUpDescription = fUp.get("description").asText();
 
-    private static HttpRequest getRequest(String authToken, String url) {
-        return HttpRequest.newBuilder().uri(URI.create(url))
-                .header("Authorization", "Bearer " + authToken)
-                .GET().build();
+            System.out.println(ConsoleColors.BLUE + "-> FUp Info:" + ConsoleColors.RESET);
+            System.out.println("   Name: " + ConsoleColors.GREEN + fUpName + ConsoleColors.RESET);
+            System.out.println("   Description: " + ConsoleColors.GREEN + fUpDescription + ConsoleColors.RESET);
+            System.out.println("--------------------------");
+
+        } catch (IOException e) {
+            System.err.println(ConsoleColors.RED + "Error parsing response: " + e.getMessage() + ConsoleColors.RESET);
+        }
     }
 
     public static void getFUpSummary(Scanner scanner, String authToken) {
@@ -191,3 +289,4 @@ public class FUpService {
     
     
 }
+

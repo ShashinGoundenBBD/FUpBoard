@@ -23,7 +23,7 @@ import za.co.bbd.grad.fupboard.api.models.LeaderboardEntry;
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer projectId;
+    private int projectId;
 
     private String projectName;
 
@@ -47,11 +47,15 @@ public class Project {
         this.owner = owner;
     }
 
-    public Integer getProjectId() {
+    public String getOwnerUsername() {
+        return owner.getUsername();
+    }
+
+    public int getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(Integer projectId) {
+    public void setProjectId(int projectId) {
         this.projectId = projectId;
     }
 

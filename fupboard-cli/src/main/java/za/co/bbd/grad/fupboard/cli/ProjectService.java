@@ -50,7 +50,7 @@ public class ProjectService {
             return;
         }
 
-        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "v1/projects/" + projectId));
+        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/projects/" + projectId));
         if (responseBody != null) {
             System.out.println(ConsoleColors.BLUE + "-> Project Details:" + ConsoleColors.RESET);
             displayProject(responseBody);
@@ -71,7 +71,7 @@ public class ProjectService {
             return;
         }
 
-        String responseBody = sendRequest(deleteRequest(authToken, BASE_URL + "v1/projects/" + projectId));
+        String responseBody = sendRequest(deleteRequest(authToken, BASE_URL + "/v1/projects/" + projectId));
 
         if (responseBody != null) {
             System.out.println(ConsoleColors.GREEN + "-> Project deleted successfully!" + ConsoleColors.RESET);
@@ -103,7 +103,7 @@ public class ProjectService {
         }
 
         String jsonBody = String.format("{\"name\":\"%s\"}", name);
-        String responseBody = sendRequest(patchRequest(authToken, BASE_URL + "v1/projects/" + projectId, jsonBody));
+        String responseBody = sendRequest(patchRequest(authToken, BASE_URL + "/v1/projects/" + projectId, jsonBody));
 
         if (responseBody != null) {
             System.out.println(ConsoleColors.GREEN + "-> Project updated successfully!" + ConsoleColors.RESET);
