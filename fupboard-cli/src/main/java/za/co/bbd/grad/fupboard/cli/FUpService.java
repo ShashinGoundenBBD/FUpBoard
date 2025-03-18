@@ -1,6 +1,7 @@
 package za.co.bbd.grad.fupboard.cli;
 
 import java.io.IOException;
+import java.net.http.HttpRequest;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,9 +17,6 @@ import static za.co.bbd.grad.fupboard.cli.HttpUtil.getRequest;
 import static za.co.bbd.grad.fupboard.cli.HttpUtil.patchRequest;
 import static za.co.bbd.grad.fupboard.cli.HttpUtil.postRequest;
 import static za.co.bbd.grad.fupboard.cli.HttpUtil.sendRequest;
-
-public class FUpService {
-    private static final String BASE_URL = "http://ec2-13-245-83-65.af-south-1.compute.amazonaws.com/";
 
 
 public class FUpService {
