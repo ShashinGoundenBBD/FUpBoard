@@ -9,12 +9,17 @@ import java.util.Scanner;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import za.co.bbd.grad.fupboard.Config;
 import static za.co.bbd.grad.fupboard.Config.BASE_URL;
 import static za.co.bbd.grad.fupboard.cli.HttpUtil.deleteRequest;
 import static za.co.bbd.grad.fupboard.cli.HttpUtil.getRequest;
 import static za.co.bbd.grad.fupboard.cli.HttpUtil.patchRequest;
 import static za.co.bbd.grad.fupboard.cli.HttpUtil.postRequest;
 import static za.co.bbd.grad.fupboard.cli.HttpUtil.sendRequest;
+
+public class FUpService {
+    private static final String BASE_URL = "http://ec2-13-245-83-65.af-south-1.compute.amazonaws.com/";
+
 
 public class FUpService {
 
@@ -218,5 +223,70 @@ public class FUpService {
             System.err.println(ConsoleColors.RED + "Error parsing response: " + e.getMessage() + ConsoleColors.RESET);
         }
     }
+
+    public static void getFUpSummary(Scanner scanner, String authToken) {
+        // Show projects and their IDs
+        ProjectService.viewMyProjects(authToken);
+
+        // Ask user to pick a project ID
+        System.out.print(ConsoleColors.YELLOW + "Enter project number of f-up you want to view: " + ConsoleColors.RESET);
+        int projectId = scanner.nextInt();
+        scanner.nextLine();
+        
+
+        //Show fups and their ids
+        System.out.print(ConsoleColors.YELLOW + "Enter fUp number to view summary of it: " + ConsoleColors.RESET);
+        int fUpId = scanner.nextInt();
+        scanner.nextLine();
+         
+        HttpRequest request = HttpUtil.getRequest(authToken, Config.BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId + "/leaderboard");
+        String response = HttpUtil.sendRequest(request);
+
+        if (response == null) {
+            System.out.println(ConsoleColors.RED + "Failed to retrieve summary." + ConsoleColors.RESET);
+            return;
+        }
+        else
+        {
+            displayFUpSummary(response);
+        }
+    }
+
+    public static void displayFUpSummary(String responseBody) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode root = objectMapper.readTree(responseBody);
+            JsonNode entriesNode = root.get("entries");
+    
+            if (entriesNode == null || !entriesNode.isArray() || entriesNode.isEmpty()) {
+                System.out.println(ConsoleColors.RED + "No summary data available." + ConsoleColors.RESET);
+                return;
+            }
+    
+            String reset = ConsoleColors.RESET;
+            String blue = ConsoleColors.BLUE;
+    
+            String borderTop = "┌───────────────────────────┬──────────┐";
+            String separator = "├───────────────────────────┼──────────┤";
+            String borderBottom = "└───────────────────────────┴──────────┘";
+    
+            System.out.println(borderTop);
+            System.out.printf("│" + blue + " %-25s " + reset +  "│" + blue + " %-8s " + reset + "│\n", "Reporter", "Score");
+            System.out.println(separator);
+    
+            for (JsonNode entry : entriesNode) {
+                String username = entry.get("username").asText();
+                double score = entry.get("score").asDouble();
+    
+                System.out.printf("│ %-25s │ %-8.1f │\n", username, score);
+            }
+    
+            System.out.println(borderBottom);
+        } catch (IOException e) {
+            System.err.println(ConsoleColors.RED + "Error parsing response: " + e.getMessage() + ConsoleColors.RESET);
+        }
+    }
+    
+    
 }
 

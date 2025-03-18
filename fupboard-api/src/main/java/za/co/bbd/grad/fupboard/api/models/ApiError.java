@@ -14,7 +14,8 @@ public enum ApiError {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found."),
     VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "Vote not found."),
     DATA_INTEGRITY(HttpStatus.BAD_REQUEST, "This request would violate database constraints."),
-    USER_ALREADY_INVITED(HttpStatus.BAD_REQUEST, "User already invited.");
+    USER_ALREADY_INVITED(HttpStatus.BAD_REQUEST, "User already invited."),
+    VOTE_EXISTS(HttpStatus.BAD_REQUEST, "Vote already exists.");
 
     public final HttpStatus status;
     public final String message;
