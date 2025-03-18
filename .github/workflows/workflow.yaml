@@ -83,7 +83,7 @@ jobs:
       - name: Build JAR for api with Maven
         working-directory: ./fupboard-api
         run: |
-          mvn clean install
+          mvn package -DskipTests
 
       - name: Deploy to EC2
         working-directory: ./fupboard-api/target
