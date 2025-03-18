@@ -29,7 +29,7 @@ public class ProjectService {
 
         String jsonBody = String.format("{\"name\":\"%s\"}", projectName);
         String responseBody = sendRequest(postRequest(authToken, BASE_URL + "/v1/projects", jsonBody));
-        System.out.println(responseBody);
+
         if (responseBody != null) {
             System.out.println(ConsoleColors.GREEN + "-> Project created successfully!" + ConsoleColors.RESET);
             displayProject(responseBody);
