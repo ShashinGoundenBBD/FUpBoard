@@ -5,10 +5,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import za.co.bbd.grad.fupboard.api.dbobjects.FUp;
-import za.co.bbd.grad.fupboard.api.dbobjects.Project;
-import za.co.bbd.grad.fupboard.api.dbobjects.Vote;
 import za.co.bbd.grad.fupboard.api.dbobjects.User;
-import za.co.bbd.grad.fupboard.api.repositories.VoteRepository;
+import za.co.bbd.grad.fupboard.api.dbobjects.Vote;
 import za.co.bbd.grad.fupboard.api.repositories.VoteRepository;
 
 @Service
@@ -30,5 +28,9 @@ public class VoteService {
 
     public Optional<Vote> getVoteById(int voteId) {
         return voteRepository.findById(voteId);
+    }
+
+    public boolean voteExists(FUp fUp, User accused) {
+        return voteRepository.existsByFUpAndAccused(fUp, accused);
     }
 }

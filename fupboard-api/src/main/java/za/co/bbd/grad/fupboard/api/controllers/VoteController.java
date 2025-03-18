@@ -25,17 +25,12 @@ public class VoteController {
 
     private final VoteService voteService;
 
-    private final FUpController FUpController;
-
     private final FUpService fUpService;
-    private final ProjectService projectService;
     private final UserService userService;
 
-    VoteController(UserService userService, ProjectService projectService, FUpService fUpService, FUpController FUpController, VoteService voteService) {
+    VoteController(UserService userService, FUpService fUpService, VoteService voteService) {
         this.userService = userService;
-        this.projectService = projectService;
         this.fUpService = fUpService;
-        this.FUpController = FUpController;
         this.voteService = voteService;
     }
     
@@ -72,7 +67,7 @@ public class VoteController {
         if (!fUpService.allowedToWriteFUp(fUp, reporter))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 
-        // Vlidation
+        // Validation
         if (request.getAccusedUsername() == null || request.getAccusedUsername().isEmpty())
             return ApiError.VALIDATION.response("`accusedUsername` must be non-empty");
 
@@ -85,6 +80,10 @@ public class VoteController {
             return ApiError.USER_NOT_FOUND.response();
     
         var accused = accusedOpt.get();
+
+        if (voteService.voteExists(fUp, accused)) {
+            return ApiError.VOTE_EXISTS.response();
+        }
         
         var vote = new Vote(reporter, accused, fUp, request.getScore());
 

@@ -44,70 +44,33 @@ public class JwtController {
         produces = MediaType.APPLICATION_JSON_VALUE
     )
 
-    // public String postJwt(JwtRequest req) throws URISyntaxException, IOException, InterruptedException {
-    //     var httpClient = HttpClient.newHttpClient();
-
-    //     var encRequestCode = URLEncoder.encode(req.getCode(), Charset.defaultCharset());
-    //     var encRequestUri = URLEncoder.encode(req.getUri(), Charset.defaultCharset());
-    //     var encClientId = URLEncoder.encode(clientId, Charset.defaultCharset());
-    //     var encClientSecret = URLEncoder.encode(clientSecret, Charset.defaultCharset());
-
-    //     HttpRequest request = HttpRequest.newBuilder(new URI(tokenUri))
-    //         .header("content-type", MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    //         .POST(BodyPublishers.ofString(
-    //             "code=" + encRequestCode +
-    //             "&redirect_uri=" + encRequestUri +
-    //             "&grant_type=authorization_code" +
-    //             "&client_id=" +encClientId +
-    //             "&client_secret=" + encClientSecret
-    //         ))
-    //         .build();
-        
-	// 	var resp = httpClient.send(request, BodyHandlers.ofString());
-		
-	// 	var status = HttpStatus.valueOf(resp.statusCode());
-		
-	// 	if (!status.is2xxSuccessful()) {
-	// 		throw new ResponseStatusException(status);
-	// 	}
-        
-	// 	return resp.body();
-
-
-        
-    // }
-
-    
-
     public String postJwt(JwtRequest req) throws URISyntaxException, IOException, InterruptedException {
-    var httpClient = HttpClient.newHttpClient();
+        var httpClient = HttpClient.newHttpClient();
 
-    var encRequestCode = URLEncoder.encode(req.getCode(), Charset.defaultCharset());
-    var encRequestUri = URLEncoder.encode(req.getUri(), Charset.defaultCharset());
-    var encClientId = URLEncoder.encode(clientId, Charset.defaultCharset());
-    var encClientSecret = URLEncoder.encode(clientSecret, Charset.defaultCharset());
+        var encRequestCode = URLEncoder.encode(req.getCode(), Charset.defaultCharset());
+        var encRequestUri = URLEncoder.encode(req.getUri(), Charset.defaultCharset());
+        var encClientId = URLEncoder.encode(clientId, Charset.defaultCharset());
+        var encClientSecret = URLEncoder.encode(clientSecret, Charset.defaultCharset());
 
-    HttpRequest request = HttpRequest.newBuilder(new URI(tokenUri))
-        .header("content-type", MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-        .POST(BodyPublishers.ofString(
-            "code=" + encRequestCode +
-            "&redirect_uri=" + encRequestUri +
-            "&grant_type=authorization_code" +
-            "&client_id=" + encClientId +
-            "&client_secret=" + encClientSecret
-        ))
-        .build();
-
-    HttpResponse<String> resp = httpClient.send(request, BodyHandlers.ofString()); // Make sure this executes properly
-
-    HttpStatus status = HttpStatus.valueOf(resp.statusCode()); // Fix variable reference
-
-    if (!status.is2xxSuccessful()) {
-        throw new ResponseStatusException(status, "Error in OAuth2 token exchange: " + resp.body());
+        HttpRequest request = HttpRequest.newBuilder(new URI(tokenUri))
+            .header("content-type", MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+            .POST(BodyPublishers.ofString(
+                "code=" + encRequestCode +
+                "&redirect_uri=" + encRequestUri +
+                "&grant_type=authorization_code" +
+                "&client_id=" +encClientId +
+                "&client_secret=" + encClientSecret
+            ))
+            .build();
+        
+		var resp = httpClient.send(request, BodyHandlers.ofString());
+		
+		var status = HttpStatus.valueOf(resp.statusCode());
+		
+		if (!status.is2xxSuccessful()) {
+			throw new ResponseStatusException(status);
+		}
+        
+		return resp.body();
     }
-
-    return resp.body();
-}
-
-
 }

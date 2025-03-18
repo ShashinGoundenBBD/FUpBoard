@@ -8,7 +8,6 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "votes")
 public class Vote {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int voteId;
