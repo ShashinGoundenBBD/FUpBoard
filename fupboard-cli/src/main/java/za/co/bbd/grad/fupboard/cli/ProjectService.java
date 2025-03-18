@@ -1,96 +1,162 @@
 package za.co.bbd.grad.fupboard.cli;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static za.co.bbd.grad.fupboard.Config.BASE_URL;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.deleteRequest;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.getRequest;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.patchRequest;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.postRequest;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.sendRequest;
+
 public class ProjectService {
-    private static final String BASE_URL = "http://localhost:8080/";
 
     public static void createNewProject(Scanner scanner, String authToken) {
-        System.out.print("Enter project name: ");
+        System.out.print(ConsoleColors.YELLOW + "Enter project name: " + ConsoleColors.RESET);
         String projectName = scanner.nextLine();
 
         if (projectName.isEmpty()) {
-            System.out.println("Project name cannot be empty.");
+            System.out.println(ConsoleColors.RED + "Project name cannot be empty." + ConsoleColors.RESET);
             return;
         }
 
         String jsonBody = String.format("{\"name\":\"%s\"}", projectName);
-        sendRequest(authToken, postRequest(authToken, BASE_URL + "v1/projects", jsonBody), "Creating project");
+        String responseBody = sendRequest(postRequest(authToken, BASE_URL + "/v1/projects", jsonBody));
+
+        if (responseBody != null) {
+            System.out.println(ConsoleColors.GREEN + "-> Project created successfully!" + ConsoleColors.RESET);
+            displayProject(responseBody);
+        }
     }
 
-    public static void getProjectById(Scanner scanner, String authToken) {
-        System.out.print("Enter project ID: ");
-        int projectId = scanner.nextInt();
-        sendRequest(authToken, getRequest(authToken, BASE_URL + "v1/projects/" + projectId), "Fetching project details");
+    public static void getProjectByIndex(Scanner scanner, String authToken) {
+        Map<Integer, Integer> projectIndexMap = viewMyProjects(authToken);
+        if (projectIndexMap.isEmpty()) return;
+
+        System.out.print(ConsoleColors.YELLOW + "Enter project number: " + ConsoleColors.RESET);
+        int index = scanner.nextInt();
+        scanner.nextLine();
+
+        Integer projectId = projectIndexMap.get(index);
+        if (projectId == null) {
+            System.out.println(ConsoleColors.RED + "Invalid selection." + ConsoleColors.RESET);
+            return;
+        }
+
+        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/projects/" + projectId));
+        if (responseBody != null) {
+            System.out.println(ConsoleColors.BLUE + "-> Project Details:" + ConsoleColors.RESET);
+            displayProject(responseBody);
+        }
     }
 
     public static void deleteProject(Scanner scanner, String authToken) {
-        System.out.print("Enter project ID to delete: ");
-        int projectId = scanner.nextInt();
-        sendRequest(authToken, deleteRequest(authToken, BASE_URL + "v1/projects/" + projectId), "Deleting project");
-    }
+        Map<Integer, Integer> projectIndexMap = viewMyProjects(authToken);
+        if (projectIndexMap.isEmpty()) return;
 
-    public static void viewMyProjects(String authToken) {
-        sendRequest(authToken, getRequest(authToken, BASE_URL + "v1/projects"), "Viewing all projects");
+        System.out.print(ConsoleColors.YELLOW + "Enter project number to delete: " + ConsoleColors.RESET);
+        int index = scanner.nextInt();
+        scanner.nextLine();
+
+        Integer projectId = projectIndexMap.get(index);
+        if (projectId == null) {
+            System.out.println(ConsoleColors.RED + "Invalid selection." + ConsoleColors.RESET);
+            return;
+        }
+
+        String responseBody = sendRequest(deleteRequest(authToken, BASE_URL + "/v1/projects/" + projectId));
+
+        if (responseBody != null) {
+            System.out.println(ConsoleColors.GREEN + "-> Project deleted successfully!" + ConsoleColors.RESET);
+        } else {
+            System.out.println(ConsoleColors.RED + "-> Failed to delete project." + ConsoleColors.RESET);
+        }
     }
 
     public static void editMyProjects(Scanner scanner, String authToken) {
-        System.out.print("Enter project ID to edit: ");
-        int projectId = scanner.nextInt();
-        scanner.nextLine(); 
-        
-        System.out.print("Enter new project name (leave blank to keep current): ");
-        String name = scanner.nextLine();
-        
-        if (name.isEmpty()) {
-            System.out.println("No changes made.");
+        Map<Integer, Integer> projectIndexMap = viewMyProjects(authToken);
+        if (projectIndexMap.isEmpty()) return;
+
+        System.out.print(ConsoleColors.YELLOW + "Enter project number to edit: " + ConsoleColors.RESET);
+        int index = scanner.nextInt();
+        scanner.nextLine();
+
+        Integer projectId = projectIndexMap.get(index);
+        if (projectId == null) {
+            System.out.println(ConsoleColors.RED + "Invalid selection." + ConsoleColors.RESET);
             return;
         }
-    
-        String jsonBody = String.format("{\"name\":\"%s\"}", name);
-        sendRequest(authToken, patchRequest(authToken, BASE_URL + "v1/projects/" + projectId, jsonBody), "Updating project");
-    }
 
-    private static void sendRequest(String authToken, HttpRequest request, String action) {
-        try {
-            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(action + " Response: " + response.statusCode());
-            System.out.println(response.body());
-        } catch (IOException | InterruptedException e) {
-            System.err.println("Error: " + e.getMessage());
+        System.out.print(ConsoleColors.YELLOW + "Enter new project name (leave blank to keep current): " + ConsoleColors.RESET);
+        String name = scanner.nextLine();
+
+        if (name.isEmpty()) {
+            System.out.println(ConsoleColors.BLUE + "-> No changes made." + ConsoleColors.RESET);
+            return;
+        }
+
+        String jsonBody = String.format("{\"name\":\"%s\"}", name);
+        String responseBody = sendRequest(patchRequest(authToken, BASE_URL + "/v1/projects/" + projectId, jsonBody));
+
+        if (responseBody != null) {
+            System.out.println(ConsoleColors.GREEN + "-> Project updated successfully!" + ConsoleColors.RESET);
+            displayProject(responseBody);
         }
     }
 
-    private static HttpRequest postRequest(String authToken, String url, String json) {
-        return HttpRequest.newBuilder().uri(URI.create(url))
-                .header("Authorization", "Bearer " + authToken)
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(json)).build();
+    public static Map<Integer, Integer> viewMyProjects(String authToken) {
+         String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/projects"));
+
+        if (responseBody == null) {
+            System.out.println(ConsoleColors.RED + "-> Failed to retrieve projects." + ConsoleColors.RESET);
+            return Collections.emptyMap();
+        }
+
+        Map<Integer, Integer> projectIndexMap = new HashMap<>();
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode projects = objectMapper.readTree(responseBody);
+
+            if (projects.isArray() && projects.size() > 0) {
+                System.out.println(ConsoleColors.BLUE + "-> Your Projects:" + ConsoleColors.RESET);
+                int index = 1;
+                for (JsonNode project : projects) {
+                    int projectId = project.get("projectId").asInt();
+                    String projectName = project.get("projectName").asText();
+                    projectIndexMap.put(index, projectId);
+                    System.out.println(ConsoleColors.GREEN + " - [" + index + "] " + projectName + ConsoleColors.RESET);
+                    index++;
+                }
+            } else {
+                System.out.println(ConsoleColors.RED + "-> No projects found." + ConsoleColors.RESET);
+            }
+        } catch (IOException e) {
+            System.err.println(ConsoleColors.RED + "Error parsing response: " + e.getMessage() + ConsoleColors.RESET);
+        }
+        return projectIndexMap;
     }
 
-    private static HttpRequest getRequest(String authToken, String url) {
-        return HttpRequest.newBuilder().uri(URI.create(url))
-                .header("Authorization", "Bearer " + authToken)
-                .GET().build();
-    }
+    private static void displayProject(String responseBody) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode project = objectMapper.readTree(responseBody);
 
-    private static HttpRequest deleteRequest(String authToken, String url) {
-        return HttpRequest.newBuilder().uri(URI.create(url))
-                .header("Authorization", "Bearer " + authToken)
-                .DELETE().build();
-    }
+            String projectName = project.get("projectName").asText();
 
-    
-    private static HttpRequest patchRequest(String authToken, String url, String json) {
-        return HttpRequest.newBuilder(URI.create(url))
-                .header("Authorization", "Bearer " + authToken)
-                .header("Content-Type", "application/json")
-                .method("PATCH", HttpRequest.BodyPublishers.ofString(json))
-                .build();
+            System.out.println(ConsoleColors.BLUE + "-> Project Info:" + ConsoleColors.RESET);
+            System.out.println("   Name: " + ConsoleColors.GREEN + projectName + ConsoleColors.RESET);
+            System.out.println("--------------------------");
+
+        } catch (IOException e) {
+            System.err.println(ConsoleColors.RED + "Error parsing response: " + e.getMessage() + ConsoleColors.RESET);
+        }
     }
 }

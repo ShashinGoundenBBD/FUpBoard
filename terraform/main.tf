@@ -110,8 +110,9 @@ resource "aws_instance" "fup_ec2_instance" {
   user_data = <<-EOF
     #!/bin/bash
     # Install necessary packages
-    dnf install -y java-23-amazon-corretto
+    dnf install -y java-23-amazon-corretto nginx
 
+    # Setup Systemd Service
     file="/etc/systemd/system/fupboard.service"
 
     echo [Unit] > $file
@@ -121,10 +122,33 @@ resource "aws_instance" "fup_ec2_instance" {
     echo WorkingDirectory=/home/ec2-user >> $file
 
     systemctl enable fupboard.service
+
+    # Setup nginx proxy
+    mkdir -p /etc/nginx/conf.d
+    file="/etc/nginx/conf.d/proxy.conf"
+
+    echo "server {" > $file
+    echo "  listen 80;" >> $file
+    echo "  server_name *.amazonaws.com;" >> $file
+    echo "  location / {" >> $file
+    echo "    proxy_pass http://localhost:8080;" >> $file
+    echo "    proxy_set_header Host \$host;" >> $file
+    echo "    proxy_set_header X-Real-IP \$remote_addr;" >> $file
+    echo "  }" >> $file
+    echo "}" >> $file
+
+    systemctl enable nginx
+    systemctl start nginx
+
     EOF
 }
 
+resource "aws_eip" "fup_ec2_eip" {
+  instance = aws_instance.fup_ec2_instance.id
+  domain   = "vpc"
+}
+
 output "ec2_host" {
-  value = aws_instance.fup_ec2_instance.public_dns
+  value = aws_eip.fup_ec2_eip.public_dns
   description = "The endpoint of the EC2 instance"
 }

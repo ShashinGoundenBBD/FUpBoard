@@ -1,9 +1,8 @@
 package za.co.bbd.grad.fupboard.api.controllers;
 
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import jakarta.transaction.Transactional;
 import za.co.bbd.grad.fupboard.api.FupboardUtils;
 import za.co.bbd.grad.fupboard.api.dbobjects.FUp;
+import za.co.bbd.grad.fupboard.api.models.ApiError;
 import za.co.bbd.grad.fupboard.api.models.CreateFUpRequest;
 import za.co.bbd.grad.fupboard.api.models.UpdateFUpRequest;
 import za.co.bbd.grad.fupboard.api.services.FUpService;
@@ -39,10 +39,10 @@ public class FUpController {
     
     @Transactional
     @GetMapping("/v1/projects/{projectId}/fups")
-    public List<FUp> getFUps(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId) throws NotFoundException {
+    public ResponseEntity<?> getFUps(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId) throws NotFoundException {
         var user = userService.getUserByJwt(jwt).get();
         var projectOpt = projectService.getProjectById(projectId);
-        if (projectOpt.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if (projectOpt.isEmpty()) return ApiError.PROJECT_NOT_FOUND.response();
 
         var project = projectOpt.get();
 
@@ -50,15 +50,15 @@ public class FUpController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         
-        return projectOpt.get().getfUps();
+        return ResponseEntity.ok(projectOpt.get().getfUps());
     }
     
     @Transactional
     @PostMapping("/v1/projects/{projectId}/fups")
-    public FUp createFUp(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId, @RequestBody CreateFUpRequest request) throws NotFoundException {
+    public ResponseEntity<?> createFUp(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId, @RequestBody CreateFUpRequest request) throws NotFoundException {
         var user = userService.getUserByJwt(jwt).get();
         var projectOpt = projectService.getProjectById(projectId);
-        if (projectOpt.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if (projectOpt.isEmpty()) return ApiError.PROJECT_NOT_FOUND.response();
 
         var project = projectOpt.get();
 
@@ -66,10 +66,10 @@ public class FUpController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         
         if (request.getName() == null || request.getName().isEmpty() || request.getName().length() > FupboardUtils.LONG_NAME_LENGTH)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            return ApiError.VALIDATION.response("`name` must be set, and must be between 1 and " + FupboardUtils.LONG_NAME_LENGTH + " characters long.");
 
         if (request.getDescription() == null || request.getDescription().length() > FupboardUtils.DESCRIPTION_LENGTH)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            return ApiError.VALIDATION.response("`description` must be set, and must be between 1 and " + FupboardUtils.DESCRIPTION_LENGTH + " characters long.");
         
         if (!projectService.allowedToWriteProject(project, user)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -79,61 +79,98 @@ public class FUpController {
 
         fUp = fUpService.saveFUp(fUp);
         
-        return fUp;
+        return ResponseEntity.ok(fUp);
+    }
+
+    @Transactional
+    @GetMapping("/v1/projects/{projectId}/fups/{fUpId}")
+    public ResponseEntity<?> getFUp(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId, @PathVariable int fUpId) {
+        var user = userService.getUserByJwt(jwt).get();
+        var fUpOpt = fUpService.getFUpById(fUpId);
+
+        if (fUpOpt.isEmpty()) return ApiError.F_UP_NOT_FOUND.response();
+
+        var fUp = fUpOpt.get();
+
+        if (fUp.getProject().getProjectId() != projectId) return ApiError.PROJECT_NOT_FOUND.response();
+
+        if (!fUpService.allowedToReadFUp(fUp, user))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+
+        return ResponseEntity.ok(fUp);
+    }
+
+    @Transactional
+    @GetMapping("/v1/projects/{projectId}/fups/{fUpId}/leaderboard")
+    public ResponseEntity<?> getFUpLeaderboard(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId, @PathVariable int fUpId) {
+        var user = userService.getUserByJwt(jwt).get();
+
+        var fUpOpt = fUpService.getFUpById(fUpId);
+
+        if (fUpOpt.isEmpty()) return ApiError.F_UP_NOT_FOUND.response();
+
+        var fUp = fUpOpt.get();
+
+        if (fUp.getProject().getProjectId() != projectId) return ApiError.PROJECT_NOT_FOUND.response();
+
+        if (!fUpService.allowedToReadFUp(fUp, user))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+
+        return ResponseEntity.ok(fUp.getLeaderboard());
     }
 
     @Transactional
     @PatchMapping("/v1/projects/{projectId}/fups/{fUpId}")
-    public FUp patchFUp(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId, @PathVariable int fUpId, @RequestBody UpdateFUpRequest request) {
+    public ResponseEntity<?> patchFUp(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId, @PathVariable int fUpId, @RequestBody UpdateFUpRequest request) {
         var user = userService.getUserByJwt(jwt).get();
-        var projectOpt = projectService.getProjectById(projectId);
-        if (projectOpt.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-
-        var project = projectOpt.get();
-
-        if (!projectService.allowedToWriteProject(project, user))
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 
         var fUpOpt = fUpService.getFUpById(fUpId);
 
-        if (fUpOpt.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if (fUpOpt.isEmpty()) return ApiError.F_UP_NOT_FOUND.response();
 
         var fUp = fUpOpt.get();
+
+        if (fUp.getProject().getProjectId() != projectId) return ApiError.PROJECT_NOT_FOUND.response();
+
+        if (!fUpService.allowedToWriteFUp(fUp, user))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         
         if (request.getName() != null && !request.getName().isEmpty()) {
             if (request.getName().length() > FupboardUtils.LONG_NAME_LENGTH) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                return ApiError.VALIDATION.response("`name` must be between 1 and " + FupboardUtils.LONG_NAME_LENGTH + " characters long.");
             }
             fUp.setfUpName(request.getName());
         }
 
         if (request.getDescription() != null && !request.getDescription().isEmpty()) {
             if (request.getDescription().length() > FupboardUtils.DESCRIPTION_LENGTH) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                return ApiError.VALIDATION.response("`description` must be between 1 and " + FupboardUtils.LONG_NAME_LENGTH + " characters long.");
             }
             fUp.setDescription(request.getDescription());
         }
         
-        return fUpService.saveFUp(fUp);
+        return ResponseEntity.ok(fUpService.saveFUp(fUp));
     }
 
     @Transactional
     @DeleteMapping("/v1/projects/{projectId}/fups/{fUpId}")
-    public void deleteFUp(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId, @PathVariable int fUpId) throws NotFoundException {
+    public ResponseEntity<?> deleteFUp(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId, @PathVariable int fUpId) throws NotFoundException {
         var user = userService.getUserByJwt(jwt).get();
-        var projectOpt = projectService.getProjectById(projectId);
-        if (projectOpt.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-
-        var project = projectOpt.get();
-
-        if (!projectService.allowedToWriteProject(project, user))
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 
         var fUpOpt = fUpService.getFUpById(fUpId);
 
-        if (fUpOpt.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if (fUpOpt.isEmpty()) return ApiError.F_UP_NOT_FOUND.response();
 
-        fUpService.deleteFUp(fUpOpt.get());
+        var fUp = fUpOpt.get();
+
+        if (fUp.getProject().getProjectId() != projectId) return ApiError.PROJECT_NOT_FOUND.response();
+
+        if (!fUpService.allowedToDeleteFUp(fUp, user))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+
+        fUpService.deleteFUp(fUp);
+
+        return ResponseEntity.noContent().build();
     }
 }
 
