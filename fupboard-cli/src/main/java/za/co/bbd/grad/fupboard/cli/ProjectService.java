@@ -112,7 +112,7 @@ public class ProjectService {
     }
 
     public static Map<Integer, Integer> viewMyProjects(String authToken) {
-        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/projects"));
+         String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/projects"));
 
         if (responseBody == null) {
             System.out.println(ConsoleColors.RED + "-> Failed to retrieve projects." + ConsoleColors.RESET);

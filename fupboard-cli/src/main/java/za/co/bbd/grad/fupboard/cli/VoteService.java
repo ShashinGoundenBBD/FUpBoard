@@ -1,100 +1,153 @@
 package za.co.bbd.grad.fupboard.cli;
 
+
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static za.co.bbd.grad.fupboard.Config.BASE_URL;
+import static za.co.bbd.grad.fupboard.cli.FUpService.viewFUps;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.deleteRequest;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.getRequest;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.patchRequest;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.postRequest;
+import static za.co.bbd.grad.fupboard.cli.HttpUtil.sendRequest;
+import static za.co.bbd.grad.fupboard.cli.ProjectService.viewMyProjects;
+
 public class VoteService {
-    private static final String BASE_URL = "http://localhost:8080/";
 
     public static void createVote(Scanner scanner, String authToken) {
-        System.out.print("Enter project ID: ");
+        Map<Integer, Integer> projectIndexMap = viewMyProjects(authToken);
+        if (projectIndexMap.isEmpty()) return;
+        
+        System.out.print(ConsoleColors.YELLOW + "Enter project ID: " + ConsoleColors.RESET);
         int projectId = scanner.nextInt();
-        System.out.print("Enter FUp ID: ");
+        if (!projectIndexMap.containsKey(projectId)) {
+            System.out.println(ConsoleColors.RED + "Invalid project ID. Please select from the displayed list." + ConsoleColors.RESET);
+            return;
+        }
+
+        Map<Integer, Integer> fUpIndexMap = viewFUps(authToken, projectIndexMap.get(projectId));
+        if (fUpIndexMap.isEmpty()) return;
+        
+        System.out.print(ConsoleColors.YELLOW + "Enter FUp ID: " + ConsoleColors.RESET);
         int fUpId = scanner.nextInt();
         scanner.nextLine();
-        System.out.print("Enter accused username: ");
-        String accusedUsername = scanner.nextLine();
-        System.out.print("Enter vote score (1-5): ");
+        if (!fUpIndexMap.containsKey(fUpId)) {
+            System.out.println(ConsoleColors.RED + "Invalid FUp ID. Please select from the displayed list." + ConsoleColors.RESET);
+            return;
+        }
+        
+        System.out.print(ConsoleColors.YELLOW + "Enter accused username: " + ConsoleColors.RESET);
+        String accusedUsername = scanner.nextLine().trim();
+        if (accusedUsername.isEmpty()) {
+            System.out.println(ConsoleColors.RED + "Accused username cannot be empty." + ConsoleColors.RESET);
+            return;
+        }
+        
+        System.out.print(ConsoleColors.YELLOW + "Enter vote score (1-5): " + ConsoleColors.RESET);
+        while (!scanner.hasNextInt()) {
+            System.out.println(ConsoleColors.RED + "Invalid input. Please enter a number between 1 and 5." + ConsoleColors.RESET);
+            scanner.next();
+        }
         int score = scanner.nextInt();
+        if (score < 1 || score > 5) {
+            System.out.println(ConsoleColors.RED + "Invalid score. Please enter a number between 1 and 5." + ConsoleColors.RESET);
+            return;
+        }
 
         String jsonBody = String.format("{\"accusedUsername\":\"%s\", \"score\":%d}", accusedUsername, score);
-        sendRequest(authToken, postRequest(authToken, BASE_URL + "v1/projects/" + projectId + "/fups/" + fUpId + "/votes", jsonBody), "Creating vote");
-    }
+        String response = sendRequest(postRequest(authToken, BASE_URL + "/v1/projects/" + projectIndexMap.get(projectId) + "/fups/" + fUpIndexMap.get(fUpId) + "/votes", jsonBody));
 
-    public static void viewVotes(Scanner scanner, String authToken) {
-        System.out.print("Enter project ID: ");
-        int projectId = scanner.nextInt();
-        System.out.print("Enter FUp ID: ");
-        int fUpId = scanner.nextInt();
-
-        sendRequest(authToken, getRequest(authToken, BASE_URL + "v1/projects/" + projectId + "/fups/" + fUpId + "/votes"), "Viewing votes");
-    }
-
-    public static void editVote(Scanner scanner, String authToken) {
-        System.out.print("Enter project ID: ");
-        int projectId = scanner.nextInt();
-        System.out.print("Enter FUp ID: ");
-        int fUpId = scanner.nextInt();
-        System.out.print("Enter Vote ID: ");
-        int voteId = scanner.nextInt();
-        System.out.print("Enter new vote score (1-5): ");
-        int score = scanner.nextInt();
-
-        String jsonBody = String.format("{\"score\":%d}", score);
-        sendRequest(authToken, patchRequest(authToken, BASE_URL + "v1/projects/" + projectId + "/fups/" + fUpId + "/votes/" + voteId, jsonBody), "Editing vote");
-    }
-
-    public static void deleteVote(Scanner scanner, String authToken) {
-        System.out.print("Enter project ID: ");
-        int projectId = scanner.nextInt();
-        System.out.print("Enter FUp ID: ");
-        int fUpId = scanner.nextInt();
-        System.out.print("Enter Vote ID: ");
-        int voteId = scanner.nextInt();
-
-        sendRequest(authToken, deleteRequest(authToken, BASE_URL + "v1/projects/" + projectId + "/fups/" + fUpId + "/votes/" + voteId), "Deleting vote");
-    }
-    
-    private static HttpRequest getRequest(String authToken, String url) {
-        return HttpRequest.newBuilder().uri(URI.create(url))
-                .header("Authorization", "Bearer " + authToken)
-                .GET().build();
-    }
-
-    private static void sendRequest(String authToken, HttpRequest request, String action) {
-        try {
-            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(action + " Response: " + response.statusCode());
-            System.out.println(response.body());
-        } catch (IOException | InterruptedException e) {
-            System.err.println("Error: " + e.getMessage());
+        if (response != null && !response.isEmpty()) {
+            System.out.println(ConsoleColors.GREEN + "Vote successfully created!" + ConsoleColors.RESET);
+        } else {
+            System.out.println(ConsoleColors.RED + "Failed to create vote. Please try again." + ConsoleColors.RESET);
         }
     }
 
-    private static HttpRequest patchRequest(String authToken, String url, String json) {
-        return HttpRequest.newBuilder(URI.create(url))
-                .header("Authorization", "Bearer " + authToken)
-                .header("Content-Type", "application/json")
-                .method("PATCH", HttpRequest.BodyPublishers.ofString(json))
-                .build();
+    public static VoteSelection viewVotes(Scanner scanner, String authToken) {
+        Map<Integer, Integer> projectIndexMap = viewMyProjects(authToken);
+        if (projectIndexMap.isEmpty()) return null;
+
+        System.out.print(ConsoleColors.YELLOW + "Enter project ID: " + ConsoleColors.RESET);
+        int projectId = scanner.nextInt();
+        if (!projectIndexMap.containsKey(projectId)) {
+            System.out.println(ConsoleColors.RED + "Invalid project ID. Please select from the displayed list." + ConsoleColors.RESET);
+            return null;
+        }
+
+        Map<Integer, Integer> fUpIndexMap = viewFUps(authToken, projectId);
+        if (fUpIndexMap.isEmpty()) return null;
+
+        System.out.print(ConsoleColors.YELLOW + "Enter FUp ID: " + ConsoleColors.RESET);
+        int fUpId = scanner.nextInt();
+        if (!fUpIndexMap.containsKey(fUpId)) {
+            System.out.println(ConsoleColors.RED + "Invalid FUp ID. Please select from the displayed list." + ConsoleColors.RESET);
+            return null;
+        }
+
+        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/projects/" + projectIndexMap.get(projectId) + "/fups/" + fUpIndexMap.get(fUpId) + "/votes"));
+        Map<Integer, Integer> voteIndexMap = new HashMap<>();
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode votesArray = objectMapper.readTree(responseBody);
+            if (votesArray.isArray()) {
+                int index = 1;
+                for (JsonNode vote : votesArray) {
+                    int voteId = vote.get("id").asInt();
+                    int score = vote.get("score").asInt();
+                    voteIndexMap.put(index, voteId);
+                    System.out.println(ConsoleColors.GREEN + "[" + index + "] Vote ID: " + voteId + ", Score: " + score + ConsoleColors.RESET);
+                    index++;
+                }
+            }
+        } catch (IOException e) {
+            System.out.println(ConsoleColors.RED + "Failed to retrieve votes." + ConsoleColors.RESET);
+        }
+        return new VoteSelection(projectId, fUpId, voteIndexMap);
     }
 
-    private static HttpRequest deleteRequest(String authToken, String url) {
-        return HttpRequest.newBuilder().uri(URI.create(url))
-                .header("Authorization", "Bearer " + authToken)
-                .DELETE().build();
+    public static void editVote(Scanner scanner, String authToken) {
+        VoteSelection voteSelection = viewVotes(scanner, authToken);
+        if (voteSelection == null || voteSelection.getVoteIndexMap().isEmpty()) return;
+
+        System.out.print(ConsoleColors.YELLOW + "Enter Vote ID: " + ConsoleColors.RESET);
+        int voteSelectionIndex = scanner.nextInt();
+        if (!voteSelection.getVoteIndexMap().containsKey(voteSelectionIndex)) {
+            System.out.println(ConsoleColors.RED + "Invalid Vote ID. Please select from the displayed list." + ConsoleColors.RESET);
+            return;
+        }
+        int voteId = voteSelection.getVoteIndexMap().get(voteSelectionIndex);
+
+        System.out.print(ConsoleColors.YELLOW + "Enter new vote score (1-5): " + ConsoleColors.RESET);
+        int score = scanner.nextInt();
+        if (score < 1 || score > 5) {
+            System.out.println(ConsoleColors.RED + "Invalid score. Please enter a number between 1 and 5." + ConsoleColors.RESET);
+            return;
+        }
+
+        String jsonBody = String.format("{\"score\":%d}", score);
+        sendRequest(patchRequest(authToken, BASE_URL + "/v1/projects/" + voteSelection.getProjectId() + "/fups/" + voteSelection.getFUpId() + "/votes/" + voteId, jsonBody));
     }
 
+    public static void deleteVote(Scanner scanner, String authToken) {
+        VoteSelection voteSelection = viewVotes(scanner, authToken);
+        if (voteSelection == null || voteSelection.getVoteIndexMap().isEmpty()) return;
 
+        System.out.print(ConsoleColors.YELLOW + "Enter Vote ID: " + ConsoleColors.RESET);
+        int voteSelectionIndex = scanner.nextInt();
+        if (!voteSelection.getVoteIndexMap().containsKey(voteSelectionIndex)) {
+            System.out.println(ConsoleColors.RED + "Invalid Vote ID. Please select from the displayed list." + ConsoleColors.RESET);
+            return;
+        }
+        int voteId = voteSelection.getVoteIndexMap().get(voteSelectionIndex);
 
-    private static HttpRequest postRequest(String authToken, String url, String json) {
-        return HttpRequest.newBuilder().uri(URI.create(url))
-                .header("Authorization", "Bearer " + authToken)
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(json)).build();
+        sendRequest(deleteRequest(authToken, BASE_URL + "/v1/projects/" + voteSelection.getProjectId() + "/fups/" + voteSelection.getFUpId() + "/votes/" + voteId));
     }
+    
 }
