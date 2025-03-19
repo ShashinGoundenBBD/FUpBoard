@@ -11,15 +11,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class HttpUtil {
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
+    public static String authToken;
 
-    public static HttpRequest getRequest(String authToken, String url) {
+    public static void oAuthSignIn()
+    {
+        try {
+            authToken = Authentication.performOAuth2Login();
+        } catch (Exception e) {
+            System.out.println("Sign-in was not successful: " + e.getMessage());
+            // Maybe ask to retry instead
+            return;
+        }
+    }
+
+    public static HttpRequest getRequest(String url) {
         return HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Authorization", "Bearer " + authToken)
                 .GET().build();
     }
 
-    public static HttpRequest postRequest(String authToken, String url, String json) {
+    public static HttpRequest postRequest(String url, String json) {
         return HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Authorization", "Bearer " + authToken)
@@ -27,14 +39,14 @@ public class HttpUtil {
                 .POST(HttpRequest.BodyPublishers.ofString(json)).build();
     }
 
-    public static HttpRequest deleteRequest(String authtoken, String url) {
+    public static HttpRequest deleteRequest(String url) {
         return HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .header("Authorization", "Bearer " + authtoken)
+                .header("Authorization", "Bearer " + authToken)
                 .DELETE().build();
     }
 
-    public static HttpRequest patchRequest(String authToken, String url, String json) {
+    public static HttpRequest patchRequest(String url, String json) {
         return HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Authorization", "Bearer " + authToken)

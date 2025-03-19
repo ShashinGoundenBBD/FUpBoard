@@ -17,11 +17,9 @@ public class ProjectState implements NavState {
     @Override
     public NavResponse handle(Scanner scanner) {
         System.out.println("0. Back");
-        System.out.println("1. Edit project.");
-        System.out.println("2. Delete project.");
-        System.out.println("3. Manage project F-Ups.");
-        System.out.println("4. View Leaderboard.");
-        System.out.println("5. Invite users to project.");
+        System.out.println("1. Manage project F-Ups.");
+        System.out.println("2. View Leaderboard.");
+        
         var choice = Integer.parseInt(scanner.nextLine());
 
         switch (choice)
