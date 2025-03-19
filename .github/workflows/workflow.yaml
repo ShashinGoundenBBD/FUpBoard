@@ -77,8 +77,8 @@ jobs:
           echo "spring:" > $file
           echo "  datasource:" >> $file
           echo "    url: jdbc:postgresql://${{ needs.terraform.outputs.dbhost }}/fupboarddb" >> $file
-          echo "    username: $TF_VAR_db_username" >> $file
-          echo "    password: $TF_VAR_db_password" >> $file
+          echo "    username: ${{ secrets.TF_VAR_DB_USERNAME }}" >> $file
+          echo "    password: ${{ secrets.TF_VAR_DB_PASSWORD }}" >> $file
           echo "  security:" >> $file
           echo "    oauth2:" >> $file
           echo "      resourceserver:" >> $file
