@@ -52,10 +52,10 @@ public class UserController {
         var user = userService.getUserByJwt(jwt).get();
 
         if (update.getEmail() != null)
-            update.setEmail(update.getEmail().toLowerCase());
+            update.setEmail(update.getEmail().trim().toLowerCase());
 
         try {
-            if (update.getEmail() != null && !update.getEmail().equals(user.getEmail())) {
+            if (update.getEmail() != null && !update.getEmail().isEmpty() && !update.getEmail().equals(user.getEmail())) {
                 if (!Pattern.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", update.getEmail())) {
                     return ApiError.VALIDATION.response("Email address is invalid.");
                 }
