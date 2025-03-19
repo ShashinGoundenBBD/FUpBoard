@@ -1,7 +1,7 @@
 create table "projects" (
   "project_id" serial primary key,
   "project_name" varchar(64) not null,
-  "owner" int references users(user_id) on update cascade
+  "owner" int not null references users(user_id) on update cascade
 );
 
 create table "project_invites" (
