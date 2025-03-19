@@ -26,22 +26,22 @@ public class UserState implements NavState {
         switch (choice)
         {
             case 0: 
-                return new NavResponse.Back();
+                return NavResponse.back();
             case 1 : 
               //  viewMyInformation();
-                return new NavResponse.Stay();
+                return NavResponse.stay();
             case 2:
                // updateMyDetails();
-                return new NavResponse.Stay();
+                return NavResponse.stay();
             case 3:
                 //show all invites
                 //Select invite to accept/decline
                 System.out.println("Which invite would you like to accept/decline?");
                 var inviteNumber = Integer.parseInt(scanner.nextLine());
-                return new NavResponse.Push(new ManageInvitesState(inviteNumber));
+                return NavResponse.push(new ManageInvitesState(inviteNumber));
             default:
                 System.out.println(Constants.RED + "Please select a valid option." + Constants.RESET);
-                return new NavResponse.Stay();
+                return NavResponse.stay();
         }
 
 

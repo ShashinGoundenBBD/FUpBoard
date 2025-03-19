@@ -1,6 +1,19 @@
 package za.co.bbd.grad.fupboard.cli.navigation;
 
 public sealed class NavResponse permits NavResponse.Exit, NavResponse.Back, NavResponse.Stay, NavResponse.Push {
+    public static Exit exit() {
+        return new Exit();
+    }
+    public static Back back() {
+        return new Back();
+    }
+    public static Stay stay() {
+        return new Stay();
+    }
+    public static Push push(NavState newState) {
+        return new Push(newState);
+    }
+
     public static final class Exit extends NavResponse {
         public Exit() {}
     }

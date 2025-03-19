@@ -1,15 +1,11 @@
 package za.co.bbd.grad.fupboard.cli.navigation;
 
 import java.util.Scanner;
-
-
 import za.co.bbd.grad.fupboard.cli.Main;
 import za.co.bbd.grad.fupboard.cli.common.Constants;
 import za.co.bbd.grad.fupboard.cli.services.ProjectService;
 
 public class ProjectMenuState implements NavState {
-   
-
     public ProjectMenuState() {
     }
 
@@ -30,13 +26,13 @@ public class ProjectMenuState implements NavState {
 
         if (option == 0)
         {
-            return new NavResponse.Back();
+            return NavResponse.back();
         }
         else if (option == 1)
         {
             //create function
             ProjectService.createNewProject(scanner);
-            return new NavResponse.Stay();
+            return NavResponse.stay();
         }
         else if (option == 2)
         {
@@ -45,7 +41,7 @@ public class ProjectMenuState implements NavState {
             System.out.println("3. Enter project id:");
             System.out.print(Constants.InputCharacter);
             int project = Integer.parseInt(scanner.nextLine());
-            return new NavResponse.Push(new MaintainOwnedProjectsState(project));
+            return NavResponse.push(new MaintainOwnedProjectsState(project));
         }
         else if (option == 3)
         {
@@ -54,12 +50,12 @@ public class ProjectMenuState implements NavState {
             System.out.println("3. Enter project id:");
             System.out.print(Constants.InputCharacter);
             int project = Integer.parseInt(scanner.nextLine());
-            return new NavResponse.Push(new ProjectState(project));
+            return NavResponse.push(new ProjectState(project));
         }
         else
         {
             System.out.println("Invalid choice.");
-            return new NavResponse.Stay();
+            return NavResponse.stay();
         }
     }
 }

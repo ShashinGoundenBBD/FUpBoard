@@ -26,18 +26,18 @@ public class FUpMenuState implements NavState {
         switch (choice)
         {
             case 0: 
-                return new NavResponse.Back();
+                return NavResponse.back();
             case 1 : 
               //  reportFUpFunction();
-                return new NavResponse.Stay();
+                return NavResponse.stay();
             case 2:
                //show all FUps for project
                System.out.print("Enter f-up number:");
                var fUp = Integer.parseInt(scanner.nextLine());
-               return new NavResponse.Push(new FUpState(project, fUp));
+               return NavResponse.push(new FUpState(project, fUp));
             default:
                 System.out.println(Constants.RED + "Please select a valid option." + Constants.RESET);
-                return new NavResponse.Stay();
+                return NavResponse.stay();
         }
 
 

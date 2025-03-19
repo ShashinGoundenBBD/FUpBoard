@@ -25,24 +25,24 @@ public class ProjectState implements NavState {
         switch (choice)
         {
             case 0:
-                return new NavResponse.Back();
+                return NavResponse.back();
             case 1: 
                 //editMyProject()
-                return new NavResponse.Stay();
+                return NavResponse.stay();
             case 2:
                 //deleteMyProject()
-                return new NavResponse.Stay();
+                return NavResponse.stay();
             case 3:
-                return new NavResponse.Push(new FUpMenuState(project));
+                return NavResponse.push(new FUpMenuState(project));
             case 4:
                 //call leaderboard function
-                return new NavResponse.Stay();
+                return NavResponse.stay();
             case 5:
                 //call invite to project function
-                return new NavResponse.Stay();
+                return NavResponse.stay();
             default:
                 System.out.println("Invalid choice.");
-                return new NavResponse.Stay();
+                return NavResponse.stay();
                 
         }
     }

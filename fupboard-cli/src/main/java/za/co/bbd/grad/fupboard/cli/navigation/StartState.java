@@ -31,14 +31,14 @@ public class StartState implements NavState {
 
         switch (choice) {
             case 0:
-                return new NavResponse.Back();
+                return NavResponse.back();
             case 1:
-                return new NavResponse.Push(new UserState());
+                return NavResponse.push(new UserState());
             case 2:
-                return new NavResponse.Push(new ProjectMenuState());
+                return NavResponse.push(new ProjectMenuState());
             default:
                 System.out.println("Invalid choice.");
-                return new NavResponse.Stay();
+                return NavResponse.stay();
         }
     }
 }

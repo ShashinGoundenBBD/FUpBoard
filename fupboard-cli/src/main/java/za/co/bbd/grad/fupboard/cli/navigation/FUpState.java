@@ -30,19 +30,19 @@ public class FUpState implements NavState {
         switch (choice)
         {
             case 0:
-                return new NavResponse.Back();
+                return NavResponse.back();
             case 1:
                 //voteForFUpFunction
-                return new NavResponse.Stay();
+                return NavResponse.stay();
             case 2:
                 //editFUpFunction
-                return new NavResponse.Stay();
+                return NavResponse.stay();
             case 3:
                 //deleteFUpFunction
-                return new NavResponse.Stay();
+                return NavResponse.stay();
             default:
                 System.out.println(Constants.RED + "Please select a valid option." + Constants.RESET);
-                return new NavResponse.Stay();
+                return NavResponse.stay();
         }
 
     }

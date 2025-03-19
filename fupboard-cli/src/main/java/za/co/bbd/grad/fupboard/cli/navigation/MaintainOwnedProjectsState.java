@@ -32,20 +32,20 @@ public class MaintainOwnedProjectsState implements NavState {
         switch (option)
         {
             case 0:
-                return new NavResponse.Back();
+                return NavResponse.back();
             case 1:
                 //call editProjectFunction()
-                return new NavResponse.Stay();
+                return NavResponse.stay();
             case 2:
                 //call deleteProjectFunction()
-                return new NavResponse.Stay();
+                return NavResponse.stay();
             case 3:
                 //call inviteUsersFunction()
                 //return to invite menue
-                return new NavResponse.Stay();
+                return NavResponse.stay();
             default:
                 System.out.println(Constants.RED + "Please select a valid option." + Constants.RESET);
-                return new NavResponse.Stay();
+                return NavResponse.stay();
         }
     }
 }
