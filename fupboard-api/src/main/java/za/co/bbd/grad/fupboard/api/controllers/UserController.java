@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.transaction.Transactional;
+import za.co.bbd.grad.fupboard.api.dbobjects.Project;
 import za.co.bbd.grad.fupboard.api.dbobjects.ProjectInvite;
 import za.co.bbd.grad.fupboard.api.dbobjects.User;
 import za.co.bbd.grad.fupboard.api.models.ApiError;
@@ -32,6 +33,12 @@ public class UserController {
     public User getUserMe(@AuthenticationPrincipal Jwt jwt) {
         return userService.getUserByJwt(jwt).get();
     }
+
+    @GetMapping("/v1/users/me/projects")
+    public List<Project> getUserMeProjects(@AuthenticationPrincipal Jwt jwt) {
+        return userService.getUserByJwt(jwt).get().getProjects();
+    }
+    
     
     @GetMapping("/v1/users/me/invites")
     public List<ProjectInvite> getUserMeInvites(@AuthenticationPrincipal Jwt jwt) {
