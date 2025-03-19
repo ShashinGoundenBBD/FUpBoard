@@ -51,7 +51,7 @@ public class Project {
         return owner.getUsername();
     }
 
-    public int getOwnerUserId() {
+    public int getOwnerId() {
         return owner.getUserId();
     }
 
