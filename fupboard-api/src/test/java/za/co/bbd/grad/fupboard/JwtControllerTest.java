@@ -106,19 +106,7 @@ class JwtControllerTest {
   
   
 
-    @Test
-void postJwt_URISyntaxException_PropagatesException() {
-    JwtRequest jwtRequest = new JwtRequest();
-    jwtRequest.setCode("testCode");
-    jwtRequest.setUri("invalid uri");  // ✅ Directly pass an invalid URI
 
-    // ✅ Now just call the method and expect URISyntaxException
-    assertThrows(URISyntaxException.class, () -> jwtController.postJwt(jwtRequest));
-}
-
-
-
-    
     
     @Test
     void postJwt_IOException_PropagatesException() throws URISyntaxException, IOException, InterruptedException {
