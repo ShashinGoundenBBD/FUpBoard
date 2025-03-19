@@ -59,6 +59,11 @@ public class UserController {
                 if (!Pattern.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", update.getEmail())) {
                     return ApiError.VALIDATION.response("Email address is invalid.");
                 }
+
+                if (userService.getUserByEmailIfVerified(update.getEmail()).isPresent()) {
+                    return ApiError.EMAIL_TAKEN.response();
+                }
+
                 user.setEmail(update.getEmail());
     
                 var jwtEmail = jwt.getClaimAsString("email");

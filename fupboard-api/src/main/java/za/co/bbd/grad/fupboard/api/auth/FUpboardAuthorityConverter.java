@@ -13,7 +13,6 @@ import za.co.bbd.grad.fupboard.api.services.UserService;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import org.springframework.core.convert.converter.Converter;

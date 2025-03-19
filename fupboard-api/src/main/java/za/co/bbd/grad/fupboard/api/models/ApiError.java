@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 
 public enum ApiError {
     USERNAME_TAKEN(HttpStatus.BAD_REQUEST, "Username has been taken."),
+    EMAIL_TAKEN(HttpStatus.BAD_REQUEST, "Email address has been taken."),
     VALIDATION(HttpStatus.BAD_REQUEST, "Failed to validate request."),
     PROJECT_NOT_FOUND(HttpStatus.NOT_FOUND, "Project not found."),
     INVITE_NOT_FOUND(HttpStatus.NOT_FOUND, "Invite not found."),
