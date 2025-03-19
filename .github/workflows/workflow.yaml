@@ -145,21 +145,8 @@ jobs:
         run: |
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > privatekey.pem
           chmod 0500 privatekey.pem
-
-          echo "A"
-          ls -la
-          echo "B"
-          ls -la fupboard-api
-          echo "C"
-          ls -la fupboard-api/target
-          echo "D"
-          ls -la fupboard-api/fupboard-api
-          echo "E"
-          ls -la fupboard-api/fupboard-api/target
-          echo "F"
-
           EC2_HOST=${{ needs.terraform.outputs.ec2host }}
-          scp -o StrictHostKeyChecking=no -i privatekey.pem ./fupboard-api/fupboard-api.jar "ec2-user@$EC2_HOST:fupboard-api.jar"
+          scp -o StrictHostKeyChecking=no -i privatekey.pem ./fupboard-api.jar "ec2-user@$EC2_HOST:fupboard-api.jar"
           ssh -o StrictHostKeyChecking=no -i privatekey.pem "ec2-user@$EC2_HOST" "sudo systemctl restart fupboard.service"
   flyway:
     needs:
