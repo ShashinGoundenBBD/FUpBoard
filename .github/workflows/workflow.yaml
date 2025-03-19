@@ -95,14 +95,14 @@ jobs:
         run: |
           mvn -B package -DskipTests
           cd target
-          mv fupboard-api-*-with-dependencies.jar fupboard-api.jar
+          mv fupboard-api-1.0-SNAPSHOT-with-dependencies.jar fupboard-api.jar
 
       - name: Build JAR for CLI
         working-directory: ./fupboard-cli
         run: |
           mvn -B package -DskipTests
           cd target
-          mv fupboard-cli-*-with-dependencies.jar fupboard-cli.jar
+          mv fupboard-cli-1.0-SNAPSHOT-with-dependencies.jar fupboard-cli.jar
       
       - name: Upload API Artifact for Deployment
         uses: actions/upload-artifact@v4
