@@ -61,7 +61,7 @@ public class VoteService {
         }
 
         String jsonBody = String.format("{\"accusedUsername\":\"%s\", \"score\":%d}", accusedUsername, score);
-        String response = sendRequest(postRequest(authToken, BASE_URL + "/v1/projects/" + projectIndexMap.get(projectId) + "/fups/" + fUpIndexMap.get(fUpId) + "/votes", jsonBody));
+        String response = sendRequest(postRequest(BASE_URL + "/v1/projects/" + projectIndexMap.get(projectId) + "/fups/" + fUpIndexMap.get(fUpId) + "/votes", jsonBody));
 
         if (response != null && !response.isEmpty()) {
             System.out.println(ConsoleColors.GREEN + "Vote successfully created!" + ConsoleColors.RESET);
@@ -91,7 +91,7 @@ public class VoteService {
             return null;
         }
 
-        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/projects/" + projectIndexMap.get(projectId) + "/fups/" + fUpIndexMap.get(fUpId) + "/votes"));
+        String responseBody = sendRequest(getRequest(BASE_URL + "/v1/projects/" + projectIndexMap.get(projectId) + "/fups/" + fUpIndexMap.get(fUpId) + "/votes"));
         Map<Integer, Integer> voteIndexMap = new HashMap<>();
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -132,7 +132,7 @@ public class VoteService {
         }
 
         String jsonBody = String.format("{\"score\":%d}", score);
-        sendRequest(patchRequest(authToken, BASE_URL + "/v1/projects/" + voteSelection.getProjectId() + "/fups/" + voteSelection.getFUpId() + "/votes/" + voteId, jsonBody));
+        sendRequest(patchRequest(BASE_URL + "/v1/projects/" + voteSelection.getProjectId() + "/fups/" + voteSelection.getFUpId() + "/votes/" + voteId, jsonBody));
     }
 
     public static void deleteVote(Scanner scanner, String authToken) {
@@ -147,7 +147,7 @@ public class VoteService {
         }
         int voteId = voteSelection.getVoteIndexMap().get(voteSelectionIndex);
 
-        sendRequest(deleteRequest(authToken, BASE_URL + "/v1/projects/" + voteSelection.getProjectId() + "/fups/" + voteSelection.getFUpId() + "/votes/" + voteId));
+        sendRequest(deleteRequest( BASE_URL + "/v1/projects/" + voteSelection.getProjectId() + "/fups/" + voteSelection.getFUpId() + "/votes/" + voteId));
     }
     
 }

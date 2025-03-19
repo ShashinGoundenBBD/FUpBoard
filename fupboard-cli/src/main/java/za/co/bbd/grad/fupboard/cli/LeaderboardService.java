@@ -26,6 +26,7 @@ public class LeaderboardService {
         System.out.print(ConsoleColors.YELLOW + "Enter project number to view leaderboard for: " + ConsoleColors.RESET);
         int index = scanner.nextInt();
         scanner.nextLine();
+        System.out.print(Config.InputCharacter);
 
         Integer projectId = projectIndexMap.get(index);
         if (projectId == null) {
@@ -33,7 +34,7 @@ public class LeaderboardService {
             return;
         }
       
-        HttpRequest request = HttpUtil.getRequest(authToken, Config.BASE_URL + "/v1/projects/" + projectId + "/leaderboard");
+        HttpRequest request = HttpUtil.getRequest(Config.BASE_URL + "/v1/projects/" + projectId + "/leaderboard");
         String response = HttpUtil.sendRequest(request);
 
         if (response == null) {
@@ -81,7 +82,7 @@ public class LeaderboardService {
     }
 
         public static Map<Integer, Integer> viewMyProjects(String authToken) {
-        String responseBody = HttpUtil.sendRequest(HttpUtil.getRequest(authToken, Config.BASE_URL + "/v1/projects"));
+        String responseBody = HttpUtil.sendRequest(HttpUtil.getRequest(Config.BASE_URL + "/v1/projects"));
 
         if (responseBody == null) {
             System.out.println(ConsoleColors.RED + "-> Failed to retrieve projects." + ConsoleColors.RESET);

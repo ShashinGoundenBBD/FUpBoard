@@ -10,20 +10,13 @@ import za.co.bbd.grad.fupboard.cli.navigation.NavState;
 import za.co.bbd.grad.fupboard.cli.navigation.StartState;
 
 public class Main {
-    private static String authToken;
 
     public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException {
         // Welcome to FUPBoard
         displayWelcomeMessage();
+        
         // Sign into Google account to proceed
-        try {
-            authToken = Authentication.performOAuth2Login();
-            System.out.println("Signed in successfully! Token: " + authToken);
-        } catch (Exception e) {
-            System.out.println("Sign-in was not successful: " + e.getMessage());
-            // Maybe ask to retry instead
-            return;
-        }
+        HttpUtil.oAuthSignIn();
 
         Scanner scanner = new Scanner(System.in);
         boolean continueUsing = true;

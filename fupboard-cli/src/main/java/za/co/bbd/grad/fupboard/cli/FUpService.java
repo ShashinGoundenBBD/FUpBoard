@@ -53,7 +53,7 @@ public class FUpService {
         }
 
         String jsonBody = String.format("{\"name\":\"%s\", \"description\":\"%s\"}", name, description);
-        String responseBody = sendRequest(postRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/fups", jsonBody));
+        String responseBody = sendRequest(postRequest(BASE_URL + "/v1/projects/" + projectId + "/fups", jsonBody));
         if (responseBody != null) {
             System.out.println(ConsoleColors.GREEN + "-> FUp reported successfully!" + ConsoleColors.RESET);
             displayFUp(responseBody);
@@ -61,7 +61,7 @@ public class FUpService {
     }
 
     public static Map<Integer, Integer> viewFUps(String authToken, int projectId) {
-        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/fups"));
+        String responseBody = sendRequest(getRequest(BASE_URL + "/v1/projects/" + projectId + "/fups"));
         if (responseBody == null) {
             System.out.println(ConsoleColors.RED + "-> Failed to retrieve FUps." + ConsoleColors.RESET);
             return Collections.emptyMap();
@@ -118,7 +118,7 @@ public class FUpService {
             return;
         }
 
-        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId));
+        String responseBody = sendRequest(getRequest(BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId));
         if (responseBody != null) {
             System.out.println(ConsoleColors.BLUE + "-> FUp Details:" + ConsoleColors.RESET);
             displayFUp(responseBody);
@@ -153,7 +153,7 @@ public class FUpService {
             return;
         }
 
-        sendRequest(deleteRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId));
+        sendRequest(deleteRequest( BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId));
         System.out.println(ConsoleColors.GREEN + "-> FUp deleted successfully!" + ConsoleColors.RESET);
     }
 
@@ -196,7 +196,7 @@ public class FUpService {
         }
 
         String jsonBody = String.format("{\"name\":\"%s\", \"description\":\"%s\"}", name, description);
-        String responseBody = sendRequest(patchRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId, jsonBody));
+        String responseBody = sendRequest(patchRequest(BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId, jsonBody));
 
         if (responseBody != null) {
             System.out.println(ConsoleColors.GREEN + "-> FUp updated successfully!" + ConsoleColors.RESET);
@@ -237,7 +237,7 @@ public class FUpService {
         int fUpId = scanner.nextInt();
         scanner.nextLine();
          
-        HttpRequest request = HttpUtil.getRequest(authToken, Config.BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId + "/leaderboard");
+        HttpRequest request = HttpUtil.getRequest(Config.BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId + "/leaderboard");
         String response = HttpUtil.sendRequest(request);
 
         if (response == null) {

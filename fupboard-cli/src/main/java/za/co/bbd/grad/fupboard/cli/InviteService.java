@@ -36,7 +36,7 @@ public class InviteService {
         boolean accepted = response.equals("yes");
     
         String jsonBody = String.format("{\"accepted\":%b}", accepted);
-        String apiResponse = sendRequest(patchRequest(authToken, BASE_URL + "/v1/invites/" + inviteId, jsonBody));
+        String apiResponse = sendRequest(patchRequest(BASE_URL + "/v1/invites/" + inviteId, jsonBody));
         if (apiResponse != null) {
             System.out.println(ConsoleColors.GREEN + "Invite " + (accepted ? "accepted" : "declined") + " successfully." + ConsoleColors.RESET);
         } else {
@@ -52,7 +52,7 @@ public class InviteService {
         int projectId = scanner.nextInt();
         scanner.nextLine();
 
-        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/invites"));
+        String responseBody = sendRequest(getRequest(BASE_URL + "/v1/projects/" + projectId + "/invites"));
         if (responseBody == null) {
             System.out.println(ConsoleColors.RED + "Failed to retrieve invites for the project. Please try again." + ConsoleColors.RESET);
             return Collections.emptyMap();
@@ -97,7 +97,7 @@ public class InviteService {
         }
 
         String jsonBody = String.format("{\"username\":\"%s\"}", username);
-        String response = sendRequest(postRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/invites", jsonBody));
+        String response = sendRequest(postRequest(BASE_URL + "/v1/projects/" + projectId + "/invites", jsonBody));
         if (response != null) {
             System.out.println(ConsoleColors.GREEN + "Project invite created successfully." + ConsoleColors.RESET);
         } else {
@@ -114,11 +114,11 @@ public class InviteService {
         System.out.print(ConsoleColors.YELLOW + "Enter invite ID: " + ConsoleColors.RESET);
         int inviteId = scanner.nextInt();
 
-        sendRequest(deleteRequest(authToken, BASE_URL + "/v1/projects/" + projectId + "/invites/" + inviteId));
+        sendRequest(deleteRequest( BASE_URL + "/v1/projects/" + projectId + "/invites/" + inviteId));
     }
 
         public static Map<Integer, Integer> viewMyInvites(String authToken) {
-        String responseBody = sendRequest(getRequest(authToken, BASE_URL + "/v1/users/me"));
+        String responseBody = sendRequest(getRequest(BASE_URL + "/v1/users/me"));
         if (responseBody == null) {
             System.out.println(ConsoleColors.RED + "Failed to retrieve your invites. Please try again." + ConsoleColors.RESET);
             return Collections.emptyMap();

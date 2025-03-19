@@ -2,13 +2,12 @@ package za.co.bbd.grad.fupboard.cli.navigation;
 
 import java.util.Scanner;
 
-import za.co.bbd.grad.fupboard.cli.ConsoleColors;
+import za.co.bbd.grad.fupboard.Config;
 
 public class StartState implements NavState {
     @Override
     public String getLocation() {
         return """                                                                                            
-        
         ███╗░░░███╗░█████╗░██╗███╗░░██╗ ███╗░░░███╗███████╗███╗░░██╗██╗░░░██╗
         ████╗░████║██╔══██╗██║████╗░██║ ████╗░████║██╔════╝████╗░██║██║░░░██║
         ██╔████╔██║███████║██║██╔██╗██║ ██╔████╔██║█████╗░░██╔██╗██║██║░░░██║
@@ -23,7 +22,9 @@ public class StartState implements NavState {
         System.out.println("0. Exit");
         System.out.println("1. Users");
         System.out.println("2. Projects");
+        
 
+        System.out.print(Config.InputCharacter);
         int choice = Integer.parseInt(scanner.nextLine());
 
         switch (choice) {
