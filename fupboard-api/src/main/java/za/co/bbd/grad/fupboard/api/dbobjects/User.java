@@ -24,7 +24,6 @@ import jakarta.persistence.UniqueConstraint;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
     private int userId;
     private String googleId;
     private String email;

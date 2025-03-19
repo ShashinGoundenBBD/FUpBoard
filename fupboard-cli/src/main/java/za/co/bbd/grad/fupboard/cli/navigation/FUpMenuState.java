@@ -59,6 +59,7 @@ public class FUpMenuState implements NavState {
             return NavResponse.stay();
         }
 
+        System.out.println("0. Back");
         for (int i = 0; i < fUps.size(); i++) {
             var f = fUps.get(i);
             System.out.println((i+1) + ". " + f);
@@ -67,6 +68,10 @@ public class FUpMenuState implements NavState {
         System.out.print("F-Up: ");
 
         int fUpIndex = Integer.parseInt(scanner.nextLine());
+
+        if (fUpIndex == 0) {
+            return NavResponse.stay();
+        }
 
         try {
             var f = fUps.get(fUpIndex-1);

@@ -10,7 +10,7 @@ public class FUp {
 
     @Override
     public String toString() {
-        return "'" + fUpName + "' (#" + fUpId + ")";
+        return fUpName + " (#" + fUpId + ")";
     }
 
     public int getfUpId() {

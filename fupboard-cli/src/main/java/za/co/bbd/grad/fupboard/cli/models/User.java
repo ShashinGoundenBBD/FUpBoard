@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
+    private int userId;
     private String username;
     private String email;
 
@@ -14,6 +15,9 @@ public class User {
         return "'" + username + "' (" + email + ")";
     }
 
+    public int getUserId() {
+        return userId;
+    }
     public String getUsername() {
         return username;
     }

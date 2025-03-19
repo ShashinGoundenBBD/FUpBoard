@@ -16,7 +16,7 @@ public class ProjectState implements NavState {
 
     @Override
     public String getLocation() {
-        return Constants.YELLOW + "'" + project.getProjectName() + "' (#" + project.getProjectId() + ")" + Constants.RESET;
+        return Constants.YELLOW + project.getProjectName() + " (#" + project.getProjectId() + ")" + Constants.RESET;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ProjectState implements NavState {
                 return NavResponse.back();
             case 1:
                 var leaderboard = ProjectService.getProjectLeaderboard(project.getProjectId());
-                leaderboard.print();
+                System.out.println(leaderboard);
                 return NavResponse.stay();
             case 2:
                 return NavResponse.push(new FUpMenuState(project));

@@ -11,7 +11,7 @@ public class Vote {
 
     @Override
     public String toString() {
-        return reporterUsername + " voted " + score + " for " + accusedUsername;
+        return reporterUsername + " voted " + score + " for " + accusedUsername + " (#" + voteId + ")";
     }
 
     public int getVoteId() {

@@ -33,6 +33,10 @@ public class ProjectInvite {
         this.accepted = accepted;
     }
 
+    public int getUserId() {
+        return user.getUserId();
+    }
+
     public String getUsername() {
         return user.getUsername();
     }
@@ -47,6 +51,10 @@ public class ProjectInvite {
 
     public String getProjectOwnerUsername() {
         return project.getOwnerUsername();
+    }
+
+    public int getProjectOwnerUserId() {
+        return project.getOwner().getUserId();
     }
 
     public int getProjectInviteId() {

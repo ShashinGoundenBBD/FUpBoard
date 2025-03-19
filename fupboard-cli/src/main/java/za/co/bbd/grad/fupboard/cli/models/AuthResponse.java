@@ -1,4 +1,4 @@
-package za.co.bbd.grad.fupboard.cli.services;
+package za.co.bbd.grad.fupboard.cli.models;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

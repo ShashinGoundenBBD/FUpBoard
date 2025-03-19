@@ -10,18 +10,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import za.co.bbd.grad.fupboard.cli.models.ApiError;
-import za.co.bbd.grad.fupboard.cli.services.Authentication;
+import za.co.bbd.grad.fupboard.cli.services.AuthenticationService;
 
 public class HttpUtil {
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
     private static ObjectMapper mapper = new ObjectMapper();
 
-    public static String authToken;
-
     public static void oAuthSignIn()
     {
         try {
-            authToken = Authentication.performOAuth2Login();
+            AuthenticationService.performOAuth2Login();
         } catch (Exception e) {
             System.out.println("Sign-in was not successful: " + e.getMessage());
             // Maybe ask to retry instead
@@ -31,14 +29,14 @@ public class HttpUtil {
 
     public static <T> T get(String url, final TypeReference<T> type) throws NavStateException {
         var request = HttpRequest.newBuilder(URI.create(url))
-            .header("Authorization", "Bearer " + authToken)
+            .header("Authorization", "Bearer " + AuthenticationService.getAuthToken())
             .GET().build();
         return send(request, type);
     }
 
     public static <T> T delete(String url, final TypeReference<T> type) throws NavStateException {
         var request = HttpRequest.newBuilder(URI.create(url))
-            .header("Authorization", "Bearer " + authToken)
+            .header("Authorization", "Bearer " + AuthenticationService.getAuthToken())
             .DELETE().build();
         return send(request, type);
     }
@@ -51,7 +49,7 @@ public class HttpUtil {
             throw new NavStateException("Client could not serialise request.");
         }
         var request = HttpRequest.newBuilder(URI.create(url))
-            .header("Authorization", "Bearer " + authToken)
+            .header("Authorization", "Bearer " + AuthenticationService.getAuthToken())
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(bodyString)).build();
         return send(request, type);
@@ -65,7 +63,7 @@ public class HttpUtil {
             throw new NavStateException("Client could not serialise request.");
         }
         var request = HttpRequest.newBuilder(URI.create(url))
-            .header("Authorization", "Bearer " + authToken)
+            .header("Authorization", "Bearer " + AuthenticationService.getAuthToken())
             .header("Content-Type", "application/json")
             .method("PATCH", HttpRequest.BodyPublishers.ofString(bodyString)).build();
         return send(request, type);

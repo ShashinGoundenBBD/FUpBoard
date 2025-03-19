@@ -19,7 +19,10 @@ public class Leaderboard {
         return entries;
     }
 
-    public void print() {
+    @Override
+    public String toString() {
+        String out = "";
+
         var colRankWidth = "Rank".length();
         var colUsernameWidth = "Username".length();
         var colScoreWidth = "Score".length();
@@ -43,21 +46,23 @@ public class Leaderboard {
         colRankWidth += COL_GAP;
         colUsernameWidth += COL_GAP;
         
-        System.out.println(Constants.YELLOW +
+        out += Constants.YELLOW +
             padRight("Rank", colRankWidth) +
             padRight("Username", colUsernameWidth) +
             padRight("Score", colScoreWidth) +
-            Constants.RESET
-        );
+            Constants.RESET + "\n";
 
         for (int i = 0; i < entries.size(); i++) {
             var entry = entries.get(i);
-            System.out.println(
-                padRight((i+1)+"", colRankWidth) +
+            out += padRight((i+1)+"", colRankWidth) +
                 padRight(entry.getUsername(), colUsernameWidth) +
-                padRight(SCORE_FORMAT.format(entry.getScore()), colScoreWidth)
-            );
+                padRight(SCORE_FORMAT.format(entry.getScore()), colScoreWidth);
+            if (i < entries.size() - 1) {
+                out += "\n";
+            }
         }
+        
+        return out;
     }
 
     private static String padRight(String s, int n) {

@@ -10,7 +10,7 @@ public class Project {
 
     @Override
     public String toString() {
-        return "'" + projectName + "' (#" + projectId + ") - " + ownerUsername;
+        return projectName + " (#" + projectId + ") - " + ownerUsername;
     }
 
     public int getProjectId() {

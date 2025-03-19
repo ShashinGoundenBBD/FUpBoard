@@ -16,12 +16,18 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.Charset;
 import java.util.Random;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import za.co.bbd.grad.fupboard.cli.Main;
 import za.co.bbd.grad.fupboard.cli.common.Constants;
+import za.co.bbd.grad.fupboard.cli.common.NavStateException;
+import za.co.bbd.grad.fupboard.cli.models.AuthResponse;
+import za.co.bbd.grad.fupboard.cli.models.User;
 
-public class Authentication {
+public class AuthenticationService {
+    private static String authToken;
+    private static int currentUserId;
 
     public static String performOAuth2Login() throws IOException, URISyntaxException, InterruptedException {
         var random = new Random();
@@ -39,7 +45,7 @@ public class Authentication {
                 "&redirect_uri=" + callbackUriEncoded +
                 "&client_id=726398493120-51ed3jodt4omlkba1go3ppfv13uu37au.apps.googleusercontent.com";
         
-        System.out.println(Constants.BLUE + "Please use this link to sign in: " + Constants.RESET + oauth2RequestUri);
+        System.out.println(Constants.BLUE + "If the browser has not opened, please use this link to sign in: " + Constants.RESET + oauth2RequestUri);
 
         try {
             java.awt.Desktop.getDesktop().browse(new URI(oauth2RequestUri));
@@ -100,6 +106,22 @@ public class Authentication {
         var responseBody = response.body();
         var output = socket.getOutputStream();
 
+        var objMapper = new ObjectMapper();
+        AuthResponse authResponse = null;
+        try {
+            authResponse = objMapper.readValue(responseBody, AuthResponse.class);
+        } catch (JacksonException e) {
+            errorMessage = "Failed to parse response from Google.";
+        }
+
+        authToken = authResponse.getIdToken();
+
+        try {
+            currentUserId = UserService.getUserMe().getUserId();
+        } catch (NavStateException e) {
+            errorMessage = "Failed to get user information from server.";
+        }
+
         // Generate response for user.
         InputStream responseStream;
         if (errorMessage.length() > 0) {
@@ -130,9 +152,14 @@ public class Authentication {
         socket.close();
         server.close();
 
-        var objMapper = new ObjectMapper();
-        var authResponse = objMapper.readValue(responseBody, AuthResponse.class);
-
         return authResponse.getIdToken();
+    }
+
+    public static String getAuthToken() {
+        return authToken;
+    }
+
+    public static int getCurrentUserId() {
+        return currentUserId;
     }
 }

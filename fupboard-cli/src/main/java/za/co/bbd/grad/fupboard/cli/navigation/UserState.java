@@ -65,6 +65,7 @@ public class UserState implements NavState {
             return NavResponse.stay();
         }
 
+        System.out.println("0. Back");
         for (int i = 0; i < invites.size(); i++) {
             var pi = invites.get(i);
             System.out.println((i+1) + ". " + pi.toProjectString());
@@ -73,6 +74,10 @@ public class UserState implements NavState {
         System.out.print("Invite: ");
 
         int inviteIndex = Integer.parseInt(scanner.nextLine());
+
+        if (inviteIndex == 0) {
+            return NavResponse.stay();
+        }
 
         try {
             var pi = invites.get(inviteIndex-1);

@@ -5,6 +5,7 @@ import java.util.Scanner;
 import za.co.bbd.grad.fupboard.cli.common.Constants;
 import za.co.bbd.grad.fupboard.cli.common.NavStateException;
 import za.co.bbd.grad.fupboard.cli.models.Invite;
+import za.co.bbd.grad.fupboard.cli.services.AuthenticationService;
 import za.co.bbd.grad.fupboard.cli.services.InviteService;
 
 public class InviteState implements NavState {
@@ -23,20 +24,31 @@ public class InviteState implements NavState {
     @Override
     public String getLocation() {
         if (showProject)
-            return Constants.YELLOW + invite.getProjectName() + " - " + invite.getProjectOwnerUsername() + " " + (invite.isAccepted() ? "(accepted)" : "(pending)") + Constants.RESET;
+            return Constants.YELLOW + invite.getProjectName() + " - " + invite.getProjectOwnerUsername() + Constants.RESET;
         else
-            return Constants.YELLOW + invite.toString() + Constants.RESET;
+            return Constants.YELLOW + invite.getUsername() + Constants.RESET;
     }
 
     @Override
     public NavResponse handle(Scanner scanner) throws NavStateException {
         if (showProject)
-            System.out.println(Constants.GREEN + invite + Constants.RESET);
-        else
             System.out.println(Constants.GREEN + invite.toProjectString() + Constants.RESET);
+        else
+            System.out.println(Constants.GREEN + invite + Constants.RESET);
         System.out.println("0. Back");
-        System.out.println("1. Accept Invite");
-        System.out.println("2. Cancel Invite");
+        
+        var acceptColour = invite.getUserId() != AuthenticationService.getCurrentUserId()
+            ? Constants.GREY : "";
+        
+        // only the invitee may cancel an invite
+        System.out.println(acceptColour + "1. Accept Invite" + Constants.RESET);
+        
+        // only the project owner or the invitee may cancel an invite
+        var cancelColour = invite.getUserId() != AuthenticationService.getCurrentUserId()
+            && invite.getUserId() != invite.getProjectOwnerUserId()
+            ? Constants.GREY : "";
+        
+        System.out.println(cancelColour + "2. Cancel Invite" + Constants.RESET);
 
         System.out.print(Constants.INPUT_QUERY);
         int choice = Integer.parseInt(scanner.nextLine());

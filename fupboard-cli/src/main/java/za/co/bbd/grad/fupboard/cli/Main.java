@@ -45,7 +45,6 @@ public class Main {
 
         while (continueUsing) {
             if (states.isEmpty()) {
-                System.out.println(Constants.GREEN + "                [ Goodbye ]               " + Constants.RESET);
                 break;
             }
             
@@ -90,5 +89,6 @@ public class Main {
         }
 
         scanner.close();
+        System.out.println(Constants.GREEN + "                [ Goodbye ]               " + Constants.RESET);
     }
 }

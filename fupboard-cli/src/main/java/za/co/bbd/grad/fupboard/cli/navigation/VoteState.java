@@ -22,7 +22,7 @@ public class VoteState implements NavState {
 
     @Override
     public String getLocation() {
-        return Constants.YELLOW + "Vote #" + vote.getVoteId() + Constants.RESET;
+        return Constants.YELLOW + "Vote for " + vote.getAccusedUsername() + " (#" + vote.getVoteId() + ")" + Constants.RESET;
     }
 
     @Override

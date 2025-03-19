@@ -6,6 +6,7 @@ public class Constants {
     public static final String RED = "\u001B[31m";
     public static final String YELLOW = "\u001B[33m";
     public static final String BLUE = "\u001B[34m";
+    public static final String GREY = "\u001B[38;5;248m";
 
     public static final String INPUT_QUERY = "> ";
 

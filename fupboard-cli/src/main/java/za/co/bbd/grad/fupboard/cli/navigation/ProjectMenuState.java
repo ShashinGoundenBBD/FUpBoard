@@ -53,6 +53,7 @@ public class ProjectMenuState implements NavState {
             return NavResponse.stay();
         }
 
+        System.out.println("0. Back");
         for (int i = 0; i < projects.size(); i++) {
             var p = projects.get(i);
             System.out.println((i+1) + ". " + p);
@@ -61,6 +62,10 @@ public class ProjectMenuState implements NavState {
         System.out.print("Project: ");
 
         int projectIndex = Integer.parseInt(scanner.nextLine());
+
+        if (projectIndex == 0) {
+            return NavResponse.stay();
+        }
 
         try {
             var p = projects.get(projectIndex-1);

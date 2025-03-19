@@ -19,7 +19,7 @@ public class FUpState implements NavState {
 
     @Override
     public String getLocation() {
-        return Constants.YELLOW + "'" + fUp.getfUpName() + "' (#" + fUp.getfUpId() + ")" + Constants.RESET;
+        return Constants.YELLOW + fUp.getfUpName() + " (#" + fUp.getfUpId() + ")" + Constants.RESET;
     }
 
     @Override

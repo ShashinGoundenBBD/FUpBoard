@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.transaction.Transactional;
+import za.co.bbd.grad.fupboard.api.FupboardUtils;
 import za.co.bbd.grad.fupboard.api.dbobjects.Project;
 import za.co.bbd.grad.fupboard.api.dbobjects.ProjectInvite;
 import za.co.bbd.grad.fupboard.api.dbobjects.User;
@@ -59,7 +60,9 @@ public class UserController {
                 if (!Pattern.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", update.getEmail())) {
                     return ApiError.VALIDATION.response("Email address is invalid.");
                 }
-
+                if (update.getUsername().length() > FupboardUtils.EMAIL_LENGTH) {
+                    return ApiError.VALIDATION.response("Email must be less than " + FupboardUtils.EMAIL_LENGTH + " characters long.");
+                }
                 if (userService.getUserByEmailIfVerified(update.getEmail()).isPresent()) {
                     return ApiError.EMAIL_TAKEN.response();
                 }
@@ -75,6 +78,9 @@ public class UserController {
             if (update.getUsername() != null && !update.getUsername().isEmpty()) {
                 if (!Pattern.matches(UserService.USERNAME_REGEX, update.getUsername())) {
                     return ApiError.VALIDATION.response("Username is invalid.");
+                }
+                if (update.getUsername().length() > FupboardUtils.SHORT_NAME_LENGTH) {
+                    return ApiError.VALIDATION.response("Username must be less than " + FupboardUtils.SHORT_NAME_LENGTH + " characters long.");
                 }
                 if (userService.getUserByUsername(update.getUsername()).isPresent()) {
                     return ApiError.USERNAME_TAKEN.response();

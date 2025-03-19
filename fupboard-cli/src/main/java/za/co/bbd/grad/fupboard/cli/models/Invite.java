@@ -6,15 +6,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class Invite {
     private int projectInviteId;
     private boolean accepted;
+    private int userId;
     private String username;
     private String projectName;
     private String projectOwnerUsername;
+    private int projectOwnerUserId;
     private int projectId;
 
     @Override
     public String toString() {
-        return "'" + username + "' (#" + projectInviteId + ") " +
-            (accepted ? "(accepted)" : "(pending)");
+        return username + " " + (accepted ? "(accepted)" : "(pending)");
     }
 
     public String toProjectString() {
@@ -38,5 +39,11 @@ public class Invite {
     }
     public String getProjectOwnerUsername() {
         return projectOwnerUsername;
+    }
+    public int getProjectOwnerUserId() {
+        return projectOwnerUserId;
+    }
+    public int getUserId() {
+        return userId;
     }
 }

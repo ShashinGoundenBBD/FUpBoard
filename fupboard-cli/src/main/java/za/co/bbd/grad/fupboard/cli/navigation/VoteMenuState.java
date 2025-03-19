@@ -41,7 +41,7 @@ public class VoteMenuState implements NavState {
                 return NavResponse.back();
             case 1:
                 var leaderboard = FUpService.getFUpLeaderboard(project.getProjectId(), fUp.getfUpId());
-                leaderboard.print();
+                System.out.println(leaderboard);
                 return NavResponse.stay();
             case 2:
                 System.out.print("Accused: ");
@@ -63,6 +63,7 @@ public class VoteMenuState implements NavState {
             return NavResponse.stay();
         }
 
+        System.out.println("0. Back");
         for (int i = 0; i < votes.size(); i++) {
             var v = votes.get(i);
             System.out.println((i+1) + ". " + v);
@@ -71,6 +72,10 @@ public class VoteMenuState implements NavState {
         System.out.print("Vote: ");
 
         int voteIndex = Integer.parseInt(scanner.nextLine());
+
+        if (voteIndex == 0) {
+            return NavResponse.stay();
+        }
 
         try {
             var v = votes.get(voteIndex-1);
