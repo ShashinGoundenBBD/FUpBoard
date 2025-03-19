@@ -93,15 +93,17 @@ jobs:
       - name: Build JAR for API
         working-directory: ./fupboard-api
         run: |
-          mvn -B package -DskipTests
+          mvn -B -ntp package -DskipTests
           cd target
+          ls
           mv fupboard-api-1.0-SNAPSHOT-with-dependencies.jar fupboard-api.jar
 
       - name: Build JAR for CLI
         working-directory: ./fupboard-cli
         run: |
-          mvn -B package -DskipTests
+          mvn -B -ntp package -DskipTests
           cd target
+          ls
           mv fupboard-cli-1.0-SNAPSHOT-with-dependencies.jar fupboard-cli.jar
       
       - name: Upload API Artifact for Deployment
