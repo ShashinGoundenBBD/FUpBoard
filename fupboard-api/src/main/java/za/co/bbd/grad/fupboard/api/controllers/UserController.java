@@ -2,22 +2,23 @@ package za.co.bbd.grad.fupboard.api.controllers;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import java.util.regex.Pattern;
+
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-
 import jakarta.transaction.Transactional;
+import za.co.bbd.grad.fupboard.api.dbobjects.Project;
+import za.co.bbd.grad.fupboard.api.dbobjects.ProjectInvite;
 import za.co.bbd.grad.fupboard.api.dbobjects.User;
+import za.co.bbd.grad.fupboard.api.models.ApiError;
 import za.co.bbd.grad.fupboard.api.models.UserUpdateRequest;
-import za.co.bbd.grad.fupboard.api.repositories.UserRepository;
 import za.co.bbd.grad.fupboard.api.services.UserService;
 
 @RestController
@@ -34,15 +35,35 @@ public class UserController {
         return userService.getUserByJwt(jwt).get();
     }
 
+    @GetMapping("/v1/users/me/projects")
+    public List<Project> getUserMeProjects(@AuthenticationPrincipal Jwt jwt) {
+        return userService.getUserByJwt(jwt).get().getProjects();
+    }
+    
+    
+    @GetMapping("/v1/users/me/invites")
+    public List<ProjectInvite> getUserMeInvites(@AuthenticationPrincipal Jwt jwt) {
+        return userService.getUserByJwt(jwt).get().getInvites();
+    }
+
     @Transactional
     @PatchMapping("/v1/users/me")
-    public User updateUserMe(@AuthenticationPrincipal Jwt jwt, @RequestBody UserUpdateRequest update) throws URISyntaxException, IOException, InterruptedException {
+    public ResponseEntity<?> updateUserMe(@AuthenticationPrincipal Jwt jwt, @RequestBody UserUpdateRequest update) throws URISyntaxException, IOException, InterruptedException {
         var user = userService.getUserByJwt(jwt).get();
 
-        update.setEmail(update.getEmail().toLowerCase());
+        if (update.getEmail() != null)
+            update.setEmail(update.getEmail().trim().toLowerCase());
 
         try {
-            if (update.getEmail() != null && !update.getEmail().equals(user.getEmail())) {
+            if (update.getEmail() != null && !update.getEmail().isEmpty() && !update.getEmail().equals(user.getEmail())) {
+                if (!Pattern.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", update.getEmail())) {
+                    return ApiError.VALIDATION.response("Email address is invalid.");
+                }
+
+                if (userService.getUserByEmailIfVerified(update.getEmail()).isPresent()) {
+                    return ApiError.EMAIL_TAKEN.response();
+                }
+
                 user.setEmail(update.getEmail());
     
                 var jwtEmail = jwt.getClaimAsString("email");
@@ -51,15 +72,21 @@ public class UserController {
                 var verified = update.getEmail().equals(jwtEmail) && jwtEmailVerified;
                 user.setEmailVerified(verified);
             }
-            if (update.getUsername() != null && !update.getUsername().equals(user.getUsername())) {
+            if (update.getUsername() != null && !update.getUsername().isEmpty()) {
+                if (!Pattern.matches(UserService.USERNAME_REGEX, update.getUsername())) {
+                    return ApiError.VALIDATION.response("Username is invalid.");
+                }
+                if (userService.getUserByUsername(update.getUsername()).isPresent()) {
+                    return ApiError.USERNAME_TAKEN.response();
+                }
                 user.setUsername(update.getUsername());
             }
-            userService.saveUser(user);
+            user = userService.saveUser(user);
         } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+            return ApiError.USERNAME_TAKEN.response();
         }
         
-        return user;
+        return ResponseEntity.ok(user);
     }
 }
 

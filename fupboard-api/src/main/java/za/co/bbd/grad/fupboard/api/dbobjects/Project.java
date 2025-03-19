@@ -1,8 +1,10 @@
 package za.co.bbd.grad.fupboard.api.dbobjects;
 
+import java.util.HashMap;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
@@ -13,13 +15,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import za.co.bbd.grad.fupboard.api.models.Leaderboard;
+import za.co.bbd.grad.fupboard.api.models.LeaderboardEntry;
 
 @Entity
 @Table(name = "projects")
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer projectId;
+    private int projectId;
 
     private String projectName;
 
@@ -43,11 +47,15 @@ public class Project {
         this.owner = owner;
     }
 
-    public Integer getProjectId() {
+    public String getOwnerUsername() {
+        return owner.getUsername();
+    }
+
+    public int getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(Integer projectId) {
+    public void setProjectId(int projectId) {
         this.projectId = projectId;
     }
 
@@ -81,5 +89,31 @@ public class Project {
 
     public void setInvites(List<ProjectInvite> invites) {
         this.invites = invites;
+    }
+
+    @JsonIgnore
+    public Leaderboard getLeaderboard() {
+        var leaderboard = new Leaderboard();
+
+        var map = new HashMap<String, Double>();
+
+        for (var fUp : fUps) {
+            var subleaderboard = fUp.getLeaderboard();
+            for (var entry : subleaderboard.getEntries()) {
+                var oldEntry = map.get(entry.getUsername());
+                if (oldEntry == null)
+                    map.put(entry.getUsername(), entry.getScore());
+                else
+                    map.put(entry.getUsername(), oldEntry + entry.getScore());
+            }
+        }
+
+        for (var entry : map.entrySet()) {
+            leaderboard.getEntries().add(new LeaderboardEntry(entry.getKey(), entry.getValue()));
+        }
+
+        leaderboard.sortEntries();
+
+        return leaderboard;
     }
 }

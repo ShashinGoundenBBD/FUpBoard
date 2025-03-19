@@ -33,4 +33,8 @@ public class ProjectInviteService {
     public void deleteProjectInvite(ProjectInvite projectInvite) {
         projectInviteRepository.delete(projectInvite);
     }
+
+    public boolean isUserInvited(Project project, User invitee) {
+        return projectInviteRepository.existsByProjectAndUser(project, invitee);
+    }
 }

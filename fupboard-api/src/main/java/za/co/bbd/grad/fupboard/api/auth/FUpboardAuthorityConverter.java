@@ -13,7 +13,6 @@ import za.co.bbd.grad.fupboard.api.services.UserService;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import org.springframework.core.convert.converter.Converter;
@@ -62,6 +61,8 @@ public class FUpboardAuthorityConverter implements Converter<Jwt, Collection<Gra
             // make username from first part of email + 4 numbers
             var username = jwtEmail.split("@")[0];
             username = username.substring(0, Math.min(username.length(), 48)) + random.nextInt(1000, 10000);
+            // remove invalid characters
+            username.replaceAll(UserService.USERNAME_BAD_CHARS_REGEX, "");
 
             // add more numbers if taken already
             for (int i = 0; i < 12; i++) {

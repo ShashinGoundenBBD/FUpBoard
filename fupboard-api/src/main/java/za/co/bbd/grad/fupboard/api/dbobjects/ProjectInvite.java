@@ -1,7 +1,6 @@
 package za.co.bbd.grad.fupboard.api.dbobjects;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 
@@ -11,7 +10,7 @@ public class ProjectInvite {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer projectInviteId;
+    private int projectInviteId;
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
@@ -34,11 +33,27 @@ public class ProjectInvite {
         this.accepted = accepted;
     }
 
-    public Integer getProjectInviteId() {
+    public String getUsername() {
+        return user.getUsername();
+    }
+
+    public int getProjectId() {
+        return project.getProjectId();
+    }
+
+    public String getProjectName() {
+        return project.getProjectName();
+    }
+
+    public String getProjectOwnerUsername() {
+        return project.getOwnerUsername();
+    }
+
+    public int getProjectInviteId() {
         return projectInviteId;
     }
 
-    public void setProjectInviteId(Integer projectInviteId) {
+    public void setProjectInviteId(int projectInviteId) {
         this.projectInviteId = projectInviteId;
     }
 

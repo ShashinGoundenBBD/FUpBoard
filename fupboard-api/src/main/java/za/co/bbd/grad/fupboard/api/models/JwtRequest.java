@@ -3,6 +3,14 @@ package za.co.bbd.grad.fupboard.api.models;
 public class JwtRequest {
     private String code;
     private String uri;
+
+    public JwtRequest() {
+    }
+
+    public JwtRequest(String code, String uri) {
+        this.code = code;
+        this.uri = uri;
+    }
     
     public String getCode() {
         return code;

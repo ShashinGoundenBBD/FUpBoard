@@ -1,4 +1,4 @@
-package za.co.bbd.grad.fupboard.cli;
+package za.co.bbd.grad.fupboard.cli.services;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,8 +18,10 @@ import java.util.Random;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import za.co.bbd.grad.fupboard.cli.Main;
+import za.co.bbd.grad.fupboard.cli.common.Constants;
+
 public class Authentication {
-    private static final String fUpBoardApiBaseUrl = "http://localhost:8080";
 
     public static String performOAuth2Login() throws IOException, URISyntaxException, InterruptedException {
         var random = new Random();
@@ -37,7 +39,7 @@ public class Authentication {
                 "&redirect_uri=" + callbackUriEncoded +
                 "&client_id=726398493120-51ed3jodt4omlkba1go3ppfv13uu37au.apps.googleusercontent.com";
         
-        System.out.println("Opening " + oauth2RequestUri);
+        System.out.println(Constants.BLUE + "Please use this link to sign in: " + Constants.RESET + oauth2RequestUri);
 
         try {
             java.awt.Desktop.getDesktop().browse(new URI(oauth2RequestUri));
@@ -46,8 +48,6 @@ public class Authentication {
         } catch (IOException e) {
             // --
         }
-        
-        System.out.println("Navigate to above URL if browser has not opened.");
         
         // wait for oauth2 callback
         var socket = server.accept();
@@ -91,7 +91,7 @@ public class Authentication {
 
         // Make request to F-Up Board API with auth code to receive JWT
         var client = HttpClient.newHttpClient();
-        var request = HttpRequest.newBuilder(new URI(fUpBoardApiBaseUrl+"/v1/jwt"))
+        var request = HttpRequest.newBuilder(new URI(Constants.BASE_URL+"/v1/jwt"))
             .header("content-type", "application/x-www-form-urlencoded")
             .POST(BodyPublishers.ofString("code=" + URLEncoder.encode(code, Charset.defaultCharset()) + "&uri=" + callbackUriEncoded))
             .build();
@@ -104,8 +104,10 @@ public class Authentication {
         InputStream responseStream;
         if (errorMessage.length() > 0) {
             responseStream = Main.class.getResourceAsStream("/authfailure.html");
+            System.out.println(Constants.RED + "Signed in failed." + Constants.RESET);
         } else {
             responseStream = Main.class.getResourceAsStream("/authsuccess.html");
+            System.out.println(Constants.GREEN + "Succesfully signed in!" + Constants.RESET);
         }
         var responseReader = new BufferedReader(new InputStreamReader(responseStream));
 

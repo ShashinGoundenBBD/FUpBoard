@@ -19,6 +19,6 @@ public class Leaderboard {
     }
 
     public void sortEntries() {
-        this.entries.sort((a, b) -> ((Double)a.getScore()).compareTo(b.getScore()));
+        this.entries.sort((a, b) -> -((Double)a.getScore()).compareTo(b.getScore()));
     }
 }
