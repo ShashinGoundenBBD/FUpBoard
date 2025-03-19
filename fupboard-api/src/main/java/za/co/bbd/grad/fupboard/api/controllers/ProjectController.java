@@ -128,7 +128,7 @@ public class ProjectController {
 
     @Transactional
     @DeleteMapping("/v1/projects/{projectId}")
-    public ResponseEntity<?> deleteProject(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId, @RequestBody UpdateProjectRequest request) {
+    public ResponseEntity<?> deleteProject(@AuthenticationPrincipal Jwt jwt, @PathVariable int projectId) {
         var user = userService.getUserByJwt(jwt).get();
         var projectOpt = projectService.getProjectById(projectId);
 
