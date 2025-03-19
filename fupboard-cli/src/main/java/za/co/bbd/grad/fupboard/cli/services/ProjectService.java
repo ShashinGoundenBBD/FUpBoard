@@ -44,4 +44,8 @@ public class ProjectService {
         var project = HttpUtil.patch(Constants.BASE_URL + "/v1/projects/" + projectId, request, new TypeReference<Project>() {});
         return project;
     }
+
+    public static void deleteProject(int projectId) throws NavStateException {
+        HttpUtil.delete(Constants.BASE_URL + "/v1/projects/" + projectId, null);
+    }
 }

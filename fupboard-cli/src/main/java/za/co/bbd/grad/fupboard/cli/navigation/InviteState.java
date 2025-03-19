@@ -37,7 +37,9 @@ public class InviteState implements NavState {
             System.out.println(Constants.GREEN + invite + Constants.RESET);
         System.out.println("0. Back");
         
+        // grey out if not invitee or if already accepted
         var acceptColour = invite.getUserId() != AuthenticationService.getCurrentUserId()
+            || invite.isAccepted()
             ? Constants.GREY : "";
         
         // only the invitee may cancel an invite
@@ -45,10 +47,23 @@ public class InviteState implements NavState {
         
         // only the project owner or the invitee may cancel an invite
         var cancelColour = invite.getUserId() != AuthenticationService.getCurrentUserId()
-            && invite.getUserId() != invite.getProjectOwnerUserId()
+            && AuthenticationService.getCurrentUserId() != invite.getProjectOwnerUserId()
             ? Constants.GREY : "";
-        
-        System.out.println(cancelColour + "2. Cancel Invite" + Constants.RESET);
+
+        String cancelText;
+        // show for owner
+        if (invite.getProjectOwnerUserId() == AuthenticationService.getCurrentUserId()) {
+            if (invite.isAccepted())
+                cancelText = "Remove from Project";
+            else
+                cancelText = "Cancel Invite";
+        } else { // show for invitee
+            if (invite.isAccepted())
+                cancelText = "Leave Project";
+            else
+                cancelText = "Decline Invite";
+        }
+        System.out.println(cancelColour + "2. " + cancelText + Constants.RESET);
 
         System.out.print(Constants.INPUT_QUERY);
         int choice = Integer.parseInt(scanner.nextLine());
@@ -58,6 +73,9 @@ public class InviteState implements NavState {
             case 0:
                 return NavResponse.back();
             case 1:
+                if (invite.isAccepted()) {
+                    throw new NavStateException("Already accepted invite.");
+                }
                 var newInvite = InviteService.acceptInvite(invite.getProjectId(), invite.getProjectInviteId());
                 return NavResponse.replace(new InviteState(newInvite, showProject));
             case 2:

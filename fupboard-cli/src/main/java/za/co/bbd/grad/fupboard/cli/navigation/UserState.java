@@ -65,6 +65,9 @@ public class UserState implements NavState {
             return NavResponse.stay();
         }
 
+        // show pending invites first
+        invites.sort((a, b) -> Integer.compare(a.isAccepted() ? 1 : 0, b.isAccepted() ? 1 : 0));
+
         System.out.println("0. Back");
         for (int i = 0; i < invites.size(); i++) {
             var pi = invites.get(i);

@@ -24,7 +24,11 @@ public class InvitesMenuState implements NavState {
     @Override
     public NavResponse handle(Scanner scanner) throws NavStateException {
         System.out.println("0. Back.");
-        System.out.println("1. Invite a User");
+        
+        var inviteColour = !project.isCurrentUserOwner()
+            ? Constants.GREY : "";
+        
+        System.out.println(inviteColour + "1. Invite a User" + Constants.RESET);
         System.out.println("2. View Invites");
 
         System.out.print(Constants.INPUT_QUERY);
@@ -35,6 +39,10 @@ public class InvitesMenuState implements NavState {
             case 0: 
                 return NavResponse.back();
             case 1: 
+                if (!project.isCurrentUserOwner()) {
+                    throw new NavStateException("Forbidden");
+                }
+                
                 System.out.print("Username: ");
                 var username = scanner.nextLine().trim();
                 if (username.isEmpty()) {
@@ -55,6 +63,9 @@ public class InvitesMenuState implements NavState {
             System.out.println("No invites.");
             return NavResponse.stay();
         }
+
+        // put pending invites first
+        invites.sort((a, b) -> Integer.compare(a.isAccepted() ? 1 : 0, b.isAccepted() ? 1 : 0));
 
         System.out.println("0. Back");
         for (int i = 0; i < invites.size(); i++) {

@@ -1,6 +1,7 @@
 package za.co.bbd.grad.fupboard.cli.services;
 
 import java.io.BufferedReader;
+import java.io.IO;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,6 +17,8 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.Charset;
 import java.util.Random;
 
+import javax.security.sasl.AuthenticationException;
+
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -23,13 +26,12 @@ import za.co.bbd.grad.fupboard.cli.Main;
 import za.co.bbd.grad.fupboard.cli.common.Constants;
 import za.co.bbd.grad.fupboard.cli.common.NavStateException;
 import za.co.bbd.grad.fupboard.cli.models.AuthResponse;
-import za.co.bbd.grad.fupboard.cli.models.User;
 
 public class AuthenticationService {
     private static String authToken;
     private static int currentUserId;
 
-    public static String performOAuth2Login() throws IOException, URISyntaxException, InterruptedException {
+    public static void performOAuth2Login() throws IOException, URISyntaxException, InterruptedException {
         var random = new Random();
         var server = new ServerSocket(0);
         var port = server.getLocalPort();
@@ -152,7 +154,9 @@ public class AuthenticationService {
         socket.close();
         server.close();
 
-        return authResponse.getIdToken();
+        if (errorMessage.length() > 0) {
+            throw new AuthenticationException(errorMessage);
+        }
     }
 
     public static String getAuthToken() {

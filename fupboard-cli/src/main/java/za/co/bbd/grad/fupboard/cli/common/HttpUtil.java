@@ -16,17 +16,6 @@ public class HttpUtil {
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
     private static ObjectMapper mapper = new ObjectMapper();
 
-    public static void oAuthSignIn()
-    {
-        try {
-            AuthenticationService.performOAuth2Login();
-        } catch (Exception e) {
-            System.out.println("Sign-in was not successful: " + e.getMessage());
-            // Maybe ask to retry instead
-            return;
-        }
-    }
-
     public static <T> T get(String url, final TypeReference<T> type) throws NavStateException {
         var request = HttpRequest.newBuilder(URI.create(url))
             .header("Authorization", "Bearer " + AuthenticationService.getAuthToken())

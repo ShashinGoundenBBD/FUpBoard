@@ -22,12 +22,16 @@ public class ProjectState implements NavState {
     @Override
     public NavResponse handle(Scanner scanner) throws NavStateException {
         System.out.println(Constants.GREEN + project + Constants.RESET);
+        
+        var isOwner = project.isCurrentUserOwner();
+        var ownerActionColour = !isOwner ? Constants.GREY : "";
+
         System.out.println("0. Back");
         System.out.println("1. View Leaderboard");
         System.out.println("2. F-Ups");
         System.out.println("3. Collaborators");
-        System.out.println("4. Rename Project");
-        System.out.println("5. Delete Project");
+        System.out.println(ownerActionColour + "4. Rename Project" + Constants.RESET);
+        System.out.println(ownerActionColour + "5. Delete Project" + Constants.RESET);
 
         System.out.print(Constants.INPUT_QUERY);
         var choice = Integer.parseInt(scanner.nextLine());
@@ -45,6 +49,10 @@ public class ProjectState implements NavState {
             case 3:
                 return NavResponse.push(new InvitesMenuState(project));
             case 4:
+                if (!isOwner) {
+                    throw new NavStateException("Forbidden");
+                }
+
                 System.out.print("New project name: ");
                 String newName = scanner.nextLine().trim();
                 if (newName.isEmpty()) {
@@ -52,6 +60,17 @@ public class ProjectState implements NavState {
                 }
                 var newProject = ProjectService.renameProject(project.getProjectId(), newName);
                 return NavResponse.replace(new ProjectState(newProject));
+            case 5:
+                if (!isOwner) {
+                    throw new NavStateException("Forbidden");
+                }
+                System.out.print("Are you sure you want to delete this project? [y/N] ");
+                var areYouSure = scanner.nextLine().trim().toLowerCase();
+                if (!areYouSure.equals("y")) {
+                    return NavResponse.stay();
+                }
+                ProjectService.deleteProject(project.getProjectId());
+                return NavResponse.back();
             default:
                 throw new NavStateException("Invalid option.");
         }

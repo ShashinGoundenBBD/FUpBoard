@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import za.co.bbd.grad.fupboard.cli.common.Constants;
-import za.co.bbd.grad.fupboard.cli.common.HttpUtil;
 import za.co.bbd.grad.fupboard.cli.common.NavStateException;
 import za.co.bbd.grad.fupboard.cli.navigation.NavResponse;
 import za.co.bbd.grad.fupboard.cli.navigation.NavState;
 import za.co.bbd.grad.fupboard.cli.navigation.StartState;
+import za.co.bbd.grad.fupboard.cli.services.AuthenticationService;
 
 public class Main {
     private static final String WELCOME_MESSAGE = Constants.GREEN + """
@@ -32,7 +32,12 @@ public class Main {
 
     public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException {
         // Sign into Google account to proceed
-        HttpUtil.oAuthSignIn();
+        try {
+            AuthenticationService.performOAuth2Login();
+        } catch (Exception e) {
+            System.out.println("Sign-in was not successful: " + e.getMessage());
+            return;
+        }
 
         // Welcome to FUPBoard
         System.out.println(WELCOME_MESSAGE);
