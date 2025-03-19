@@ -3,6 +3,7 @@ package za.co.bbd.grad.fupboard.cli.navigation;
 import java.util.Scanner;
 
 import za.co.bbd.grad.fupboard.cli.common.Constants;
+import za.co.bbd.grad.fupboard.cli.services.UserService;
 
 public class UserState implements NavState {
    
@@ -28,7 +29,7 @@ public class UserState implements NavState {
             case 0: 
                 return NavResponse.back();
             case 1 : 
-              //  viewMyInformation();
+                UserService.viewMyInformation();
                 return NavResponse.stay();
             case 2:
                // updateMyDetails();

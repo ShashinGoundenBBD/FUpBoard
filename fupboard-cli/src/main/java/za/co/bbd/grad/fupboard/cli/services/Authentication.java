@@ -133,6 +133,7 @@ public class Authentication {
         var objMapper = new ObjectMapper();
         var authResponse = objMapper.readValue(responseBody, AuthResponse.class);
 
+        System.out.println(authResponse.getIdToken());
         return authResponse.getIdToken();
     }
 }
