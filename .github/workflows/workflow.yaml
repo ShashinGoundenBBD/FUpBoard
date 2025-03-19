@@ -8,9 +8,10 @@ on:
 jobs:
   terraform:
     name: "Manage aws resources"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     outputs:
       dbhost: ${{ steps.tf_outputs.outputs.dbhost }}
+      ec2host: ${{ steps.tf_outputs.outputs.ec2host }}
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -42,7 +43,11 @@ jobs:
         run: |
           echo "dbhost=$(terraform output -raw db_host)" >> $GITHUB_OUTPUT
           echo "ec2host=$(terraform output -raw ec2_host)" >> $GITHUB_OUTPUT
-
+  release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    needs: terraform
+    steps:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -53,6 +58,14 @@ jobs:
         run: |
           sudo apt update
           sudo apt install maven
+
+      # - name: Run API Unit Tests
+      #   working-directory: ./fupboard-api
+      #   run: mvn test
+
+      # - name: Run CLI Unit Tests
+      #   working-directory: ./fupboard-cli
+      #   run: mvn test
 
       - name: Create Secrets File
         working-directory: ./fupboard-api/src/main/resources
@@ -73,38 +86,26 @@ jobs:
           echo "  oauth2:" >> $file
           echo "    client-id: ${{ secrets.CLIENT_ID }}" >> $file
           echo "    client-secret: ${{ secrets.CLIENT_SECRET }}" >> $file
-          
 
- #     - name: Run unit tests
- #       working-directory: ./fupboard-api
-  #      run: |
-  #        mvn clean test
-
-      - name: Build JAR for api with Maven
+      - name: Build JAR for API
         working-directory: ./fupboard-api
         run: |
-          mvn package -DskipTests
+          mvn -B package
+          cd target
+          mv fupboard-api-*-with-dependencies.jar fupboard-api.jar
 
-      - name: Deploy to EC2
-        working-directory: ./fupboard-api/target
-        run: |
-          echo "${{ secrets.EC2_PRIVATE_KEY }}" > privatekey.pem
-          chmod 0500 privatekey.pem
-          EC2_HOST=${{ steps.tf_outputs.outputs.ec2host }}
-          scp -o StrictHostKeyChecking=no -i privatekey.pem fupboard-api-0.0.1-SNAPSHOT.jar "ec2-user@$EC2_HOST:fupboard-api.jar"
-          ssh -o StrictHostKeyChecking=no -i privatekey.pem "ec2-user@$EC2_HOST" "sudo systemctl restart fupboard.service"
-
-      - name: Build JAR for cli with Maven
+      - name: Build JAR for CLI
         working-directory: ./fupboard-cli
         run: |
-          mvn -B package --file pom.xml
-          mkdir staging && cp target/*.jar staging
-    
-      - name: Upload artifact
+          mvn -B package
+          cd target
+          mv fupboard-cli-*-with-dependencies.jar fupboard-cli.jar
+      
+      - name: Upload API Artifact for Deployment
         uses: actions/upload-artifact@v4
         with:
-          name: F-Up Board
-          path: ${{ github.workspace }}/fupboard-cli/staging
+          name: fupboard-api.jar
+          path: fupboard-api/target/fupboard-api.jar
 
       - name: Create GitHub Release
         uses: actions/download-artifact@v4
@@ -112,8 +113,7 @@ jobs:
           name: F-Up Board
           path: staging
 
-      - name: Get version
-        id: get_version
+      - name: Get Version
         run: echo "VERSION=$(date +'%Y.%m.%d-%H.%M.%S')" >> $GITHUB_ENV
 
       - name: Create Release
@@ -126,11 +126,34 @@ jobs:
           body: "Automated release for commit ${{ github.sha }}"
           draft: false
           prerelease: false
-          files: staging/*.jar
+          files: |
+            fupboard-api/target/fupboard-api.jar
+            fupboard-cli/target/fupboard-cli.jar
 
+  deploy:
+    name: Deploy
+    needs:
+      - release
+      - terraform
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload API Artifact for Deployment
+        uses: actions/download-artifact@v4
+        with:
+          name: fupboard-api.jar
+          path: fupboard-api/target/fupboard-api.jar
+      
+      - name: Deploy to EC2
+        working-directory: ./fupboard-api/target
+        run: |
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > privatekey.pem
+          chmod 0500 privatekey.pem
+          EC2_HOST=${{ needs.terraform.ec2host }}
+          scp -o StrictHostKeyChecking=no -i privatekey.pem ./fupboard-api/target/fupboard-api.jar "ec2-user@$EC2_HOST:fupboard-api.jar"
+          ssh -o StrictHostKeyChecking=no -i privatekey.pem "ec2-user@$EC2_HOST" "sudo systemctl restart fupboard.service"
   flyway:
     needs: terraform
-    name: Flyway migrations
+    name: Flyway Migrations
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
