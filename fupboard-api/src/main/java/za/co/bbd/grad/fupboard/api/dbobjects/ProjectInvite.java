@@ -41,6 +41,14 @@ public class ProjectInvite {
         return project.getProjectId();
     }
 
+    public String getProjectName() {
+        return project.getProjectName();
+    }
+
+    public String getProjectOwnerUsername() {
+        return project.getOwnerUsername();
+    }
+
     public int getProjectInviteId() {
         return projectInviteId;
     }
