@@ -48,7 +48,7 @@ resource "aws_security_group" "allow_postgres" {
 resource "aws_db_instance" "fupboarddb" {
   identifier             = "fupboarddb"
   engine                 = "postgres"
-  engine_version         = "16.3"
+  engine_version         = "16.4"
   instance_class         = "db.t4g.micro"
   db_name                = "fupboarddb"
   allocated_storage      = 20
