@@ -30,7 +30,7 @@ public class VoteService {
         return voteRepository.findById(voteId);
     }
 
-    public boolean voteExists(FUp fUp, User accused) {
-        return voteRepository.existsByFUpAndAccused(fUp, accused);
+    public boolean voteExists(FUp fUp, User reporter, User accused) {
+        return voteRepository.existsByFUpAndReporterAndAccused(fUp, reporter, accused);
     }
 }

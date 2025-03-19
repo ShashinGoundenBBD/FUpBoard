@@ -81,7 +81,7 @@ public class VoteController {
     
         var accused = accusedOpt.get();
 
-        if (voteService.voteExists(fUp, accused)) {
+        if (voteService.voteExists(fUp, reporter, accused)) {
             return ApiError.VOTE_EXISTS.response();
         }
         

@@ -7,5 +7,5 @@ import za.co.bbd.grad.fupboard.api.dbobjects.User;
 import za.co.bbd.grad.fupboard.api.dbobjects.Vote;
 
 public interface VoteRepository extends JpaRepository<Vote, Integer> {
-    public boolean existsByFUpAndAccused(FUp fUp, User accused);
+    public boolean existsByFUpAndReporterAndAccused(FUp fUp, User reporter, User accused);
 }
