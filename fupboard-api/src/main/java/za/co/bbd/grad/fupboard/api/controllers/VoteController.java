@@ -69,10 +69,10 @@ public class VoteController {
 
         // Validation
         if (request.getAccusedUsername() == null || request.getAccusedUsername().isEmpty())
-            return ApiError.VALIDATION.response("`accusedUsername` must be non-empty");
+            return ApiError.VALIDATION.response("Accused username must not be empty.");
 
         if (request.getScore() < 1 || request.getScore() > 5)
-            return ApiError.VALIDATION.response("`score` must be between 1 and 5");
+            return ApiError.VALIDATION.response("Score must be between 1 and 5.");
         
         var accusedOpt = userService.getUserByUsername(request.getAccusedUsername());
 
@@ -136,7 +136,7 @@ public class VoteController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         
         if (request.getScore() < 1 || request.getScore() > 5)
-            return ApiError.VALIDATION.response("`score` must be between 1 and 5");
+            return ApiError.VALIDATION.response("Score must be between 1 and 5.");
         
         vote.setScore(request.getScore());
 

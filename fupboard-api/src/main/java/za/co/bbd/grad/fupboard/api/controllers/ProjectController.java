@@ -49,7 +49,7 @@ public class ProjectController {
         var name = request.getName();
 
         if (name == null || name.isEmpty() || name.length() > FupboardUtils.SHORT_NAME_LENGTH) {
-            return ApiError.VALIDATION.response("`name` must be set, and be between 1 and " + FupboardUtils.SHORT_NAME_LENGTH + " characters.");
+            return ApiError.VALIDATION.response("Name must be set, and be between 1 and " + FupboardUtils.SHORT_NAME_LENGTH + " characters.");
         }
 
         var project = new Project(request.getName(), user);
@@ -116,7 +116,7 @@ public class ProjectController {
 
         if (name != null && !name.isEmpty()) {
             if (name.length() > FupboardUtils.SHORT_NAME_LENGTH) {
-                return ApiError.VALIDATION.response("`name` should be between 1 and " + FupboardUtils.SHORT_NAME_LENGTH + " characters long.");
+                return ApiError.VALIDATION.response("Name should be between 1 and " + FupboardUtils.SHORT_NAME_LENGTH + " characters long.");
             }
             project.setProjectName(name);
         }

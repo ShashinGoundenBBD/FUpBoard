@@ -3,6 +3,7 @@ package za.co.bbd.grad.fupboard.api.controllers;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -55,6 +56,9 @@ public class UserController {
 
         try {
             if (update.getEmail() != null && !update.getEmail().equals(user.getEmail())) {
+                if (!Pattern.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", update.getEmail())) {
+                    return ApiError.VALIDATION.response("Email address is invalid.");
+                }
                 user.setEmail(update.getEmail());
     
                 var jwtEmail = jwt.getClaimAsString("email");

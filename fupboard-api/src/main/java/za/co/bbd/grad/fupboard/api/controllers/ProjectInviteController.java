@@ -67,7 +67,7 @@ public class ProjectInviteController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         
         if (request.getUsername() == null || request.getUsername().isEmpty())
-            return ApiError.VALIDATION.response("Username Not Set");
+            return ApiError.VALIDATION.response("Username not set.");
         
         var inviteeOpt = userService.getUserByUsername(request.getUsername());
 

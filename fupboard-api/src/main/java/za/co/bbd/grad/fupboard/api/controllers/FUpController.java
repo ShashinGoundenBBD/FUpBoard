@@ -66,10 +66,10 @@ public class FUpController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         
         if (request.getName() == null || request.getName().isEmpty() || request.getName().length() > FupboardUtils.LONG_NAME_LENGTH)
-            return ApiError.VALIDATION.response("`name` must be set, and must be between 1 and " + FupboardUtils.LONG_NAME_LENGTH + " characters long.");
+            return ApiError.VALIDATION.response("Name must be set, and must be between 1 and " + FupboardUtils.LONG_NAME_LENGTH + " characters long.");
 
         if (request.getDescription() == null || request.getDescription().length() > FupboardUtils.DESCRIPTION_LENGTH)
-            return ApiError.VALIDATION.response("`description` must be set, and must be between 1 and " + FupboardUtils.DESCRIPTION_LENGTH + " characters long.");
+            return ApiError.VALIDATION.response("Description must be set, and must be between 1 and " + FupboardUtils.DESCRIPTION_LENGTH + " characters long.");
         
         if (!projectService.allowedToWriteProject(project, user)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -137,14 +137,14 @@ public class FUpController {
         
         if (request.getName() != null && !request.getName().isEmpty()) {
             if (request.getName().length() > FupboardUtils.LONG_NAME_LENGTH) {
-                return ApiError.VALIDATION.response("`name` must be between 1 and " + FupboardUtils.LONG_NAME_LENGTH + " characters long.");
+                return ApiError.VALIDATION.response("Name must be between 1 and " + FupboardUtils.LONG_NAME_LENGTH + " characters long.");
             }
             fUp.setfUpName(request.getName());
         }
 
         if (request.getDescription() != null && !request.getDescription().isEmpty()) {
             if (request.getDescription().length() > FupboardUtils.DESCRIPTION_LENGTH) {
-                return ApiError.VALIDATION.response("`description` must be between 1 and " + FupboardUtils.LONG_NAME_LENGTH + " characters long.");
+                return ApiError.VALIDATION.response("Description must be between 1 and " + FupboardUtils.LONG_NAME_LENGTH + " characters long.");
             }
             fUp.setDescription(request.getDescription());
         }
