@@ -112,12 +112,6 @@ jobs:
           name: fupboard-api.jar
           path: fupboard-api/target/fupboard-api.jar
 
-      - name: Create GitHub Release
-        uses: actions/download-artifact@v4
-        with:
-          name: F-Up Board
-          path: staging
-
       - name: Get Version
         run: echo "VERSION=$(date +'%Y.%m.%d-%H.%M.%S')" >> $GITHUB_ENV
 
