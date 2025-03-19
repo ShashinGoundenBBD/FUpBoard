@@ -61,6 +61,8 @@ public class FUpboardAuthorityConverter implements Converter<Jwt, Collection<Gra
             // make username from first part of email + 4 numbers
             var username = jwtEmail.split("@")[0];
             username = username.substring(0, Math.min(username.length(), 48)) + random.nextInt(1000, 10000);
+            // remove invalid characters
+            username.replaceAll(UserService.USERNAME_BAD_CHARS_REGEX, "");
 
             // add more numbers if taken already
             for (int i = 0; i < 12; i++) {

@@ -73,6 +73,9 @@ public class UserController {
                 user.setEmailVerified(verified);
             }
             if (update.getUsername() != null && !update.getUsername().isEmpty()) {
+                if (!Pattern.matches(UserService.USERNAME_REGEX, update.getUsername())) {
+                    return ApiError.VALIDATION.response("Username is invalid.");
+                }
                 if (userService.getUserByUsername(update.getUsername()).isPresent()) {
                     return ApiError.USERNAME_TAKEN.response();
                 }
