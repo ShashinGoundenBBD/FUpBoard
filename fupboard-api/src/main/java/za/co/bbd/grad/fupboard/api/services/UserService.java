@@ -2,7 +2,6 @@ package za.co.bbd.grad.fupboard.api.services;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 

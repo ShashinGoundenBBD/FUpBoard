@@ -1,6 +1,9 @@
 package za.co.bbd.grad.fupboard.cli.services;
 
 import java.io.IOException;
+import java.util.Scanner;
+
+import org.json.simple.JSONObject;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -40,6 +43,42 @@ public class UserService {
             }
         } catch (IOException e) {
             System.err.println(Constants.RED + "Error parsing response: " + e.getMessage() + Constants.RESET);
+        }
+    }
+
+    public static void updateMyDetails(Scanner scanner)
+    {
+        System.out.print(Constants.YELLOW + "Enter new username (leave blank if you don't want to change it): " + Constants.RESET);
+        String username = scanner.nextLine();
+
+        System.out.print(Constants.YELLOW + "Enter new email (leave blank if you don't want to change it): " + Constants.RESET);
+        String email = scanner.nextLine();
+
+        JSONObject jsonBody = new JSONObject();
+        if (!email.isEmpty()) {
+            jsonBody.put("email", email);
+        }
+        else {
+            jsonBody.put("email", null);
+        }
+
+        if (!username.isEmpty()) {
+            jsonBody.put("username", username);
+        }
+        else
+        {
+            jsonBody.put("username", null);
+        }
+
+        System.out.println(jsonBody.toString());
+        String responseBody = HttpUtil.sendRequest(HttpUtil.patchRequest(Constants.BASE_URL + "/v1/users/me", jsonBody.toString()));
+
+        if (responseBody != null) {
+            System.out.println(Constants.GREEN + "-> Details updated successfully!" + Constants.RESET);
+        }
+        else
+        {
+            System.out.println(Constants.RED + "-> Failed to update details!" + Constants.RESET);
         }
     }
     

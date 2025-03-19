@@ -20,26 +20,31 @@ import static za.co.bbd.grad.fupboard.cli.services.ProjectService.viewMyProjects
 
 public class InviteService {
 
-    public static void acceptOrDeclineInvite(Scanner scanner, String authToken) {
+    public static void acceptInvite(int inviteId) {
 
-        Map<Integer, Integer> inviteIndexMap = viewMyInvites(authToken);
+        Map<Integer, Integer> inviteIndexMap = viewMyInvites();
         if (inviteIndexMap.isEmpty()) return;
-        System.out.print("Enter invite ID: ");
-        int inviteId = scanner.nextInt();
-        scanner.nextLine();
-
-        System.out.print(Constants.YELLOW + "Accept invite? (yes/no): " + Constants.RESET);
-        String response = scanner.nextLine().trim().toLowerCase();
-        if (!response.equals("yes") && !response.equals("no")) {
-            System.out.println(Constants.RED + "Invalid input. Please enter 'yes' or 'no'." + Constants.RESET);
-            return;
-        }
-        boolean accepted = response.equals("yes");
     
-        String jsonBody = String.format("{\"accepted\":%b}", accepted);
+        String jsonBody = String.format("{\"accepted\":%b}", true);
+
+         //this needs to be setup
         String apiResponse = sendRequest(patchRequest(Constants.BASE_URL + "/v1/invites/" + inviteId, jsonBody));
         if (apiResponse != null) {
-            System.out.println(Constants.GREEN + "Invite " + (accepted ? "accepted" : "declined") + " successfully." + Constants.RESET);
+            System.out.println(Constants.GREEN + "Invite accepted successfully." + Constants.RESET);
+        } else {
+            System.out.println(Constants.RED + "Failed to process invite. Please try again." + Constants.RESET);
+        }
+    }
+
+    public static void declineInvite(int inviteId) {
+
+        Map<Integer, Integer> inviteIndexMap = viewMyInvites();
+        if (inviteIndexMap.isEmpty()) return;
+
+        //this needs to be setup
+        String apiResponse = sendRequest(deleteRequest(Constants.BASE_URL + "/v1/invites/" + inviteId));
+        if (apiResponse != null) {
+            System.out.println(Constants.GREEN + "Invite accepted successfully." + Constants.RESET);
         } else {
             System.out.println(Constants.RED + "Failed to process invite. Please try again." + Constants.RESET);
         }
@@ -118,8 +123,8 @@ public class InviteService {
         sendRequest(deleteRequest( Constants.BASE_URL + "/v1/projects/" + projectId + "/invites/" + inviteId));
     }
 
-        public static Map<Integer, Integer> viewMyInvites(String authToken) {
-        String responseBody = sendRequest(getRequest(Constants.BASE_URL + "/v1/users/me"));
+        public static Map<Integer, Integer> viewMyInvites() {
+        String responseBody = sendRequest(getRequest(Constants.BASE_URL + "/v1/users/me/invites"));
         if (responseBody == null) {
             System.out.println(Constants.RED + "Failed to retrieve your invites. Please try again." + Constants.RESET);
             return Collections.emptyMap();

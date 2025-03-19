@@ -32,7 +32,7 @@ public class UserState implements NavState {
                 UserService.viewMyInformation();
                 return NavResponse.stay();
             case 2:
-               // updateMyDetails();
+                UserService.updateMyDetails(scanner);
                 return NavResponse.stay();
             case 3:
                 //show all invites
