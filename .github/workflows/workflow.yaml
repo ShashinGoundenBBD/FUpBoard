@@ -150,7 +150,9 @@ jobs:
           scp -o StrictHostKeyChecking=no -i privatekey.pem ./fupboard-api.jar "ec2-user@$EC2_HOST:fupboard-api.jar"
           ssh -o StrictHostKeyChecking=no -i privatekey.pem "ec2-user@$EC2_HOST" "sudo systemctl restart fupboard.service"
   flyway:
-    needs: release
+    needs:
+      - terraform
+      - release
     name: Flyway Migrations
     runs-on: ubuntu-latest
     steps:
