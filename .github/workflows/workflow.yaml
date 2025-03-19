@@ -109,7 +109,7 @@ jobs:
       - name: Upload API Artifact for Deployment
         uses: actions/upload-artifact@v4
         with:
-          name: fupboard-api.jar
+          name: fupboard-api
           path: fupboard-api/target/fupboard-api.jar
 
       - name: Get Version
@@ -139,15 +139,14 @@ jobs:
       - name: Download API Artifact for Deployment
         uses: actions/download-artifact@v4
         with:
-          name: fupboard-api.jar
+          name: fupboard-api
       
       - name: Deploy to EC2
         run: |
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > privatekey.pem
           chmod 0500 privatekey.pem
-          ls -la
           EC2_HOST=${{ needs.terraform.outputs.ec2host }}
-          scp -o StrictHostKeyChecking=no -i privatekey.pem ./fupboard-api.jar "ec2-user@$EC2_HOST:fupboard-api.jar"
+          scp -o StrictHostKeyChecking=no -i privatekey.pem ./fupboard-api/fupboard-api.jar "ec2-user@$EC2_HOST:fupboard-api.jar"
           ssh -o StrictHostKeyChecking=no -i privatekey.pem "ec2-user@$EC2_HOST" "sudo systemctl restart fupboard.service"
   flyway:
     needs:
