@@ -1,6 +1,3 @@
-
-// package za.co.bbd.grad.fupboard;
-
 package za.co.bbd.grad.fupboard;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

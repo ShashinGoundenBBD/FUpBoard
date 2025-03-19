@@ -2,6 +2,7 @@ package za.co.bbd.grad.fupboard;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -25,6 +26,7 @@ import za.co.bbd.grad.fupboard.api.dbobjects.Project;
 import za.co.bbd.grad.fupboard.api.dbobjects.User;
 import za.co.bbd.grad.fupboard.api.models.CreateFUpRequest;
 import za.co.bbd.grad.fupboard.api.models.UpdateFUpRequest;
+import za.co.bbd.grad.fupboard.api.models.UpdateProjectRequest;
 import za.co.bbd.grad.fupboard.api.services.FUpService;
 import za.co.bbd.grad.fupboard.api.services.ProjectService;
 import za.co.bbd.grad.fupboard.api.services.UserService;
@@ -55,14 +57,43 @@ class FUpControllerTest {
     private FUp fUp;
 
 
-    @BeforeEach
-    void setUp() {
-        user = new User();
-        project = new Project("Test Project", user);
+    // @BeforeEach
+    // void setUp() {
+    //     user = new User();
+    //     project = new Project("Test Project", user);
 
-        fUp = new FUp(project, "Test FUp", "Description of FUp");
-        fUp.setVotes(new ArrayList<>()); // Ensure it's not null in test mock
-    }
+    //     fUp = new FUp(project, "Test FUp", "Description of FUp");
+    //     fUp.setVotes(new ArrayList<>()); // Ensure it's not null in test mock
+    // }
+
+    @BeforeEach
+void setUp() {
+    user = new User();
+    user.setUserId(1); // Assign a user ID
+
+    project = new Project("Test Project", user);
+    project.setProjectId(1); // Explicitly set project ID
+
+    fUp = new FUp(project, "Test FUp", "Description of FUp");
+    fUp.setfUpId(1); // Assign an ID to the FUp
+    fUp.setVotes(new ArrayList<>()); // Ensure votes are initialized
+
+    // Mock return values
+    when(userService.getUserByJwt(any())).thenReturn(Optional.of(user));
+    when(projectService.getProjectById(1)).thenReturn(Optional.of(project));
+    when(projectService.allowedToWriteProject(project, user)).thenReturn(true);
+    when(fUpService.getFUpById(1)).thenReturn(Optional.of(fUp));
+    when(fUpService.allowedToDeleteFUp(fUp, user)).thenReturn(true);
+
+
+    // Mock return values
+ 
+    
+    
+    // Ensure the user has permission to edit
+    when(fUpService.allowedToWriteFUp(fUp, user)).thenReturn(true); 
+}
+
 
 
     private Jwt createMockJwt() {
@@ -124,19 +155,74 @@ class FUpControllerTest {
 
 
         verify(fUpService).saveFUp(any(FUp.class));
+
+    //     UpdateFUpRequest request = new UpdateFUpRequest("Updated FUp", "Updated Description");
+
+    // mockMvc.perform(patch("/v1/projects/1/fups/1")
+    //         .contentType(MediaType.APPLICATION_JSON)
+    //         .content(objectMapper.writeValueAsString(request)) // Ensure request body is included
+    //         .with(jwt().jwt(createMockJwt())))
+    //         .andExpect(status().isOk()); // Expect 200 OK
+
+    // verify(fUpService).updateFUp(eq(fUp), any(UpdateFUpRequest.class));
     }
 
     @Test
     void testDeleteFUp_Success() throws Exception {
-        when(userService.getUserByJwt(any())).thenReturn(Optional.of(user));
-        when(projectService.getProjectById(anyInt())).thenReturn(Optional.of(project));
-        when(projectService.allowedToWriteProject(any(), any())).thenReturn(true);
-        when(fUpService.getFUpById(anyInt())).thenReturn(Optional.of(fUp));
+        // when(userService.getUserByJwt(any())).thenReturn(Optional.of(user));
+        // when(projectService.getProjectById(anyInt())).thenReturn(Optional.of(project));
+        // when(projectService.allowedToWriteProject(any(), any())).thenReturn(true);
+        // when(fUpService.getFUpById(anyInt())).thenReturn(Optional.of(fUp));
 
-        mockMvc.perform(delete("/v1/projects/1/fups/1")
-                .with(jwt().jwt(createMockJwt())))
-                .andExpect(status().isOk());
+        // mockMvc.perform(delete("/v1/projects/1/fups/1")
+        //         .with(jwt().jwt(createMockJwt())))
+        //         .andExpect(status().isOk());
 
-        verify(fUpService).deleteFUp(any(FUp.class));
+        // verify(fUpService).deleteFUp(any(FUp.class));
+
+        //break---------
+
+        //   UpdateProjectRequest request = new UpdateProjectRequest("Deleted Project"); // Required request body
+        // when(userService.getUserByJwt(any())).thenReturn(Optional.of(user));
+        // when(projectService.getProjectById(1)).thenReturn(Optional.of(project));
+        // when(projectService.allowedToDeleteProject(project, user)).thenReturn(true);
+
+        // mockMvc.perform(delete("/v1/projects/1")
+        //         .contentType(MediaType.APPLICATION_JSON)
+        //         .content(objectMapper.writeValueAsString(request)) // Include request body
+        //         .with(jwt().jwt(createMockJwt())))
+        //         .andExpect(status().is2xxSuccessful());
+
+        // verify(projectService).deleteProject(project);
+
+        // UpdateFUpRequest request = new UpdateFUpRequest("Deleted FUp", "Some description"); // Required request body
+
+        // when(userService.getUserByJwt(any())).thenReturn(Optional.of(user));
+        // when(projectService.getProjectById(1)).thenReturn(Optional.of(project));
+        // when(projectService.allowedToWriteProject(project, user)).thenReturn(true); // Ensure the user has write permissions
+        // when(fUpService.getFUpById(1)).thenReturn(Optional.of(fUp));
+        // when(fUpService.allowedToDeleteFUp(fUp, user)).thenReturn(true);
+    
+        // mockMvc.perform(delete("/v1/projects/1/fups/1")
+        //         .contentType(MediaType.APPLICATION_JSON)
+        //         .content(objectMapper.writeValueAsString(request)) // Include request body
+        //         .with(jwt().jwt(createMockJwt())))
+        //         .andExpect(status().is2xxSuccessful());
+    
+        // verify(fUpService).deleteFUp(fUp);
+
+       
+    mockMvc.perform(delete("/v1/projects/1/fups/1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(jwt().jwt(createMockJwt())))
+            .andExpect(status().isNoContent()); // Expect 204 No Content
+
+    verify(fUpService).deleteFUp(fUp);
+
+
     }
+
+
+    
+
 }
