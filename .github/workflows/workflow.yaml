@@ -7,7 +7,7 @@ on:
 
 jobs:
   terraform:
-    name: "Manage aws resources"
+    name: "Manage AWS Resources"
     runs-on: ubuntu-latest
     outputs:
       dbhost: ${{ steps.tf_outputs.outputs.dbhost }}
