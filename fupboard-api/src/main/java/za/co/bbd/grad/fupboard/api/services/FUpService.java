@@ -49,4 +49,6 @@ public class FUpService {
     public void deleteFUp(FUp fUp) {
         fUpRepository.delete(fUp);
     }
+
+    
 }

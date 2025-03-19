@@ -1,6 +1,3 @@
-
-// package za.co.bbd.grad.fupboard;
-
 package za.co.bbd.grad.fupboard;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -106,19 +103,7 @@ class JwtControllerTest {
   
   
 
-    @Test
-void postJwt_URISyntaxException_PropagatesException() {
-    JwtRequest jwtRequest = new JwtRequest();
-    jwtRequest.setCode("testCode");
-    jwtRequest.setUri("invalid uri");  // ✅ Directly pass an invalid URI
 
-    // ✅ Now just call the method and expect URISyntaxException
-    assertThrows(URISyntaxException.class, () -> jwtController.postJwt(jwtRequest));
-}
-
-
-
-    
     
     @Test
     void postJwt_IOException_PropagatesException() throws URISyntaxException, IOException, InterruptedException {
@@ -134,111 +119,3 @@ void postJwt_URISyntaxException_PropagatesException() {
         }
     }
 }
-
-// import static org.mockito.Mockito.*;
-// import static org.junit.jupiter.api.Assertions.*;
-// import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-// import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-// import java.io.IOException;
-// import java.net.URISyntaxException;
-// import java.net.http.HttpClient;
-// import java.net.http.HttpResponse;
-// import java.security.Principal;
-// import java.util.Map;
-
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
-// import org.mockito.InjectMocks;
-// import org.mockito.Mock;
-// import org.springframework.beans.factory.annotation.Value;
-// import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-// import org.springframework.boot.test.context.SpringBootTest;
-// import org.springframework.http.MediaType;
-// import org.springframework.security.oauth2.jwt.Jwt;
-// import org.springframework.test.web.servlet.MockMvc;
-// import org.springframework.beans.factory.annotation.Autowired;
-
-// import za.co.bbd.grad.fupboard.api.controllers.JwtController;
-// import za.co.bbd.grad.fupboard.api.models.JwtRequest;
-
-
-// @SpringBootTest(classes = za.co.bbd.grad.fupboard.api.FUpboardApplication.class)
-// @AutoConfigureMockMvc
-// class JwtControllerTest {
-
-//     @Autowired
-//     private MockMvc mockMvc;
-
-//     @InjectMocks
-//     private JwtController jwtController;
-
-//     @Mock
-//     private HttpClient httpClient;
-
-//     @Mock
-//     private Jwt jwtMock;
-
-//     @Value("${fupboard.oauth2.client-id}")
-//     private String clientId;
-
-//     @Value("${fupboard.oauth2.client-secret}")
-//     private String clientSecret;
-
-//     @Value("${fupboard.oauth2.token-uri}")
-//     private String tokenUri;
-
-//     @BeforeEach
-//     void setUp() {
-//         when(jwtMock.getClaims()).thenReturn(Map.of("sub", "testUser", "role", "USER"));
-//     }
-
-//     // ✅ Test getClaims() - Ensure it returns JWT claims
-//     @Test
-//     void testGetClaims_ReturnsCorrectClaims() throws Exception {
-//         mockMvc.perform(get("/v1/jwt/claims").principal((Principal) jwtMock))
-//                 .andExpect(status().isOk())
-//                 .andExpect(jsonPath("$.sub").value("testUser"))
-//                 .andExpect(jsonPath("$.role").value("USER"));
-//     }
-
-//     // ✅ Test postJwt() - Simulate successful token exchange
-//     @Test
-//     void testPostJwt_Success() throws Exception {
-//         JwtRequest jwtRequest = new JwtRequest("auth-code-123", "https://redirect.uri");
-
-//         String mockResponseBody = "{ \"access_token\": \"mocked_token\", \"token_type\": \"Bearer\" }";
-
-//         // Mock HTTP response
-//         HttpResponse<Object> mockResponse = mock(HttpResponse.class);
-//         when(mockResponse.statusCode()).thenReturn(200);
-//         when(mockResponse.body()).thenReturn(mockResponseBody);
-//         when(httpClient.send(any(), any())).thenReturn(mockResponse);
-
-//         // Perform request
-//         mockMvc.perform(post("/v1/jwt")
-//                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-//                 .param("code", jwtRequest.getCode())
-//                 .param("uri", jwtRequest.getUri()))
-//                 .andExpect(status().isOk())
-//                 .andExpect(content().json(mockResponseBody));
-//     }
-
-//     // ✅ Test postJwt() - Handle failure scenario
-//     @Test
-//     void testPostJwt_Failure() throws Exception {
-//         JwtRequest jwtRequest = new JwtRequest("invalid-code", "https://redirect.uri");
-
-//         // Mock failed HTTP response (e.g., 400 Bad Request)
-//         HttpResponse<Object> mockResponse = mock(HttpResponse.class);
-//         when(mockResponse.statusCode()).thenReturn(400);
-//         when(httpClient.send(any(), any())).thenReturn(mockResponse);
-
-//         // Expect error status from the API
-//         mockMvc.perform(post("/v1/jwt")
-//                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-//                 .param("code", jwtRequest.getCode())
-//                 .param("uri", jwtRequest.getUri()))
-//                 .andExpect(status().isBadRequest());
-//     }
-// }
