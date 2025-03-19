@@ -53,7 +53,7 @@ public class Main {
                 break;
             }
             
-            var navState = states.getLast();
+            var navState = states.get(states.size() - 1);
 
             System.out.println();
             
@@ -63,10 +63,7 @@ public class Main {
                 .toList();
             var location = String.join(" -> ", locationList);
 
-            if (!location.isEmpty())
-                System.out.println(location);
-            else
-                System.out.println(Constants.BLUE + "Main Menu" + Constants.RESET);
+            System.out.println(location);
             
             NavResponse navResponse;
             try {
@@ -83,7 +80,7 @@ public class Main {
             if (navResponse instanceof NavResponse.Exit) {
                 break;
             } else if (navResponse instanceof NavResponse.Back) {
-                states.removeLast();
+                states.remove(states.size() - 1);
             } else if (navResponse instanceof NavResponse.Push) {
                 var newState = ((NavResponse.Push)navResponse).getNewState();
                 states.add(newState);

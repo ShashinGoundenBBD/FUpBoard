@@ -1,19 +1,18 @@
 package za.co.bbd.grad.fupboard.cli.navigation;
 
+import java.util.Scanner;
+
 import za.co.bbd.grad.fupboard.cli.common.Constants;
-import za.co.bbd.grad.fupboard.cli.common.HttpUtil;
 import za.co.bbd.grad.fupboard.cli.common.NavStateException;
 import za.co.bbd.grad.fupboard.cli.services.AuthenticationService;
 import za.co.bbd.grad.fupboard.cli.services.UserService;
-
-import java.util.Scanner;
 
 
 
 public class StartState implements NavState {
     @Override
     public String getLocation() {
-        return null;
+        return Constants.BLUE + "Main Menu" + Constants.RESET;
     }
 
     @Override
