@@ -50,7 +50,8 @@ public class UserController {
     public ResponseEntity<?> updateUserMe(@AuthenticationPrincipal Jwt jwt, @RequestBody UserUpdateRequest update) throws URISyntaxException, IOException, InterruptedException {
         var user = userService.getUserByJwt(jwt).get();
 
-        update.setEmail(update.getEmail().toLowerCase());
+        if (update.getEmail() != null)
+            update.setEmail(update.getEmail().toLowerCase());
 
         try {
             if (update.getEmail() != null && !update.getEmail().equals(user.getEmail())) {
