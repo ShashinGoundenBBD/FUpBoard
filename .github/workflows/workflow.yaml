@@ -125,9 +125,7 @@ jobs:
           body: "Automated release for commit ${{ github.sha }}"
           draft: false
           prerelease: false
-          files: |
-            fupboard-api/target/fupboard-api.jar
-            fupboard-cli/target/fupboard-cli.jar
+          files: fupboard-cli/target/fupboard-cli.jar
  
   deploy:
     name: Deploy
