@@ -136,19 +136,18 @@ jobs:
       - terraform
     runs-on: ubuntu-latest
     steps:
-      - name: Upload API Artifact for Deployment
+      - name: Download API Artifact for Deployment
         uses: actions/download-artifact@v4
         with:
           name: fupboard-api.jar
-          path: fupboard-api/target/fupboard-api.jar
+          path: fupboard-api.jar
       
       - name: Deploy to EC2
-        working-directory: ./fupboard-api/target
         run: |
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > privatekey.pem
           chmod 0500 privatekey.pem
-          EC2_HOST=${{ needs.terraform.ec2host }}
-          scp -o StrictHostKeyChecking=no -i privatekey.pem ./fupboard-api/target/fupboard-api.jar "ec2-user@$EC2_HOST:fupboard-api.jar"
+          EC2_HOST=${{ needs.terraform.outputs.ec2host }}
+          scp -o StrictHostKeyChecking=no -i privatekey.pem ./fupboard-api.jar "ec2-user@$EC2_HOST:fupboard-api.jar"
           ssh -o StrictHostKeyChecking=no -i privatekey.pem "ec2-user@$EC2_HOST" "sudo systemctl restart fupboard.service"
   flyway:
     needs: release
