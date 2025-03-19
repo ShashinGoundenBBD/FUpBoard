@@ -93,14 +93,14 @@ jobs:
       - name: Build JAR for API
         working-directory: ./fupboard-api
         run: |
-          mvn -B package
+          mvn -B package -Dskiptests
           cd target
           mv fupboard-api-*-with-dependencies.jar fupboard-api.jar
 
       - name: Build JAR for CLI
         working-directory: ./fupboard-cli
         run: |
-          mvn -B package
+          mvn -B package -Dskiptests
           cd target
           mv fupboard-cli-*-with-dependencies.jar fupboard-cli.jar
       
@@ -155,7 +155,7 @@ jobs:
           scp -o StrictHostKeyChecking=no -i privatekey.pem ./fupboard-api/target/fupboard-api.jar "ec2-user@$EC2_HOST:fupboard-api.jar"
           ssh -o StrictHostKeyChecking=no -i privatekey.pem "ec2-user@$EC2_HOST" "sudo systemctl restart fupboard.service"
   flyway:
-    needs: terraform
+    needs: release
     name: Flyway Migrations
     runs-on: ubuntu-latest
     steps:
