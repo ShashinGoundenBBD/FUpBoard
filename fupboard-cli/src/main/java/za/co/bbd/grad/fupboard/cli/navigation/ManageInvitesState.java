@@ -3,6 +3,7 @@ package za.co.bbd.grad.fupboard.cli.navigation;
 import java.util.Scanner;
 
 import za.co.bbd.grad.fupboard.cli.common.Constants;
+import za.co.bbd.grad.fupboard.cli.services.InviteService;
 
 public class ManageInvitesState implements NavState {
    
@@ -30,10 +31,10 @@ public class ManageInvitesState implements NavState {
             case 0: 
                 return NavResponse.back();
             case 1 : 
-              //  acceptInviteFunction();
+                InviteService.acceptInvite(inviteNumber);
                 return NavResponse.stay();
             case 2:
-               // declineInviteFunction();
+                InviteService.declineInvite(inviteNumber);
                 return NavResponse.stay();
             default:
                 System.out.println(Constants.RED + "Please select a valid option." + Constants.RESET);

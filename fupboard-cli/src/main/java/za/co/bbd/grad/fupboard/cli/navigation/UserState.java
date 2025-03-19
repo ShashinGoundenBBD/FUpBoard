@@ -35,8 +35,13 @@ public class UserState implements NavState {
                 UserService.updateMyDetails(scanner);
                 return NavResponse.stay();
             case 3:
-                //show all invites
-                //Select invite to accept/decline
+                boolean hasInvites = UserService.showMyInvites();
+                if (!hasInvites) {
+                    System.out.println("You do not have any invites to manage.");
+                    return NavResponse.stay();
+                }
+
+                // Only ask to select invite if there are unaccepted invites
                 System.out.println("Which invite would you like to accept/decline?");
                 var inviteNumber = Integer.parseInt(scanner.nextLine());
                 return NavResponse.push(new ManageInvitesState(inviteNumber));
