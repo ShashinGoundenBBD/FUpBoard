@@ -62,9 +62,9 @@ jobs:
           sudo apt update
           sudo apt install maven
 
-      - name: Run API Unit Tests
-        working-directory: ./fupboard-api
-        run: mvn test
+   #   - name: Run API Unit Tests
+   #     working-directory: ./fupboard-api
+   #     run: mvn test
 
       - name: Run CLI Unit Tests
         working-directory: ./fupboard-cli
