@@ -1,4 +1,4 @@
-package za.co.bbd.grad.fupboard.cli;
+package za.co.bbd.grad.fupboard.cli.services;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -9,13 +9,14 @@ import java.util.Scanner;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static za.co.bbd.grad.fupboard.Config.BASE_URL;
-import static za.co.bbd.grad.fupboard.cli.HttpUtil.deleteRequest;
-import static za.co.bbd.grad.fupboard.cli.HttpUtil.getRequest;
-import static za.co.bbd.grad.fupboard.cli.HttpUtil.patchRequest;
-import static za.co.bbd.grad.fupboard.cli.HttpUtil.postRequest;
-import static za.co.bbd.grad.fupboard.cli.HttpUtil.sendRequest;
-import static za.co.bbd.grad.fupboard.cli.ProjectService.viewMyProjects;
+import za.co.bbd.grad.fupboard.cli.common.Constants;
+
+import static za.co.bbd.grad.fupboard.cli.common.HttpUtil.deleteRequest;
+import static za.co.bbd.grad.fupboard.cli.common.HttpUtil.getRequest;
+import static za.co.bbd.grad.fupboard.cli.common.HttpUtil.patchRequest;
+import static za.co.bbd.grad.fupboard.cli.common.HttpUtil.postRequest;
+import static za.co.bbd.grad.fupboard.cli.common.HttpUtil.sendRequest;
+import static za.co.bbd.grad.fupboard.cli.services.ProjectService.viewMyProjects;
 
 public class InviteService {
 
@@ -27,20 +28,20 @@ public class InviteService {
         int inviteId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print(ConsoleColors.YELLOW + "Accept invite? (yes/no): " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Accept invite? (yes/no): " + Constants.RESET);
         String response = scanner.nextLine().trim().toLowerCase();
         if (!response.equals("yes") && !response.equals("no")) {
-            System.out.println(ConsoleColors.RED + "Invalid input. Please enter 'yes' or 'no'." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Invalid input. Please enter 'yes' or 'no'." + Constants.RESET);
             return;
         }
         boolean accepted = response.equals("yes");
     
         String jsonBody = String.format("{\"accepted\":%b}", accepted);
-        String apiResponse = sendRequest(patchRequest(BASE_URL + "/v1/invites/" + inviteId, jsonBody));
+        String apiResponse = sendRequest(patchRequest(Constants.BASE_URL + "/v1/invites/" + inviteId, jsonBody));
         if (apiResponse != null) {
-            System.out.println(ConsoleColors.GREEN + "Invite " + (accepted ? "accepted" : "declined") + " successfully." + ConsoleColors.RESET);
+            System.out.println(Constants.GREEN + "Invite " + (accepted ? "accepted" : "declined") + " successfully." + Constants.RESET);
         } else {
-            System.out.println(ConsoleColors.RED + "Failed to process invite. Please try again." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Failed to process invite. Please try again." + Constants.RESET);
         }
     }
 
@@ -48,13 +49,13 @@ public class InviteService {
         Map<Integer, Integer> projectIndexMap = viewMyProjects(authToken);
         if (projectIndexMap.isEmpty()) return Collections.emptyMap();
 
-        System.out.print(ConsoleColors.YELLOW + "Enter project ID: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter project ID: " + Constants.RESET);
         int projectId = scanner.nextInt();
         scanner.nextLine();
 
-        String responseBody = sendRequest(getRequest(BASE_URL + "/v1/projects/" + projectId + "/invites"));
+        String responseBody = sendRequest(getRequest(Constants.BASE_URL + "/v1/projects/" + projectId + "/invites"));
         if (responseBody == null) {
-            System.out.println(ConsoleColors.RED + "Failed to retrieve invites for the project. Please try again." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Failed to retrieve invites for the project. Please try again." + Constants.RESET);
             return Collections.emptyMap();
         }
 
@@ -64,20 +65,20 @@ public class InviteService {
             JsonNode invites = objectMapper.readTree(responseBody);
 
             if (invites.isArray() && invites.size() > 0) {
-                System.out.println(ConsoleColors.BLUE + "-> Invites for Project ID: " + projectId + ConsoleColors.RESET);
+                System.out.println(Constants.BLUE + "-> Invites for Project ID: " + projectId + Constants.RESET);
                 int index = 1;
                 for (JsonNode invite : invites) {
                     int inviteId = invite.get("inviteId").asInt();
                     String username = invite.get("username").asText();
                     inviteIndexMap.put(index, inviteId);
-                    System.out.println(ConsoleColors.GREEN + " - [" + index + "] " + username + ConsoleColors.RESET);
+                    System.out.println(Constants.GREEN + " - [" + index + "] " + username + Constants.RESET);
                     index++;
                 }
             } else {
-                System.out.println(ConsoleColors.RED + "-> No invites found for this project." + ConsoleColors.RESET);
+                System.out.println(Constants.RED + "-> No invites found for this project." + Constants.RESET);
             }
         } catch (IOException e) {
-            System.err.println(ConsoleColors.RED + "Error parsing response: " + e.getMessage() + ConsoleColors.RESET);
+            System.err.println(Constants.RED + "Error parsing response: " + e.getMessage() + Constants.RESET);
         }
         return inviteIndexMap;
     }
@@ -85,42 +86,42 @@ public class InviteService {
     public static void createProjectInvite(Scanner scanner, String authToken) {
         Map<Integer, Integer> projectIndexMap = viewMyProjects(authToken);
         if (projectIndexMap.isEmpty()) return;
-        System.out.print(ConsoleColors.YELLOW + "Enter project ID: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter project ID: " + Constants.RESET);
         int projectId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print(ConsoleColors.YELLOW + "Enter invitee's username: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter invitee's username: " + Constants.RESET);
         String username = scanner.nextLine().trim();
         if (username.isEmpty()) {
-            System.out.println(ConsoleColors.RED + "Username cannot be empty." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Username cannot be empty." + Constants.RESET);
             return;
         }
 
         String jsonBody = String.format("{\"username\":\"%s\"}", username);
-        String response = sendRequest(postRequest(BASE_URL + "/v1/projects/" + projectId + "/invites", jsonBody));
+        String response = sendRequest(postRequest(Constants.BASE_URL + "/v1/projects/" + projectId + "/invites", jsonBody));
         if (response != null) {
-            System.out.println(ConsoleColors.GREEN + "Project invite created successfully." + ConsoleColors.RESET);
+            System.out.println(Constants.GREEN + "Project invite created successfully." + Constants.RESET);
         } else {
-            System.out.println(ConsoleColors.RED + "Failed to create project invite. Please try again." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Failed to create project invite. Please try again." + Constants.RESET);
         }
     }
 
     public static void deleteProjectInvite(Scanner scanner, String authToken) {
         Map<Integer, Integer> projectIndexMap = viewMyProjects(authToken);
         if (projectIndexMap.isEmpty()) return;
-        System.out.print(ConsoleColors.YELLOW + "Enter project ID: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter project ID: " + Constants.RESET);
 
         int projectId = scanner.nextInt();
-        System.out.print(ConsoleColors.YELLOW + "Enter invite ID: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter invite ID: " + Constants.RESET);
         int inviteId = scanner.nextInt();
 
-        sendRequest(deleteRequest( BASE_URL + "/v1/projects/" + projectId + "/invites/" + inviteId));
+        sendRequest(deleteRequest( Constants.BASE_URL + "/v1/projects/" + projectId + "/invites/" + inviteId));
     }
 
         public static Map<Integer, Integer> viewMyInvites(String authToken) {
-        String responseBody = sendRequest(getRequest(BASE_URL + "/v1/users/me"));
+        String responseBody = sendRequest(getRequest(Constants.BASE_URL + "/v1/users/me"));
         if (responseBody == null) {
-            System.out.println(ConsoleColors.RED + "Failed to retrieve your invites. Please try again." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Failed to retrieve your invites. Please try again." + Constants.RESET);
             return Collections.emptyMap();
         }
 
@@ -130,20 +131,20 @@ public class InviteService {
             JsonNode invites = objectMapper.readTree(responseBody);
 
             if (invites.isArray() && invites.size() > 0) {
-                System.out.println(ConsoleColors.BLUE + "-> Your Invites:" + ConsoleColors.RESET);
+                System.out.println(Constants.BLUE + "-> Your Invites:" + Constants.RESET);
                 int index = 1;
                 for (JsonNode invite : invites) {
                     int inviteId = invite.get("inviteId").asInt();
                     String projectName = invite.get("projectName").asText();
                     inviteIndexMap.put(index, inviteId);
-                    System.out.println(ConsoleColors.GREEN + " - [" + index + "] " + projectName + ConsoleColors.RESET);
+                    System.out.println(Constants.GREEN + " - [" + index + "] " + projectName + Constants.RESET);
                     index++;
                 }
             } else {
-                System.out.println(ConsoleColors.RED + "-> No invites found." + ConsoleColors.RESET);
+                System.out.println(Constants.RED + "-> No invites found." + Constants.RESET);
             }
         } catch (IOException e) {
-            System.err.println(ConsoleColors.RED + "Error parsing response: " + e.getMessage() + ConsoleColors.RESET);
+            System.err.println(Constants.RED + "Error parsing response: " + e.getMessage() + Constants.RESET);
         }
         return inviteIndexMap;
     }

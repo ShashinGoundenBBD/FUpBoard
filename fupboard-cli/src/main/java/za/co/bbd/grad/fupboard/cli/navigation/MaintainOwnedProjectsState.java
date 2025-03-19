@@ -2,10 +2,10 @@ package za.co.bbd.grad.fupboard.cli.navigation;
 
 import java.util.Scanner;
 
-import za.co.bbd.grad.fupboard.Config;
-import za.co.bbd.grad.fupboard.cli.ConsoleColors;
+
 import za.co.bbd.grad.fupboard.cli.Main;
-import za.co.bbd.grad.fupboard.cli.ProjectService;
+import za.co.bbd.grad.fupboard.cli.common.Constants;
+import za.co.bbd.grad.fupboard.cli.services.ProjectService;
 
 public class MaintainOwnedProjectsState implements NavState {
     private int project;
@@ -26,7 +26,7 @@ public class MaintainOwnedProjectsState implements NavState {
         System.out.println("2. Delete project.");
         System.out.println("3. Invite users to project.");
 
-        System.out.print(Config.InputCharacter);
+        System.out.print(Constants.InputCharacter);
         int option = Integer.parseInt(scanner.nextLine());
 
         switch (option)
@@ -44,7 +44,7 @@ public class MaintainOwnedProjectsState implements NavState {
                 //return to invite menue
                 return new NavResponse.Stay();
             default:
-                System.out.println(ConsoleColors.RED + "Please select a valid option." + ConsoleColors.RESET);
+                System.out.println(Constants.RED + "Please select a valid option." + Constants.RESET);
                 return new NavResponse.Stay();
         }
     }

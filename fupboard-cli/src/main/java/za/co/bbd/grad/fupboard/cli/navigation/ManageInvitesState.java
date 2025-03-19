@@ -2,7 +2,7 @@ package za.co.bbd.grad.fupboard.cli.navigation;
 
 import java.util.Scanner;
 
-import za.co.bbd.grad.fupboard.cli.ConsoleColors;
+import za.co.bbd.grad.fupboard.cli.common.Constants;
 
 public class ManageInvitesState implements NavState {
    
@@ -36,7 +36,7 @@ public class ManageInvitesState implements NavState {
                // declineInviteFunction();
                 return new NavResponse.Stay();
             default:
-                System.out.println(ConsoleColors.RED + "Please select a valid option." + ConsoleColors.RESET);
+                System.out.println(Constants.RED + "Please select a valid option." + Constants.RESET);
                 return new NavResponse.Stay();
         }
 

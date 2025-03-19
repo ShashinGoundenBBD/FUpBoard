@@ -1,4 +1,4 @@
-package za.co.bbd.grad.fupboard.cli;
+package za.co.bbd.grad.fupboard.cli.services;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,10 +9,11 @@ import java.util.Scanner;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import za.co.bbd.grad.fupboard.cli.common.Constants;
+import za.co.bbd.grad.fupboard.cli.common.HttpUtil;
+
 import java.io.IOException;
 import java.net.http.HttpRequest;
-
-import za.co.bbd.grad.fupboard.Config;
 
 public class LeaderboardService {
 
@@ -23,22 +24,22 @@ public class LeaderboardService {
      
 
         // Ask user to pick a project ID
-        System.out.print(ConsoleColors.YELLOW + "Enter project number to view leaderboard for: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter project number to view leaderboard for: " + Constants.RESET);
         int index = scanner.nextInt();
         scanner.nextLine();
-        System.out.print(Config.InputCharacter);
+        System.out.print(Constants.InputCharacter);
 
         Integer projectId = projectIndexMap.get(index);
         if (projectId == null) {
-            System.out.println(ConsoleColors.RED + "Invalid selection." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Invalid selection." + Constants.RESET);
             return;
         }
       
-        HttpRequest request = HttpUtil.getRequest(Config.BASE_URL + "/v1/projects/" + projectId + "/leaderboard");
+        HttpRequest request = HttpUtil.getRequest(Constants.BASE_URL + "/v1/projects/" + projectId + "/leaderboard");
         String response = HttpUtil.sendRequest(request);
 
         if (response == null) {
-            System.out.println(ConsoleColors.RED + "Failed to retrieve leaderboard." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Failed to retrieve leaderboard." + Constants.RESET);
             return;
         }
 
@@ -49,7 +50,7 @@ public class LeaderboardService {
 
             // Check if leaderboard is empty
             if (leaderboardResponse.entries == null || leaderboardResponse.entries.isEmpty()) {
-                System.out.println(ConsoleColors.YELLOW + "There is no leaderboard for this project because there have been no F-Ups reported." + ConsoleColors.RESET);
+                System.out.println(Constants.YELLOW + "There is no leaderboard for this project because there have been no F-Ups reported." + Constants.RESET);
                 return;
             }
 
@@ -57,7 +58,7 @@ public class LeaderboardService {
             printLeaderboard(leaderboardResponse.entries);
 
         } catch (Exception e) {
-            System.out.println(ConsoleColors.RED + "Error parsing leaderboard data: " + e.getMessage() + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Error parsing leaderboard data: " + e.getMessage() + Constants.RESET);
         }
     }
 
@@ -82,10 +83,10 @@ public class LeaderboardService {
     }
 
         public static Map<Integer, Integer> viewMyProjects(String authToken) {
-        String responseBody = HttpUtil.sendRequest(HttpUtil.getRequest(Config.BASE_URL + "/v1/projects"));
+        String responseBody = HttpUtil.sendRequest(HttpUtil.getRequest(Constants.BASE_URL + "/v1/projects"));
 
         if (responseBody == null) {
-            System.out.println(ConsoleColors.RED + "-> Failed to retrieve projects." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "-> Failed to retrieve projects." + Constants.RESET);
             return Collections.emptyMap();
         }
 
@@ -96,20 +97,20 @@ public class LeaderboardService {
             JsonNode projects = objectMapper.readTree(responseBody);
 
             if (projects.isArray() && projects.size() > 0) {
-                System.out.println(ConsoleColors.BLUE + "-> Your Projects:" + ConsoleColors.RESET);
+                System.out.println(Constants.BLUE + "-> Your Projects:" + Constants.RESET);
                 int index = 1;
                 for (JsonNode project : projects) {
                     int projectId = project.get("projectId").asInt();
                     String projectName = project.get("projectName").asText();
                     projectIndexMap.put(index, projectId);
-                    System.out.println(ConsoleColors.GREEN + " - [" + index + "] " + projectName + ConsoleColors.RESET);
+                    System.out.println(Constants.GREEN + " - [" + index + "] " + projectName + Constants.RESET);
                     index++;
                 }
             } else {
-                System.out.println(ConsoleColors.RED + "-> No projects found." + ConsoleColors.RESET);
+                System.out.println(Constants.RED + "-> No projects found." + Constants.RESET);
             }
         } catch (IOException e) {
-            System.err.println(ConsoleColors.RED + "Error parsing response: " + e.getMessage() + ConsoleColors.RESET);
+            System.err.println(Constants.RED + "Error parsing response: " + e.getMessage() + Constants.RESET);
         }
         return projectIndexMap;
     }

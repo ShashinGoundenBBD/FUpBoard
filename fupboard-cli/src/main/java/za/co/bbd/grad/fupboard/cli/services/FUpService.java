@@ -1,4 +1,10 @@
-package za.co.bbd.grad.fupboard.cli;
+package za.co.bbd.grad.fupboard.cli.services;
+
+import static za.co.bbd.grad.fupboard.cli.common.HttpUtil.deleteRequest;
+import static za.co.bbd.grad.fupboard.cli.common.HttpUtil.getRequest;
+import static za.co.bbd.grad.fupboard.cli.common.HttpUtil.patchRequest;
+import static za.co.bbd.grad.fupboard.cli.common.HttpUtil.postRequest;
+import static za.co.bbd.grad.fupboard.cli.common.HttpUtil.sendRequest;
 
 import java.io.IOException;
 import java.net.http.HttpRequest;
@@ -10,13 +16,8 @@ import java.util.Scanner;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import za.co.bbd.grad.fupboard.Config;
-import static za.co.bbd.grad.fupboard.Config.BASE_URL;
-import static za.co.bbd.grad.fupboard.cli.HttpUtil.deleteRequest;
-import static za.co.bbd.grad.fupboard.cli.HttpUtil.getRequest;
-import static za.co.bbd.grad.fupboard.cli.HttpUtil.patchRequest;
-import static za.co.bbd.grad.fupboard.cli.HttpUtil.postRequest;
-import static za.co.bbd.grad.fupboard.cli.HttpUtil.sendRequest;
+import za.co.bbd.grad.fupboard.cli.common.Constants;
+import za.co.bbd.grad.fupboard.cli.common.HttpUtil;
 
 
 public class FUpService {
@@ -26,44 +27,44 @@ public class FUpService {
         Map<Integer, Integer> projectIndexMap = ProjectService.viewMyProjects(authToken);
         if (projectIndexMap.isEmpty()) return;
 
-        System.out.print(ConsoleColors.YELLOW + "Enter project number: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter project number: " + Constants.RESET);
         int index = scanner.nextInt();
         scanner.nextLine();
         Integer projectId = projectIndexMap.get(index);
 
         if (projectId == null) {
-            System.out.println(ConsoleColors.RED + "Invalid project selection." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Invalid project selection." + Constants.RESET);
             return;
         }
 
-        System.out.print(ConsoleColors.YELLOW + "Enter FUp name: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter FUp name: " + Constants.RESET);
         String name = scanner.nextLine();
 
         if (name.isEmpty()) {
-            System.out.println(ConsoleColors.RED + "FUp name cannot be empty." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "FUp name cannot be empty." + Constants.RESET);
             return;
         }
 
-        System.out.print(ConsoleColors.YELLOW + "Enter FUp description: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter FUp description: " + Constants.RESET);
         String description = scanner.nextLine();
 
         if (description.isEmpty()) {
-            System.out.println(ConsoleColors.RED + "Description cannot be empty." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Description cannot be empty." + Constants.RESET);
             return;
         }
 
         String jsonBody = String.format("{\"name\":\"%s\", \"description\":\"%s\"}", name, description);
-        String responseBody = sendRequest(postRequest(BASE_URL + "/v1/projects/" + projectId + "/fups", jsonBody));
+        String responseBody = sendRequest(postRequest(Constants.BASE_URL + "/v1/projects/" + projectId + "/fups", jsonBody));
         if (responseBody != null) {
-            System.out.println(ConsoleColors.GREEN + "-> FUp reported successfully!" + ConsoleColors.RESET);
+            System.out.println(Constants.GREEN + "-> FUp reported successfully!" + Constants.RESET);
             displayFUp(responseBody);
         }
     }
 
     public static Map<Integer, Integer> viewFUps(String authToken, int projectId) {
-        String responseBody = sendRequest(getRequest(BASE_URL + "/v1/projects/" + projectId + "/fups"));
+        String responseBody = sendRequest(getRequest(Constants.BASE_URL + "/v1/projects/" + projectId + "/fups"));
         if (responseBody == null) {
-            System.out.println(ConsoleColors.RED + "-> Failed to retrieve FUps." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "-> Failed to retrieve FUps." + Constants.RESET);
             return Collections.emptyMap();
         }
 
@@ -73,20 +74,20 @@ public class FUpService {
             JsonNode fUps = objectMapper.readTree(responseBody);
 
             if (fUps.isArray() && fUps.size() > 0) {
-                System.out.println(ConsoleColors.BLUE + "-> FUps in Project:" + ConsoleColors.RESET);
+                System.out.println(Constants.BLUE + "-> FUps in Project:" + Constants.RESET);
                 int index = 1;
                 for (JsonNode fUp : fUps) {
                     int fUpId = fUp.get("fUpId").asInt();
                     String fUpName = fUp.get("fUpName").asText();
                     fUpIndexMap.put(index, fUpId);
-                    System.out.println(ConsoleColors.GREEN + " - [" + index + "] " + fUpName + ConsoleColors.RESET);
+                    System.out.println(Constants.GREEN + " - [" + index + "] " + fUpName + Constants.RESET);
                     index++;
                 }
             } else {
-                System.out.println(ConsoleColors.RED + "-> No FUps found for this project." + ConsoleColors.RESET);
+                System.out.println(Constants.RED + "-> No FUps found for this project." + Constants.RESET);
             }
         } catch (IOException e) {
-            System.err.println(ConsoleColors.RED + "Error parsing response: " + e.getMessage() + ConsoleColors.RESET);
+            System.err.println(Constants.RED + "Error parsing response: " + e.getMessage() + Constants.RESET);
         }
         return fUpIndexMap;
     }
@@ -95,32 +96,32 @@ public class FUpService {
         Map<Integer, Integer> projectIndexMap = ProjectService.viewMyProjects(authToken);
         if (projectIndexMap.isEmpty()) return;
 
-        System.out.print(ConsoleColors.YELLOW + "Enter project number: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter project number: " + Constants.RESET);
         int projectIndex = scanner.nextInt();
         scanner.nextLine();
 
         Integer projectId = projectIndexMap.get(projectIndex);
         if (projectId == null) {
-            System.out.println(ConsoleColors.RED + "Invalid project selection." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Invalid project selection." + Constants.RESET);
             return;
         }
 
         Map<Integer, Integer> fUpIndexMap = viewFUps(authToken, projectId);
         if (fUpIndexMap.isEmpty()) return;
 
-        System.out.print(ConsoleColors.YELLOW + "Enter FUp number: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter FUp number: " + Constants.RESET);
         int fUpIndex = scanner.nextInt();
         scanner.nextLine();
 
         Integer fUpId = fUpIndexMap.get(fUpIndex);
         if (fUpId == null) {
-            System.out.println(ConsoleColors.RED + "Invalid FUp selection." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Invalid FUp selection." + Constants.RESET);
             return;
         }
 
-        String responseBody = sendRequest(getRequest(BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId));
+        String responseBody = sendRequest(getRequest(Constants.BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId));
         if (responseBody != null) {
-            System.out.println(ConsoleColors.BLUE + "-> FUp Details:" + ConsoleColors.RESET);
+            System.out.println(Constants.BLUE + "-> FUp Details:" + Constants.RESET);
             displayFUp(responseBody);
         }
     }
@@ -130,76 +131,76 @@ public class FUpService {
         Map<Integer, Integer> projectIndexMap = ProjectService.viewMyProjects(authToken);
         if (projectIndexMap.isEmpty()) return;
 
-        System.out.print(ConsoleColors.YELLOW + "Enter project number: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter project number: " + Constants.RESET);
         int projectIndex = scanner.nextInt();
         scanner.nextLine();
 
         Integer projectId = projectIndexMap.get(projectIndex);
         if (projectId == null) {
-            System.out.println(ConsoleColors.RED + "Invalid project selection." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Invalid project selection." + Constants.RESET);
             return;
         }
 
         Map<Integer, Integer> fUpIndexMap = viewFUps(authToken, projectId);
         if (fUpIndexMap.isEmpty()) return;
 
-        System.out.print(ConsoleColors.YELLOW + "Enter FUp number to delete: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter FUp number to delete: " + Constants.RESET);
         int fUpIndex = scanner.nextInt();
         scanner.nextLine();
 
         Integer fUpId = fUpIndexMap.get(fUpIndex);
         if (fUpId == null) {
-            System.out.println(ConsoleColors.RED + "Invalid FUp selection." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Invalid FUp selection." + Constants.RESET);
             return;
         }
 
-        sendRequest(deleteRequest( BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId));
-        System.out.println(ConsoleColors.GREEN + "-> FUp deleted successfully!" + ConsoleColors.RESET);
+        sendRequest(deleteRequest( Constants.BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId));
+        System.out.println(Constants.GREEN + "-> FUp deleted successfully!" + Constants.RESET);
     }
 
     public static void editFUp(Scanner scanner, String authToken) {
         Map<Integer, Integer> projectIndexMap = ProjectService.viewMyProjects(authToken);
         if (projectIndexMap.isEmpty()) return;
 
-        System.out.print(ConsoleColors.YELLOW + "Enter project number: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter project number: " + Constants.RESET);
         int projectIndex = scanner.nextInt();
         scanner.nextLine();
 
         Integer projectId = projectIndexMap.get(projectIndex);
         if (projectId == null) {
-            System.out.println(ConsoleColors.RED + "Invalid project selection." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Invalid project selection." + Constants.RESET);
             return;
         }
 
         Map<Integer, Integer> fUpIndexMap = viewFUps(authToken, projectId);
         if (fUpIndexMap.isEmpty()) return;
 
-        System.out.print(ConsoleColors.YELLOW + "Enter FUp number to edit: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter FUp number to edit: " + Constants.RESET);
         int fUpIndex = scanner.nextInt();
         scanner.nextLine();
 
         Integer fUpId = fUpIndexMap.get(fUpIndex);
         if (fUpId == null) {
-            System.out.println(ConsoleColors.RED + "Invalid FUp selection." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Invalid FUp selection." + Constants.RESET);
             return;
         }
 
-        System.out.print(ConsoleColors.YELLOW + "Enter new FUp name (leave blank to keep current): " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter new FUp name (leave blank to keep current): " + Constants.RESET);
         String name = scanner.nextLine();
 
-        System.out.print(ConsoleColors.YELLOW + "Enter new FUp description (leave blank to keep current): " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter new FUp description (leave blank to keep current): " + Constants.RESET);
         String description = scanner.nextLine();
 
         if (name.isEmpty() && description.isEmpty()) {
-            System.out.println(ConsoleColors.BLUE + "-> No changes made." + ConsoleColors.RESET);
+            System.out.println(Constants.BLUE + "-> No changes made." + Constants.RESET);
             return;
         }
 
         String jsonBody = String.format("{\"name\":\"%s\", \"description\":\"%s\"}", name, description);
-        String responseBody = sendRequest(patchRequest(BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId, jsonBody));
+        String responseBody = sendRequest(patchRequest(Constants.BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId, jsonBody));
 
         if (responseBody != null) {
-            System.out.println(ConsoleColors.GREEN + "-> FUp updated successfully!" + ConsoleColors.RESET);
+            System.out.println(Constants.GREEN + "-> FUp updated successfully!" + Constants.RESET);
             displayFUp(responseBody);
         }
     }
@@ -212,13 +213,13 @@ public class FUpService {
             String fUpName = fUp.get("fUpName").asText();
             String fUpDescription = fUp.get("description").asText();
 
-            System.out.println(ConsoleColors.BLUE + "-> FUp Info:" + ConsoleColors.RESET);
-            System.out.println("   Name: " + ConsoleColors.GREEN + fUpName + ConsoleColors.RESET);
-            System.out.println("   Description: " + ConsoleColors.GREEN + fUpDescription + ConsoleColors.RESET);
+            System.out.println(Constants.BLUE + "-> FUp Info:" + Constants.RESET);
+            System.out.println("   Name: " + Constants.GREEN + fUpName + Constants.RESET);
+            System.out.println("   Description: " + Constants.GREEN + fUpDescription + Constants.RESET);
             System.out.println("--------------------------");
 
         } catch (IOException e) {
-            System.err.println(ConsoleColors.RED + "Error parsing response: " + e.getMessage() + ConsoleColors.RESET);
+            System.err.println(Constants.RED + "Error parsing response: " + e.getMessage() + Constants.RESET);
         }
     }
 
@@ -227,21 +228,21 @@ public class FUpService {
         ProjectService.viewMyProjects(authToken);
 
         // Ask user to pick a project ID
-        System.out.print(ConsoleColors.YELLOW + "Enter project number of f-up you want to view: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter project number of f-up you want to view: " + Constants.RESET);
         int projectId = scanner.nextInt();
         scanner.nextLine();
         
 
         //Show fups and their ids
-        System.out.print(ConsoleColors.YELLOW + "Enter fUp number to view summary of it: " + ConsoleColors.RESET);
+        System.out.print(Constants.YELLOW + "Enter fUp number to view summary of it: " + Constants.RESET);
         int fUpId = scanner.nextInt();
         scanner.nextLine();
          
-        HttpRequest request = HttpUtil.getRequest(Config.BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId + "/leaderboard");
+        HttpRequest request = HttpUtil.getRequest(Constants.BASE_URL + "/v1/projects/" + projectId + "/fups/" + fUpId + "/leaderboard");
         String response = HttpUtil.sendRequest(request);
 
         if (response == null) {
-            System.out.println(ConsoleColors.RED + "Failed to retrieve summary." + ConsoleColors.RESET);
+            System.out.println(Constants.RED + "Failed to retrieve summary." + Constants.RESET);
             return;
         }
         else
@@ -257,12 +258,12 @@ public class FUpService {
             JsonNode entriesNode = root.get("entries");
     
             if (entriesNode == null || !entriesNode.isArray() || entriesNode.isEmpty()) {
-                System.out.println(ConsoleColors.RED + "No summary data available." + ConsoleColors.RESET);
+                System.out.println(Constants.RED + "No summary data available." + Constants.RESET);
                 return;
             }
     
-            String reset = ConsoleColors.RESET;
-            String blue = ConsoleColors.BLUE;
+            String reset = Constants.RESET;
+            String blue = Constants.BLUE;
     
             String borderTop = "┌───────────────────────────┬──────────┐";
             String separator = "├───────────────────────────┼──────────┤";
@@ -281,7 +282,7 @@ public class FUpService {
     
             System.out.println(borderBottom);
         } catch (IOException e) {
-            System.err.println(ConsoleColors.RED + "Error parsing response: " + e.getMessage() + ConsoleColors.RESET);
+            System.err.println(Constants.RED + "Error parsing response: " + e.getMessage() + Constants.RESET);
         }
     }
     

@@ -2,7 +2,7 @@ package za.co.bbd.grad.fupboard.cli.navigation;
 
 import java.util.Scanner;
 
-import za.co.bbd.grad.fupboard.cli.ConsoleColors;
+import za.co.bbd.grad.fupboard.cli.common.Constants;
 
 public class FUpMenuState implements NavState {
     private int project;
@@ -36,7 +36,7 @@ public class FUpMenuState implements NavState {
                var fUp = Integer.parseInt(scanner.nextLine());
                return new NavResponse.Push(new FUpState(project, fUp));
             default:
-                System.out.println(ConsoleColors.RED + "Please select a valid option." + ConsoleColors.RESET);
+                System.out.println(Constants.RED + "Please select a valid option." + Constants.RESET);
                 return new NavResponse.Stay();
         }
 

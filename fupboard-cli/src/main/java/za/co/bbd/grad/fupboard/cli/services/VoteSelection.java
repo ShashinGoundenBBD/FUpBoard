@@ -1,4 +1,4 @@
-package za.co.bbd.grad.fupboard.cli;
+package za.co.bbd.grad.fupboard.cli.services;
 
 import java.util.Map;
 

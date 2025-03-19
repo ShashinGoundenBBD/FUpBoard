@@ -1,4 +1,4 @@
-package za.co.bbd.grad.fupboard.cli;
+package za.co.bbd.grad.fupboard.cli.common;
 
 import java.io.IOException;
 import java.net.URI;
@@ -8,6 +8,8 @@ import java.net.http.HttpResponse;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import za.co.bbd.grad.fupboard.cli.services.Authentication;
 
 public class HttpUtil {
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
@@ -72,16 +74,16 @@ public class HttpUtil {
                         errorMessage = jsonNode.get("error").asText();
                     }
                 } catch (Exception e) {
-                    System.out.println(ConsoleColors.RED + "Failed to parse error message: " + e.getMessage() + ConsoleColors.RESET);
+                    System.out.println(Constants.RED + "Failed to parse error message: " + e.getMessage() + Constants.RESET);
                 }
 
-                System.out.println(ConsoleColors.RED + "Error : " + response.statusCode() + " - " + errorMessage + ConsoleColors.RESET);
+                System.out.println(Constants.RED + "Error : " + response.statusCode() + " - " + errorMessage + Constants.RESET);
           
                 return null;
                 
             }
         } catch (IOException | InterruptedException e) {
-            System.err.println(ConsoleColors.RED + "Error: " + e.getMessage() + ConsoleColors.RESET);
+            System.err.println(Constants.RED + "Error: " + e.getMessage() + Constants.RESET);
             return null;
         }
     }

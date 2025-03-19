@@ -1,8 +1,10 @@
 package za.co.bbd.grad.fupboard.cli.navigation;
 
+import za.co.bbd.grad.fupboard.cli.common.Constants;
+
 import java.util.Scanner;
 
-import za.co.bbd.grad.fupboard.Config;
+
 
 public class StartState implements NavState {
     @Override
@@ -24,7 +26,7 @@ public class StartState implements NavState {
         System.out.println("2. Projects");
         
 
-        System.out.print(Config.InputCharacter);
+        System.out.print(Constants.InputCharacter);
         int choice = Integer.parseInt(scanner.nextLine());
 
         switch (choice) {

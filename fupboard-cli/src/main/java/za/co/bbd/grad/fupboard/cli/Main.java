@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import za.co.bbd.grad.fupboard.cli.common.HttpUtil;
 import za.co.bbd.grad.fupboard.cli.navigation.NavResponse;
 import za.co.bbd.grad.fupboard.cli.navigation.NavState;
 import za.co.bbd.grad.fupboard.cli.navigation.StartState;
@@ -14,7 +15,7 @@ public class Main {
     public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException {
         // Welcome to FUPBoard
         displayWelcomeMessage();
-        
+
         // Sign into Google account to proceed
         HttpUtil.oAuthSignIn();
 
