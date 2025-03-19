@@ -1,4 +1,4 @@
-package za.co.bbd.grad.fupboard.cli;
+package za.co.bbd.grad.fupboard;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
