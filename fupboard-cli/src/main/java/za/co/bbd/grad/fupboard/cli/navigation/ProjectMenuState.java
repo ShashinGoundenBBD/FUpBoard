@@ -1,8 +1,11 @@
 package za.co.bbd.grad.fupboard.cli.navigation;
 
+import java.util.List;
 import java.util.Scanner;
-import za.co.bbd.grad.fupboard.cli.Main;
+
 import za.co.bbd.grad.fupboard.cli.common.Constants;
+import za.co.bbd.grad.fupboard.cli.common.NavStateException;
+import za.co.bbd.grad.fupboard.cli.models.Project;
 import za.co.bbd.grad.fupboard.cli.services.ProjectService;
 
 public class ProjectMenuState implements NavState {
@@ -11,51 +14,59 @@ public class ProjectMenuState implements NavState {
 
     @Override
     public String getLocation() {
-        return "Project Menu"; 
+        return Constants.BLUE + "Projects" + Constants.RESET;
     }
 
     @Override
-    public NavResponse handle(Scanner scanner) {
+    public NavResponse handle(Scanner scanner) throws NavStateException {
         System.out.println("0. Back");
-        System.out.println("1. Create a new project");
-        System.out.println("2. Maintain projects I own");
-        System.out.println("3. Maintain projects I am part of");
+        System.out.println("1. Create Project");
+        System.out.println("2. View Project");
+        System.out.println("3. View Projects I Own");
 
-        System.out.print(Constants.InputCharacter);
+        System.out.print(Constants.INPUT_QUERY);
         int option = Integer.parseInt(scanner.nextLine());
 
-        if (option == 0)
-        {
-            return NavResponse.back();
+        switch (option) {
+            case 0:
+                return NavResponse.back();
+            case 1:
+                System.out.print("Project name: ");
+                String name = scanner.nextLine().trim();
+                if (name.isEmpty()) {
+                    return NavResponse.stay();
+                }
+                var newProject = ProjectService.createProject(name);
+                return NavResponse.push(new ProjectState(newProject));
+            case 2:
+                return chooseFromProjects(ProjectService.getProjects(), scanner);
+            case 3:
+                return chooseFromProjects(ProjectService.getOwnedProjects(), scanner);
+            default:
+                throw new NavStateException("Invalid option.");
         }
-        else if (option == 1)
-        {
-            //create function
-            ProjectService.createNewProject(scanner);
+    }
+
+    private NavResponse chooseFromProjects(List<Project> projects, Scanner scanner) throws NavStateException {
+        if (projects.isEmpty()) {
+            System.out.println("No projects.");
             return NavResponse.stay();
         }
-        else if (option == 2)
-        {
-            // maintain existing proj
-            //list all projects user has created
-            System.out.println("3. Enter project id:");
-            System.out.print(Constants.InputCharacter);
-            int project = Integer.parseInt(scanner.nextLine());
-            return NavResponse.push(new MaintainOwnedProjectsState(project));
+
+        for (int i = 0; i < projects.size(); i++) {
+            var p = projects.get(i);
+            System.out.println((i+1) + ". " + p);
         }
-        else if (option == 3)
-        {
-            // maintain existing proj
-            //list all projects user is part of
-            System.out.println("3. Enter project id:");
-            System.out.print(Constants.InputCharacter);
-            int project = Integer.parseInt(scanner.nextLine());
-            return NavResponse.push(new ProjectState(project));
-        }
-        else
-        {
-            System.out.println("Invalid choice.");
-            return NavResponse.stay();
+
+        System.out.print("Project: ");
+
+        int projectIndex = Integer.parseInt(scanner.nextLine());
+
+        try {
+            var p = projects.get(projectIndex-1);
+            return NavResponse.push(new ProjectState(p));
+        } catch (IndexOutOfBoundsException e) {
+            throw new NavStateException(e);
         }
     }
 }

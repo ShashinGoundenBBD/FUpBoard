@@ -1,6 +1,9 @@
 package za.co.bbd.grad.fupboard.cli.navigation;
 
 import za.co.bbd.grad.fupboard.cli.common.Constants;
+import za.co.bbd.grad.fupboard.cli.common.HttpUtil;
+import za.co.bbd.grad.fupboard.cli.common.NavStateException;
+import za.co.bbd.grad.fupboard.cli.services.UserService;
 
 import java.util.Scanner;
 
@@ -9,36 +12,30 @@ import java.util.Scanner;
 public class StartState implements NavState {
     @Override
     public String getLocation() {
-        return """                                                                                            
-        ███╗░░░███╗░█████╗░██╗███╗░░██╗ ███╗░░░███╗███████╗███╗░░██╗██╗░░░██╗
-        ████╗░████║██╔══██╗██║████╗░██║ ████╗░████║██╔════╝████╗░██║██║░░░██║
-        ██╔████╔██║███████║██║██╔██╗██║ ██╔████╔██║█████╗░░██╔██╗██║██║░░░██║
-        ██║╚██╔╝██║██╔══██║██║██║╚████║ ██║╚██╔╝██║██╔══╝░░██║╚████║██║░░░██║
-        ██║░╚═╝░██║██║░░██║██║██║░╚███║ ██║░╚═╝░██║███████╗██║░╚███║╚██████╔╝
-        ╚═╝░░░░░╚═╝╚═╝░░╚═╝╚═╝╚═╝░░╚══╝ ╚═╝░░░░░╚═╝╚══════╝╚═╝░░╚══╝░╚═════╝░            
-                """ ;
+        return null;
     }
 
     @Override
-    public NavResponse handle(Scanner scanner) {
+    public NavResponse handle(Scanner scanner) throws NavStateException {
         System.out.println("0. Exit");
-        System.out.println("1. Users");
+        System.out.println("1. My Profile");
         System.out.println("2. Projects");
-        
 
-        System.out.print(Constants.InputCharacter);
+        System.out.print(Constants.INPUT_QUERY);
         int choice = Integer.parseInt(scanner.nextLine());
 
         switch (choice) {
             case 0:
                 return NavResponse.back();
             case 1:
-                return NavResponse.push(new UserState());
+                return NavResponse.push(new UserState(UserService.getUserMe()));
             case 2:
                 return NavResponse.push(new ProjectMenuState());
-            default:
-                System.out.println("Invalid choice.");
+            case 99:
+                System.out.println("JWT: " + HttpUtil.authToken);
                 return NavResponse.stay();
+            default:
+                throw new NavStateException("Invalid option.");
         }
     }
 }

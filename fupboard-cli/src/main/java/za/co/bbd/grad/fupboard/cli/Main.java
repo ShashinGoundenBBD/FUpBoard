@@ -5,19 +5,37 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import za.co.bbd.grad.fupboard.cli.common.Constants;
 import za.co.bbd.grad.fupboard.cli.common.HttpUtil;
+import za.co.bbd.grad.fupboard.cli.common.NavStateException;
 import za.co.bbd.grad.fupboard.cli.navigation.NavResponse;
 import za.co.bbd.grad.fupboard.cli.navigation.NavState;
 import za.co.bbd.grad.fupboard.cli.navigation.StartState;
 
 public class Main {
+    private static final String WELCOME_MESSAGE = Constants.GREEN + """
+        ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+        ░░░░░░░███████╗░░░░░░██╗░░░██╗██████╗░░░░░░░
+        ░░░░░░░██╔════╝░░░░░░██║░░░██║██╔══██╗░░░░░░
+        ░░░░░░░█████╗░░█████╗██║░░░██║██████╔╝░░░░░░
+        ░░░░░░░██╔══╝░░╚════╝██║░░░██║██╔═══╝░░░░░░░
+        ░░░░░░░██║░░░░░░░░░░░╚██████╔╝██║░░░░░░░░░░░
+        ░░░░░░░╚═╝░░░░░░░░░░░░╚═════╝░╚═╝░░░░░░░░░░░
+        ░░██████╗░░█████╗░░█████╗░██████╗░██████╗░░░
+        ░░██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔══██╗░░
+        ░░██████╦╝██║░░██║███████║██████╔╝██║░░██║░░
+        ░░██╔══██╗██║░░██║██╔══██║██╔══██╗██║░░██║░░
+        ░░██████╦╝╚█████╔╝██║░░██║██║░░██║██████╔╝░░
+        ░░╚═════╝░░╚════╝░╚═╝░░╚═╝╚═╝░░╚═╝╚═════╝░░░
+        ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+                        [ Welcome ]               """ + Constants.RESET;
 
     public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException {
-        // Welcome to FUPBoard
-        displayWelcomeMessage();
-
         // Sign into Google account to proceed
         HttpUtil.oAuthSignIn();
+
+        // Welcome to FUPBoard
+        System.out.println(WELCOME_MESSAGE);
 
         Scanner scanner = new Scanner(System.in);
         boolean continueUsing = true;
@@ -27,20 +45,36 @@ public class Main {
 
         while (continueUsing) {
             if (states.isEmpty()) {
-                System.out.println("Goodbye! :)");
+                System.out.println(Constants.GREEN + "                [ Goodbye ]               " + Constants.RESET);
                 break;
             }
             
             var navState = states.getLast();
 
+            System.out.println();
+            
             var locationList = states.stream()
                 .map(s -> s.getLocation())
                 .filter(l -> l != null && !l.isEmpty())
                 .toList();
             var location = String.join(" -> ", locationList);
-            System.out.println("\n" + location);
+
+            if (!location.isEmpty())
+                System.out.println(location);
+            else
+                System.out.println(Constants.BLUE + "Main Menu" + Constants.RESET);
             
-            var navResponse = navState.handle(scanner);
+            NavResponse navResponse;
+            try {
+                try {
+                    navResponse = navState.handle(scanner);
+                } catch (NumberFormatException e) {
+                    throw new NavStateException(e);
+                }
+            } catch (NavStateException e) {
+                System.out.println(Constants.RED + e.getMessage() + Constants.RESET);
+                navResponse = e.getResponse();
+            }
 
             if (navResponse instanceof NavResponse.Exit) {
                 break;
@@ -49,44 +83,12 @@ public class Main {
             } else if (navResponse instanceof NavResponse.Push) {
                 var newState = ((NavResponse.Push)navResponse).getNewState();
                 states.add(newState);
+            } else if (navResponse instanceof NavResponse.Replace) {
+                var newState = ((NavResponse.Replace)navResponse).getNewState();
+                states.set(states.size()-1, newState);
             }
         }
 
         scanner.close();
-    }
-
-    private static void displayWelcomeMessage() {
-
-        String reset = "\u001B[0m";
-        String green = "\u001B[32m";
-
-        System.out.println(green + """
-        ─────────────────────────────────────────────────────────────
-        ─██████████████────────────────██████──██████─██████████████─
-        ─██░░░░░░░░░░██────────────────██░░██──██░░██─██░░░░░░░░░░██─
-        ─██░░██████████────────────────██░░██──██░░██─██░░██████░░██─
-        ─██░░██────────────────────────██░░██──██░░██─██░░██──██░░██─
-        ─██░░██████████─██████████████─██░░██──██░░██─██░░██████░░██─
-        ─██░░░░░░░░░░██─██░░░░░░░░░░██─██░░██──██░░██─██░░░░░░░░░░██─
-        ─██░░██████████─██████████████─██░░██──██░░██─██░░██████████─
-        ─██░░██────────────────────────██░░██──██░░██─██░░██─────────
-        ─██░░██────────────────────────██░░██████░░██─██░░██─────────
-        ─██░░██────────────────────────██░░░░░░░░░░██─██░░██─────────
-        ─██████────────────────────────██████████████─██████─────────
-        ─────────────────────────────────────────────────────────────
-        ──────────────────────────────────────────────────────────────────────────────────
-        ─██████████████───██████████████─██████████████─████████████████───████████████───
-        ─██░░░░░░░░░░██───██░░░░░░░░░░██─██░░░░░░░░░░██─██░░░░░░░░░░░░██───██░░░░░░░░████─
-        ─██░░██████░░██───██░░██████░░██─██░░██████░░██─██░░████████░░██───██░░████░░░░██─
-        ─██░░██──██░░██───██░░██──██░░██─██░░██──██░░██─██░░██────██░░██───██░░██──██░░██─
-        ─██░░██████░░████─██░░██──██░░██─██░░██████░░██─██░░████████░░██───██░░██──██░░██─
-        ─██░░░░░░░░░░░░██─██░░██──██░░██─██░░░░░░░░░░██─██░░░░░░░░░░░░██───██░░██──██░░██─
-        ─██░░████████░░██─██░░██──██░░██─██░░██████░░██─██░░██████░░████───██░░██──██░░██─
-        ─██░░██────██░░██─██░░██──██░░██─██░░██──██░░██─██░░██──██░░██─────██░░██──██░░██─
-        ─██░░████████░░██─██░░██████░░██─██░░██──██░░██─██░░██──██░░██████─██░░████░░░░██─
-        ─██░░░░░░░░░░░░██─██░░░░░░░░░░██─██░░██──██░░██─██░░██──██░░░░░░██─██░░░░░░░░████─
-        ─████████████████─██████████████─██████──██████─██████──██████████─████████████───
-        ──────────────────────────────────────────────────────────────────────────────────                                                
-            """ + reset);
     }
 }
