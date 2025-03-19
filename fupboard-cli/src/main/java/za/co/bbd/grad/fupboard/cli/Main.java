@@ -49,7 +49,8 @@ public class Main {
                 break;
             }
             
-            var navState = states.get(states.size() - 1);
+         
+            var navState = states.getLast();
 
             System.out.println();
             
@@ -79,7 +80,9 @@ public class Main {
             if (navResponse instanceof NavResponse.Exit) {
                 break;
             } else if (navResponse instanceof NavResponse.Back) {
-                states.remove(states.size() - 1);
+            
+                states.removeLast();
+                
             } else if (navResponse instanceof NavResponse.Push) {
                 var newState = ((NavResponse.Push)navResponse).getNewState();
                 states.add(newState);
