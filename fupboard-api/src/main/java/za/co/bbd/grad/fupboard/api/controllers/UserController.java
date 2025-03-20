@@ -60,7 +60,7 @@ public class UserController {
                 if (!Pattern.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", update.getEmail())) {
                     return ApiError.VALIDATION.response("Email address is invalid.");
                 }
-                if (update.getUsername().length() > FupboardUtils.EMAIL_LENGTH) {
+                if (update.getEmail().length() > FupboardUtils.EMAIL_LENGTH) {
                     return ApiError.VALIDATION.response("Email must be less than " + FupboardUtils.EMAIL_LENGTH + " characters long.");
                 }
                 if (userService.getUserByEmailIfVerified(update.getEmail()).isPresent()) {
